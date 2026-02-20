@@ -1,0 +1,11 @@
+# ninja log v6
+6	833	7928988688841309	CMakeFiles/SimonLepetitEngine.dir/SimonLepetitEngine.cpp.obj	156932a147839fd6
+582	822	7932723481570977	SimonLepetitEngine.exe	6502eac4c2caa1be
+3	425	7932735043169489	CMakeFiles/SimonLepetitEngine.dir/src/Main.cpp.obj	16e2052796b5d061
+3	469	7932723475782258	CMakeFiles/SimonLepetitEngine.dir/src/System/Window/Window.cpp.obj	82202228a61eb08b
+6	466	7932723475812246	CMakeFiles/SimonLepetitEngine.dir/src/System/Window/Window_Win32.cpp.obj	2ce8468c88543eac
+10	581	7932723475842194	CMakeFiles/SimonLepetitEngine.dir/src/System/Window/Window_xcb.cpp.obj	2fd984f94458d187
+33	461	7932735199194213	CMakeFiles/SimonLepetitEngine.dir/src/System/Renderer.cpp.obj	623538d83d2d0abe
+461	627	7932735203475408	SimonLepetitEngine.exe	521dec162d3cefb1
+4	420	7932737533093324	CMakeFiles/SimonLepetitEngine.dir/src/Main.cpp.obj	16e2052796b5d061
+420	585	7932737537258697	SimonLepetitEngine.exe	521dec162d3cefb1
