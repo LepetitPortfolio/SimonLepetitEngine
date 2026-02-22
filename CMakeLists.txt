@@ -44,4 +44,3 @@ endif()
 # Useful message
 message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "Found ${PROJECT_SOURCES} source files")
-message(STATUS "SFML available: ${SFML_FOUND}")

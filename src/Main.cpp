@@ -3,7 +3,8 @@
 
 
 
-int main() {
+int main() 
+{
     
 	Renderer renderer;
 

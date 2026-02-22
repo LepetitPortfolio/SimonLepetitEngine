@@ -1,11 +1,21 @@
 # ninja log v6
 6	833	7928988688841309	CMakeFiles/SimonLepetitEngine.dir/SimonLepetitEngine.cpp.obj	156932a147839fd6
-582	822	7932723481570977	SimonLepetitEngine.exe	6502eac4c2caa1be
-3	425	7932735043169489	CMakeFiles/SimonLepetitEngine.dir/src/Main.cpp.obj	16e2052796b5d061
+420	585	7932737537258697	SimonLepetitEngine.exe	521dec162d3cefb1
+33	461	7932735199194213	CMakeFiles/SimonLepetitEngine.dir/src/System/Renderer.cpp.obj	623538d83d2d0abe
+4	420	7932737533093324	CMakeFiles/SimonLepetitEngine.dir/src/Main.cpp.obj	16e2052796b5d061
 3	469	7932723475782258	CMakeFiles/SimonLepetitEngine.dir/src/System/Window/Window.cpp.obj	82202228a61eb08b
 6	466	7932723475812246	CMakeFiles/SimonLepetitEngine.dir/src/System/Window/Window_Win32.cpp.obj	2ce8468c88543eac
 10	581	7932723475842194	CMakeFiles/SimonLepetitEngine.dir/src/System/Window/Window_xcb.cpp.obj	2fd984f94458d187
-33	461	7932735199194213	CMakeFiles/SimonLepetitEngine.dir/src/System/Renderer.cpp.obj	623538d83d2d0abe
-461	627	7932735203475408	SimonLepetitEngine.exe	521dec162d3cefb1
-4	420	7932737533093324	CMakeFiles/SimonLepetitEngine.dir/src/Main.cpp.obj	16e2052796b5d061
-420	585	7932737537258697	SimonLepetitEngine.exe	521dec162d3cefb1
+4	1788	7934359806291919	CMakeFiles/SimonLepetitEngine.dir/src/Main.cpp.obj	16e2052796b5d061
+23	1792	7934359806481827	CMakeFiles/SimonLepetitEngine.dir/src/System/Window/Window_Unix.cpp.obj	323b3ec78ff44b4d
+20	1795	7934359806441836	CMakeFiles/SimonLepetitEngine.dir/src/System/Window/Window.cpp.obj	82202228a61eb08b
+17	1798	7934359806411838	CMakeFiles/SimonLepetitEngine.dir/src/System/Renderer.cpp.obj	623538d83d2d0abe
+26	1802	7934359806501827	CMakeFiles/SimonLepetitEngine.dir/src/System/Window/Window_Win32.cpp.obj	2ce8468c88543eac
+8	425	7934377936175173	CMakeFiles/SimonLepetitEngine.dir/src/System/Inputs/Inputs_Unix.cpp.obj	e4ed852286987641
+4	428	7934377936135173	CMakeFiles/SimonLepetitEngine.dir/src/System/Inputs/Inputs.cpp.obj	abf817eb0a4cd676
+24	455	7934380266739607	CMakeFiles/SimonLepetitEngine.dir/src/System/Inputs/Inputs_Unix.cpp.obj	e4ed852286987641
+21	458	7934380266709665	CMakeFiles/SimonLepetitEngine.dir/src/System/Inputs/Inputs.cpp.obj	abf817eb0a4cd676
+21	448	7934383142908785	CMakeFiles/SimonLepetitEngine.dir/src/System/Inputs/Inputs.cpp.obj	abf817eb0a4cd676
+26	452	7934383142958721	CMakeFiles/SimonLepetitEngine.dir/src/System/Inputs/Inputs_Unix.cpp.obj	e4ed852286987641
+21	438	7934384836951515	CMakeFiles/SimonLepetitEngine.dir/src/System/Inputs/Inputs_Win32.cpp.obj	df064af046917040
+439	1070	7934384841124943	SimonLepetitEngine.exe	93b2de5d1c6f8350
