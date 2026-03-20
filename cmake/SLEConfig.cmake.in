@@ -1,0 +1,130 @@
+
+cmake_policy(VERSION 3.22...3.31)
+
+if(NOT FIND_COMPONENTS)
+    message(FATAL_ERROR "find_package(SLE) called with no component")
+endif()
+
+set(SUPPORTED_COMPONENTS Audio Graphics Main Network System Window)
+
+foreach(component ${FIND_COMPONENTS})
+    if(NOT component IN_LIST SUPPORTED_COMPONENTS)
+        set(FOUND OFF)
+        set(NOT_FOUND_MESSAGE "Unsupported SLE component: ${component}")
+        message(FATAL_ERROR "${NOT_FOUND_MESSAGE}")
+    endif()
+endforeach()
+
+set(FIND_PATHS
+    "${CMAKE_CURRENT_LIST_DIR}/../../.."
+    ~/Library/Frameworks
+    /Library/Frameworks
+    /usr/local
+    /usr
+    /sw
+    /opt/local
+    /opt/csw
+    /opt)
+
+find_path(DOC_DIR SLE.tag
+          PATH_SUFFIXES SLE/doc share/doc/SLE
+          PATHS ${FIND_PATHS})
+
+# Update requested components (eg. request window component if graphics component was requested)
+set(FIND_COMPONENTS_SORTED "")
+if("Audio" IN_LIST FIND_COMPONENTS)
+    list(APPEND FIND_COMPONENTS_SORTED "System" "Audio")
+endif()
+if("Graphics" IN_LIST FIND_COMPONENTS)
+    list(APPEND FIND_COMPONENTS_SORTED "System" "Window" "Graphics")
+endif()
+if("Main" IN_LIST FIND_COMPONENTS)
+    list(APPEND FIND_COMPONENTS_SORTED "Main")
+endif()
+if("Network" IN_LIST FIND_COMPONENTS)
+    list(APPEND FIND_COMPONENTS_SORTED "System" "Network")
+endif()
+if("System" IN_LIST FIND_COMPONENTS)
+    list(APPEND FIND_COMPONENTS_SORTED "System")
+endif()
+if("Window" IN_LIST FIND_COMPONENTS)
+    list(APPEND FIND_COMPONENTS_SORTED "System" "Window")
+endif()
+list(REMOVE_DUPLICATES FIND_COMPONENTS_SORTED)
+
+# Choose which target definitions must be imported
+if(STATIC_LIBRARIES)
+    set(IS_FRAMEWORK_INSTALL "@BUILD_FRAMEWORKS@")
+    if(IS_FRAMEWORK_INSTALL)
+        message(WARNING "Static frameworks are not supported by SLE. Clear cache entries, \
+and either change STATIC_LIBRARIES or CMAKE_FIND_FRAMEWORK before calling find_package(SLE)")
+    endif()
+    set(config_name "Static")
+else()
+    set(config_name "Shared")
+endif()
+
+# Set FOUND to ON by default, may be overwritten by one of the includes below
+set(FOUND ON)
+
+# Only configure dependencies if we are static linking
+if(STATIC_LIBRARIES)
+    # Look for dependencies in "reverse order"
+    # This is due to the fact that among other things, resolving the
+    # X11 dependency will break our own find_package(Freetype CONFIG)
+    # because X11 attempts to find Freetype itself to resolve its Xft dependency.
+    set(FIND_COMPONENTS_REVERSED ${FIND_COMPONENTS_SORTED})
+    list(REVERSE FIND_COMPONENTS_REVERSED)
+
+    foreach(component ${FIND_COMPONENTS_REVERSED})
+        set(dependencies_file "${CMAKE_CURRENT_LIST_DIR}/SLE${component}Dependencies.cmake")
+        if(EXISTS "${dependencies_file}")
+            include("${dependencies_file}")
+        endif()
+    endforeach()
+endif()
+
+foreach(component ${FIND_COMPONENTS_SORTED})
+    string(TOUPPER "${component}" UPPER_COMPONENT)
+    set(targets_config_file "${CMAKE_CURRENT_LIST_DIR}/SLE${component}${config_name}Targets.cmake")
+
+    # Generate imported targets for SLE components
+    if(EXISTS "${targets_config_file}")
+        include("${targets_config_file}")
+
+        if(TARGET SLE::${component})
+            set(SLE_${UPPER_COMPONENT}_FOUND ON)
+        else()
+            set(SLE_${UPPER_COMPONENT}_FOUND OFF)
+            set(FOUND OFF)
+            if(FIND_REQUIRED_${component})
+                set(FIND_ERROR "Found SLE but requested component '${component}' is missing in the package configuration.")
+            endif()
+        endif()
+    else()
+        set(FIND_ERROR "Requested SLE configuration (${config_name}) was not found")
+        if(config_name STREQUAL "Shared")
+            string(APPEND FIND_ERROR "\nSet STATIC_LIBRARIES to ON for static libraries")
+        elseif(config_name STREQUAL "Static")
+            string(APPEND FIND_ERROR "\nSet STATIC_LIBRARIES to OFF for shared libraries")
+        endif()
+        set(SLE_${UPPER_COMPONENT}_FOUND OFF)
+        set(FOUND OFF)
+    endif()
+endforeach()
+
+if(FOUND)
+    set(VERSION_IS_RELEASE @VERSION_IS_RELEASE@)
+else()
+    if(FIND_REQUIRED)
+        # fatal error
+        message(FATAL_ERROR "${FIND_ERROR}")
+    elseif(NOT FIND_QUIETLY)
+        # error but continue
+        message(STATUS "${FIND_ERROR}")
+    endif()
+endif()
+
+if(FOUND AND NOT FIND_QUIETLY)
+    message(STATUS "Found SLE @PROJECT_VERSION@ in ${CMAKE_CURRENT_LIST_DIR}")
+endif()
