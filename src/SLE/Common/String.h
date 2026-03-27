@@ -10,10 +10,10 @@
 struct  U8StringCharTraits
 {
     using CharType = std::uint8_t;
-    using IntType = std::char_traits<char>::IntType;
-    using OffType = std::char_traits<char>::OffType;
-    using PosType = std::char_traits<char>::PosType;
-    using StateType = std::char_traits<char>::StateType;
+    using IntType = std::char_traits<char>::int_type;
+    using OffType = std::char_traits<char>::off_type;
+    using PosType = std::char_traits<char>::pos_type;
+    using StateType = std::char_traits<char>::state_type;
 
     static void Assign(CharType& _Char1, CharType _Char2);
     static CharType* Assign(CharType* _Str, std::size_t _Index, CharType _Char);
@@ -92,7 +92,7 @@ public:
 
     void Insert(std::size_t _Position, const String& _Str);
 
-    std::size_t Find(const String& _Str, std::size _Start = 0) const;
+    std::size_t Find(const String& _Str, std::size_t _Start = 0) const;
 
     void Replace(std::size_t _Position, std::size_t _Length, const String& _ReplaceWith);
     void Replace(const String& _SearchFor, const String& _ReplaceWith);
@@ -113,8 +113,8 @@ private:
 
     std::u32string m_String;
 
-    bool operator==(const String& _Left, const String& _Right);
-    bool operator<(const String& _Left, const String& _Right);
+    friend bool operator==(const String& _Left, const String& _Right);
+    friend bool operator<(const String& _Left, const String& _Right);
 };
 
 template<typename T>

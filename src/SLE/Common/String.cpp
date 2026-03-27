@@ -1,6 +1,6 @@
-#include "String"
+#include "String.h"
 
-#include "UTF.hpp"
+#include "UTF.h"
 
 #include <iterator>
 #include <utility>
@@ -8,14 +8,13 @@
 #include <cassert>
 #include <cstring>
 #include <cwchar>
-#include "String.h"
 
 void U8StringCharTraits::Assign(CharType& _Char1, CharType _Char2)
 {
-	_Char1 = _Char2
+	_Char1 = _Char2;
 }
 
-CharType* U8StringCharTraits::Assign(CharType* _Str, std::size_t _Index, CharType _Char)
+U8StringCharTraits::CharType* U8StringCharTraits::Assign(CharType* _Str, std::size_t _Index, CharType _Char)
 {
 	return reinterpret_cast<CharType*>(std::char_traits<char>::assign(reinterpret_cast<char*>(_Str), _Index, static_cast<char>(_Char)));
 }
@@ -30,13 +29,13 @@ bool U8StringCharTraits::Lt(CharType _Char1, CharType _Char2)
 	return _Char1 < _Char2;
 }
 
-CharType* U8StringCharTraits::Move(CharType* _Str1, const CharType* _Str2, std::size_t _Index)
+U8StringCharTraits::CharType* U8StringCharTraits::Move(CharType* _Str1, const CharType* _Str2, std::size_t _Index)
 {
 	std::memmove(_Str1, _Str2, _Index);
 	return _Str1;
 }
 
-CharType* U8StringCharTraits::Copy(CharType* _Str1, const CharType* _Str2, std::size_t _Index)
+U8StringCharTraits::CharType* U8StringCharTraits::Copy(CharType* _Str1, const CharType* _Str2, std::size_t _Index)
 {
 	std::memcpy(_Str1, _Str2, _Index);
 	return _Str1;
@@ -52,17 +51,17 @@ std::size_t U8StringCharTraits::Length(const CharType* _Str)
 	return std::strlen(reinterpret_cast<const char*>(_Str));
 }
 
-const CharType* U8StringCharTraits::Find(const CharType* _Str, std::size_t _Index, const CharType& _Char)
+const U8StringCharTraits::CharType* U8StringCharTraits::Find(const CharType* _Str, std::size_t _Index, const CharType& _Char)
 {
 	return reinterpret_cast<const CharType*>(std::char_traits<char>::find(reinterpret_cast<const char*>(_Str), _Index, static_cast<char>(_Char)));
 }
 
-CharType U8StringCharTraits::ToCharType(IntType _Int) noexcept
+U8StringCharTraits::CharType U8StringCharTraits::ToCharType(IntType _Int) noexcept
 {
-	return static_cast<U8StringCharTraits::CharType>(std::char_traits<char>::to_char_type(_Index));
+	return static_cast<U8StringCharTraits::CharType>(std::char_traits<char>::to_char_type(_Int));
 }
 
-IntType U8StringCharTraits::ToIntType(CharType _Char) noexcept
+U8StringCharTraits::IntType U8StringCharTraits::ToIntType(CharType _Char) noexcept
 {
 	return std::char_traits<char>::to_int_type(static_cast<char>(_Char));
 }
@@ -72,12 +71,12 @@ bool U8StringCharTraits::EqualIntType(IntType _Int1, IntType _Int2) noexcept
 	return _Int1 == _Int2;
 }
 
-IntType U8StringCharTraits::Eof() noexcept
+U8StringCharTraits::IntType U8StringCharTraits::Eof() noexcept
 {
 	return std::char_traits<char>::eof();
 }
 
-IntType U8StringCharTraits::NotEof(IntType _Int) noexcept
+U8StringCharTraits::IntType U8StringCharTraits::NotEof(IntType _Int) noexcept
 {
 	return std::char_traits<char>::not_eof(_Int);
 }
@@ -86,7 +85,7 @@ String::String(char _ANSIChar, const std::locale& _Locale) : m_String(1, UTF32::
 {
 }
 
-String::String(wchar_t _WideChar) : m_String(1, UTF32::DecodeWide(_WideChar))
+String::String(wchar_t _WideChar) : m_String(1, UTF32::DecodeWIDE(_WideChar))
 {
 }
 
@@ -98,7 +97,7 @@ String::String(const char* _ANSIString, const std::locale& _Locale)
 {
 	if (_ANSIString)
 	{
-		const std::size_t length = std::length(_ANSIString);
+		const std::size_t length = std::strlen(_ANSIString);
 		if (length > 0)
 		{
 			m_String.reserve(length + 1);
@@ -110,7 +109,7 @@ String::String(const char* _ANSIString, const std::locale& _Locale)
 String::String(const std::string& _ANSIString, const std::locale& _Locale)
 {
 	m_String.reserve(_ANSIString.length() + 1);
-	UTF::FromANSI(_ANSIString.begin(), _ANSIString.end(), std::back_inserter(m_String), _Locale);
+	UTF32::FromANSI(_ANSIString.begin(), _ANSIString.end(), std::back_inserter(m_String), _Locale);
 }
 
 String::String(const wchar_t* _WideString)
@@ -155,7 +154,7 @@ String::operator std::wstring() const
 std::string String::ToANSIString(const std::locale& _Locale) const
 {
 	std::string outStr;
-	outStr.reserve(m_String.length + 1);
+	outStr.reserve(m_String.length() + 1);
 
 	UTF32::ToANSI(m_String.begin(), m_String.end(), std::back_inserter(outStr), 0, _Locale);
 
@@ -165,7 +164,7 @@ std::string String::ToANSIString(const std::locale& _Locale) const
 std::wstring String::ToWideString() const
 {
 	std::wstring outStr;
-	outStr.reserve(m_String.length + 1);
+	outStr.reserve(m_String.length() + 1);
 
 	UTF32::ToWIDE(m_String.begin(), m_String.end(), std::back_inserter(outStr), 0);
 	
@@ -240,10 +239,10 @@ void String::Erase(std::size_t _Position, std::size_t _Count)
 
 void String::Insert(std::size_t _Position, const String& _Str)
 {
-	m_String.insert(_Position, _Str);
+	m_String.insert(_Position, _Str.m_String);
 }
 
-std::size_t String::Find(const String& _Str, std::size _Start) const
+std::size_t String::Find(const String& _Str, std::size_t _Start) const
 {
 	return m_String.find(_Str.m_String, _Start);
 }
@@ -276,32 +275,32 @@ const char32_t* String::GetData() const
 	return m_String.c_str();
 }
 
-Iterator String::Begin()
+String::Iterator String::Begin()
 {
 	return m_String.begin();
 }
 
-ConstIterator String::Begin() const
+String::ConstIterator String::Begin() const
 {
 	return m_String.begin();
 }
 
-Iterator String::End()
+String::Iterator String::End()
 {
 	return m_String.end();
 }
 
-ConstIterator String::End() const
+String::ConstIterator String::End() const
 {
 	return m_String.end();
 }
 
-bool String::operator==(const String& _Left, const String& _Right)
+bool operator==(const String& _Left, const String& _Right)
 {
 	return _Left.m_String == _Right.m_String;
 }
 
-bool String::operator<(const String& _Left, const String& _Right)
+bool operator<(const String& _Left, const String& _Right)
 {
 	return _Left.m_String < _Right.m_String;
 }

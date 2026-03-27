@@ -1,5 +1,5 @@
 #include "Time.h"
-#include"../Platform.h"
+#include"../PlatformConfig.h"
 
 #include <time.h>
 #include <ratio>

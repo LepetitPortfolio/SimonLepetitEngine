@@ -4,12 +4,12 @@ DefaultErrorStreamBuf::DefaultErrorStreamBuf()
 {
 	constexpr int size = 64;
 	char* buffer = new char[size];
-	step(buffer, buffer + size);
+	setp(buffer, buffer + size);
 }
 
 DefaultErrorStreamBuf::~DefaultErrorStreamBuf()
 {
-	sycn();
+	sync();
 
 	delete[] pbase();
 }

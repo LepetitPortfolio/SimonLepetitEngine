@@ -17,7 +17,7 @@ include(cmake/Macros.cmake)
 
 include(GNUInstallDirs)
 
-SetOption(BUILD_WINDOW ON BOOL "ON to build Window module. This setting is ignored, if the graphics module is built.")
+SetOption(BUILD_WINDOW ON BOOL "ON to build Window_cls module. This setting is ignored, if the graphics module is built.")
 
 if(BUILD_WINDOW)
 
@@ -123,11 +123,11 @@ SetSTDLib(SLE)
 #                    $<TARGET_FILE_DIR:SLE>/Headers
 #                    VERBATIM)
 
-# add window module headers if enabled
+# add Window_cls module headers if enabled
 #if(BUILD_WINDOW)
 #    add_custom_command(TARGET SLE POST_BUILD COMMAND cp -r
-#                        ${PROJECT_SOURCE_DIR}/include/SLE/Window.hpp
-#                        ${PROJECT_SOURCE_DIR}/include/SLE/Window
+#                        ${PROJECT_SOURCE_DIR}/include/SLE/Window_cls.hpp
+#                        ${PROJECT_SOURCE_DIR}/include/SLE/Window_cls
 #                        $<TARGET_FILE_DIR:SLE>/Headers
 #                        VERBATIM)
 #endif()

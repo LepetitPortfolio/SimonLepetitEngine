@@ -276,12 +276,6 @@ Out UTF8::ToLATIN1(In _Begin, In _End, Out _Output, char _Replacement)
 }
 
 template<typename In, typename Out>
-Out UTF8::ToUTF8(In _Begin, In _End, Out _Output)
-{
-    return Copy(_Begin, _End, _Output);
-}
-
-template<typename In, typename Out>
 Out UTF8::ToUTF16(In _Begin, In _End, Out _Output)
 {
     while (_Begin != _End)
@@ -433,7 +427,7 @@ std::size_t UTF32::Count(T _Begin, T _End)
 }
 
 template<typename In, typename Out>
-Out UTF32::FromANSI(In _Begin, In _End, Out _Output, std::locale& _Locale = {})
+Out UTF32::FromANSI(In _Begin, In _End, Out _Output, std::locale& _Locale)
 {
     while (_Begin != _End)
     {

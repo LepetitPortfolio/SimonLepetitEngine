@@ -89,7 +89,7 @@ build CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Joystick.cpp.obj: CXX_
   TARGET_COMPILE_PDB = CMakeFiles\SimonLepetitEngine.dir\
   TARGET_PDB = SimonLepetitEngine.pdb
 
-build CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\JoystickManager.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Inputs\JoystickManager.cpp || cmake_object_order_depends_target_SimonLepetitEngine
+build CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\JoystickManager_cls.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Inputs\JoystickManager_cls.cpp || cmake_object_order_depends_target_SimonLepetitEngine
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++17
   INCLUDES = -ID:\Projets\SimonLepetitEngine\libs\headers\glad\include -ID:\Projets\SimonLepetitEngine\libs\headers\vulkan -ID:\Projets\SimonLepetitEngine\libs\headers\mingw
   OBJECT_DIR = CMakeFiles\SimonLepetitEngine.dir
@@ -113,7 +113,7 @@ build CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Joystick_Win32.cpp.obj
   TARGET_COMPILE_PDB = CMakeFiles\SimonLepetitEngine.dir\
   TARGET_PDB = SimonLepetitEngine.pdb
 
-build CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\SensorManager.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Inputs\SensorManager.cpp || cmake_object_order_depends_target_SimonLepetitEngine
+build CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\SensorManager_cls.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Inputs\SensorManager_cls.cpp || cmake_object_order_depends_target_SimonLepetitEngine
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++17
   INCLUDES = -ID:\Projets\SimonLepetitEngine\libs\headers\glad\include -ID:\Projets\SimonLepetitEngine\libs\headers\vulkan -ID:\Projets\SimonLepetitEngine\libs\headers\mingw
   OBJECT_DIR = CMakeFiles\SimonLepetitEngine.dir
@@ -169,7 +169,7 @@ build CMakeFiles\SimonLepetitEngine.dir\src\System\Utils\Time.cpp.obj: CXX_COMPI
   TARGET_COMPILE_PDB = CMakeFiles\SimonLepetitEngine.dir\
   TARGET_PDB = SimonLepetitEngine.pdb
 
-build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Window\Cursor.cpp || cmake_object_order_depends_target_SimonLepetitEngine
+build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor_cls.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Window\Cursor_cls.cpp || cmake_object_order_depends_target_SimonLepetitEngine
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++17
   INCLUDES = -ID:\Projets\SimonLepetitEngine\libs\headers\glad\include -ID:\Projets\SimonLepetitEngine\libs\headers\vulkan -ID:\Projets\SimonLepetitEngine\libs\headers\mingw
   OBJECT_DIR = CMakeFiles\SimonLepetitEngine.dir
@@ -177,7 +177,7 @@ build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor.cpp.obj: CXX_CO
   TARGET_COMPILE_PDB = CMakeFiles\SimonLepetitEngine.dir\
   TARGET_PDB = SimonLepetitEngine.pdb
 
-build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\CursorData.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Window\CursorData.cpp || cmake_object_order_depends_target_SimonLepetitEngine
+build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor_clsData.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Window\Cursor_clsData.cpp || cmake_object_order_depends_target_SimonLepetitEngine
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++17
   INCLUDES = -ID:\Projets\SimonLepetitEngine\libs\headers\glad\include -ID:\Projets\SimonLepetitEngine\libs\headers\vulkan -ID:\Projets\SimonLepetitEngine\libs\headers\mingw
   OBJECT_DIR = CMakeFiles\SimonLepetitEngine.dir
@@ -185,7 +185,7 @@ build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\CursorData.cpp.obj: CX
   TARGET_COMPILE_PDB = CMakeFiles\SimonLepetitEngine.dir\
   TARGET_PDB = SimonLepetitEngine.pdb
 
-build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\CursorData_Unix.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Window\CursorData_Unix.cpp || cmake_object_order_depends_target_SimonLepetitEngine
+build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor_clsData_Unix.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Window\Cursor_clsData_Unix.cpp || cmake_object_order_depends_target_SimonLepetitEngine
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++17
   INCLUDES = -ID:\Projets\SimonLepetitEngine\libs\headers\glad\include -ID:\Projets\SimonLepetitEngine\libs\headers\vulkan -ID:\Projets\SimonLepetitEngine\libs\headers\mingw
   OBJECT_DIR = CMakeFiles\SimonLepetitEngine.dir
@@ -193,7 +193,7 @@ build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\CursorData_Unix.cpp.ob
   TARGET_COMPILE_PDB = CMakeFiles\SimonLepetitEngine.dir\
   TARGET_PDB = SimonLepetitEngine.pdb
 
-build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\CursorData_Win32.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Window\CursorData_Win32.cpp || cmake_object_order_depends_target_SimonLepetitEngine
+build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor_clsData_Win32.cpp.obj: CXX_COMPILER__SimonLepetitEngine_unscanned_Debug D$:\Projets\SimonLepetitEngine\src\System\Window\Cursor_clsData_Win32.cpp || cmake_object_order_depends_target_SimonLepetitEngine
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1 -std:c++17
   INCLUDES = -ID:\Projets\SimonLepetitEngine\libs\headers\glad\include -ID:\Projets\SimonLepetitEngine\libs\headers\vulkan -ID:\Projets\SimonLepetitEngine\libs\headers\mingw
   OBJECT_DIR = CMakeFiles\SimonLepetitEngine.dir
@@ -273,7 +273,7 @@ build CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Window_Win32.cpp.obj: 
 #############################################
 # Link the executable SimonLepetitEngine.exe
 
-build SimonLepetitEngine.exe: CXX_EXECUTABLE_LINKER__SimonLepetitEngine_Debug CMakeFiles\SimonLepetitEngine.dir\src\Main.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Inputs.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Inputs_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Inputs_Win32.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Joystick.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\JoystickManager.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Joystick_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Joystick_Win32.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\SensorManager.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Sensor_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Sensor_Win32.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Renderer.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Utils\Clock.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Utils\Error.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Utils\Time.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\CursorData.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\CursorData_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\CursorData_Win32.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Display.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Event.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Window.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\WindowConfig.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\WindowConfig_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\WindowConfig_Win32.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Window_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Window_Win32.cpp.obj
+build SimonLepetitEngine.exe: CXX_EXECUTABLE_LINKER__SimonLepetitEngine_Debug CMakeFiles\SimonLepetitEngine.dir\src\Main.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Inputs.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Inputs_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Inputs_Win32.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Joystick.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\JoystickManager_cls.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Joystick_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Joystick_Win32.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\SensorManager_cls.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Sensor_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Inputs\Sensor_Win32.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Renderer.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Utils\Clock.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Utils\Error.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Utils\Time.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor_cls.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor_clsData.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor_clsData_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Cursor_clsData_Win32.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Display.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Event.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Window.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\WindowConfig.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\WindowConfig_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\WindowConfig_Win32.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Window_Unix.cpp.obj CMakeFiles\SimonLepetitEngine.dir\src\System\Window\Window_Win32.cpp.obj
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:console
   LINK_LIBRARIES = kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib

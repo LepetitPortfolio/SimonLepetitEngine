@@ -96,7 +96,7 @@ struct Vector3
 
 	/*
 	* \  ____________
-	*  \/x² + y² + z²
+	*  \/xï¿½ + yï¿½ + zï¿½
 	*/
 	template<typename T>
 	float Lengh()
@@ -148,6 +148,12 @@ struct Vector3
 		float vecBLenght = _VecB->Lengh();
 
 		return acos(dot / (vecALenght * vecBLenght));
+	}
+
+	template<typename U>
+	operator Vector3<U>() const
+	{
+		return Vector3<U>(static_cast<U>(X), static_cast<U>(Y), static_cast<U>(Z));
 	}
 
 	template<typename T>
@@ -321,7 +327,7 @@ struct Vector2
 
 	/*
 	* \  ________
-	*  \/x² + y²
+	*  \/xï¿½ + yï¿½
 	*/
 	template<typename T>
 	float Lengh()
@@ -374,6 +380,11 @@ struct Vector2
 		return acos(dot / (vecALenght * vecBLenght));
 	}
 
+	template<typename U>
+	operator Vector2<U>() const
+	{
+		return Vector2<U>(static_cast<U>(X), static_cast<U>(Y));
+	}
 
 	template<typename T>
 	Vector2<T> operator +(const Vector2<T>& _Other)

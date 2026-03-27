@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../Platform.h"
+#include "../PlatformConfig.h"
 
-#include "String"
+#include "String.h"
 
 #if PLATFORM_WINDOWS
 
