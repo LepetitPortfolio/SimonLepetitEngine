@@ -29,8 +29,6 @@ private:
 	std::chrono::microseconds m_Duration{};
 };
 
-void Sleep(Time _Duration);
-
 constexpr Time Seconds(float _Amount);
 
 constexpr Time Milliseconds(std::int32_t _Amount);
@@ -86,3 +84,5 @@ constexpr float operator/(Time _Left, Time _Right);
 constexpr Time operator%(Time _Left, Time _Right);
 
 constexpr Time& operator%=(Time _Left, Time _Right);
+
+#include "Time.inl"

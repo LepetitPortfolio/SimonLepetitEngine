@@ -9,7 +9,7 @@
     #include <mmsystem.h>
 
     struct HWND__;
-using WindowHandle = HWND__*;
+    using WindowHandle = HWND__*;
 
 #elif __linux__
 
@@ -34,18 +34,6 @@ using WindowHandle = HWND__*;
     #include <linux/input.h>
 
     using WindowHandle = unsigned long;
-
-    template <typename T>
-    struct XDeleter
-    {
-        void operator()(T* _Data) const
-        {
-            XFree(_Data);
-        }
-    };
-
-    template <typename T>
-    using X11Ptr = std::unique_ptr<T, XDeleter<std::remove_all_extents_t<T>>>;
 
 #else 
 

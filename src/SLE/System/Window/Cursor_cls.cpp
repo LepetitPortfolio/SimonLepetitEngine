@@ -1,4 +1,5 @@
 #include "Cursor_cls.h"
+
 #include "CursorPlatform.h"
 
 #include "../../Common/Error.h"
@@ -8,7 +9,7 @@
 #include <memory>
 #include <ostream>
 
-Cursor_cls::Cursor_cls() : m_Cursor_clsPlatform(std::make_unique<CursorPlatform>())
+Cursor_cls::Cursor_cls() : m_CursorPlatform(std::make_unique<CursorPlatform>())
 {
 
 }
@@ -20,7 +21,7 @@ Cursor_cls::Cursor_cls(const std::uint8_t* _Pixels, Vector2u _Size, Vector2u _Ho
 		throw Exception("Failed to create Cursor_cls from pixels (invalid arguments)");
 	}
 
-	if (!m_Cursor_clsPlatform->LoadFromPixels(_Pixels, _Size, _Hotspot))
+	if (!m_CursorPlatform->LoadFromPixels(_Pixels, _Size, _Hotspot))
 	{
 		throw Exception("Failed to create Cursor_cls from pixels");
 	}
@@ -28,7 +29,7 @@ Cursor_cls::Cursor_cls(const std::uint8_t* _Pixels, Vector2u _Size, Vector2u _Ho
 
 Cursor_cls::Cursor_cls(CursorType_e _CursorType) : Cursor_cls()
 {
-	if (!m_Cursor_clsPlatform->LoadFromSystem(_CursorType))
+	if (!m_CursorPlatform->LoadFromSystem(_CursorType))
 	{
 		throw Exception("Failed to create Cursor_cls from type");
 	}
@@ -43,28 +44,28 @@ std::optional<Cursor_cls> Cursor_cls::CreateFromPixels(const std::uint8_t *_Pixe
 		return std::nullopt;
 	}
 
-	Cursor_cls Cursor_cls;
-	if (!Cursor_cls.m_Cursor_clsPlatform->LoadFromPixels(_Pixels, _Size, _Hotspot))
+	Cursor_cls cursor;
+	if (!cursor.m_CursorPlatform->LoadFromPixels(_Pixels, _Size, _Hotspot))
 	{
 		return std::nullopt;
 	}
 
-	return Cursor_cls;
+	return cursor;
 }
 
 std::optional<Cursor_cls> Cursor_cls::CreateFromSystem(CursorType_e _CursorType)
 {
-	Cursor_cls Cursor_cls;
-	if (!Cursor_cls.m_Cursor_clsPlatform->LoadFromSystem(_CursorType))
+	Cursor_cls cursor;
+	if (!cursor.m_CursorPlatform->LoadFromSystem(_CursorType))
 	{
 		return std::nullopt;
 	}
 
-	return Cursor_cls;
+	return cursor;
 }
 
-const CursorPlatform& Cursor_cls::GetCursor_clsPlatform() const
+const CursorPlatform& Cursor_cls::GetCursorPlatform() const
 {
-	return *m_Cursor_clsPlatform;
+	return *m_CursorPlatform;
 }
 

@@ -31,7 +31,7 @@ target_link_libraries(sle-system PUBLIC sle-common)
 
 target_include_directories(sle-system SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/Libs/headers/glad/include")
 
-target_include_directories(sle-system SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/extlibs/headers/vulkan")
+target_include_directories(sle-system SYSTEM PRIVATE "${PROJECT_SOURCE_DIR}/Libs/headers/vulkan")
 
 if(NOT OpenGL_GL_PREFERENCE)
     set(OpenGL_GL_PREFERENCE "LEGACY")

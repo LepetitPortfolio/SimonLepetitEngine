@@ -1,12 +1,10 @@
 #pragma once
-#include "../../../PlatformConfig.h"
+#include "../../PlatformConfig.h"
 
 #if PLATFORM_LINUX
 
 
-#include "InputsGlobal.h"
-
-#include "../../Common/EnumArray.h"
+#include "../../../Common/EnumArray.h"
 
 
 class JoystickUnix_cls

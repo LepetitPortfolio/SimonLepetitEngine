@@ -38,7 +38,7 @@ Vector3f SensorManager_cls::GetValue(SensorType_e _SensorType) const
 
 void SensorManager_cls::Updatde()
 {
-    for (Item& item = m_Sensors)
+    for (Item& item : m_Sensors)
     {
         if (item.Available)
         {

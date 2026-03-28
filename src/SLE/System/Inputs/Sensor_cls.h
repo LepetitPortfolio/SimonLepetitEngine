@@ -1,5 +1,5 @@
 #pragma once
-#include "../../PlatformConfig.h"
+#include "../PlatformConfig.h"
 #include "InputsGlobal.h"
 #include "../../Common/Vector.h"
 

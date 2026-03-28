@@ -59,7 +59,7 @@ private:
 
 	Cursor_cls();
 
-	const CursorPlatform& GetCursor_clsPlatform() const;
+	const CursorPlatform& GetCursorPlatform() const;
 
-	std::unique_ptr<CursorPlatform> m_Cursor_clsPlatform;
+	std::unique_ptr<CursorPlatform> m_CursorPlatform;
 };

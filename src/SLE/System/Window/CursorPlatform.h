@@ -1,10 +1,9 @@
 #pragma once
-#include "../../PlatformConfig.h"
+#include "../PlatformConfig.h"
 
 #if PLATFORM_WINDOWS
-typedef CursorWin32_cls CursorPlatform;
-
 #include "Win/CursorWin32_cls.h"
+typedef CursorWin32_cls CursorPlatform;
 
 #elif PLATFORM_LINUX
 

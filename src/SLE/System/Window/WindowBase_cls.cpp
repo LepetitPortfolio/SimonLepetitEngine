@@ -229,7 +229,7 @@ void WindowBase_cls::SetCursor_cls(const Cursor_cls &_Cursor_cls)
 {
     if(m_WindowPlatform_cls)
     {
-        m_WindowPlatform_cls->SetMouseCursor_cls(_Cursor_cls.GetCursor_clsPlatform())
+        m_WindowPlatform_cls->SetMouseCursor_cls(_Cursor_cls.GetCursorPlatform())
     }
 }
 

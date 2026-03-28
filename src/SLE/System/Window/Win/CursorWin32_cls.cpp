@@ -1,5 +1,5 @@
 
-#include "../../../PlatformConfig.h"
+#include "../../PlatformConfig.h"
 
 #if PLATFORM_WINDOWS
 #include "CursorWin32_cls.h"

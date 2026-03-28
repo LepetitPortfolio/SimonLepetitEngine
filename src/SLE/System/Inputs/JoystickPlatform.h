@@ -1,5 +1,5 @@
 #pragma once
-#include "../../PlatformConfig.h"
+#include "../PlatformConfig.h"
 
 #include "Joystick.h"
 #include "../../Common/EnumArray.h"

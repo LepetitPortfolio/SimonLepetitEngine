@@ -1,5 +1,5 @@
 #pragma once
-#include "../../PlatformConfig.h"
+#include "../PlatformConfig.h"
 #include "../../Common/String.h"
 
 class Clipboard_cls

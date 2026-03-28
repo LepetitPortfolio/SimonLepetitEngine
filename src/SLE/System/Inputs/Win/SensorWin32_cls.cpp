@@ -1,4 +1,4 @@
-#include "../../PlatformConfig.h"
+#include "../PlatformConfig.h"
 
 #if PLATFORM_WINDOWS
 #include "SensorWin32_cls.h"

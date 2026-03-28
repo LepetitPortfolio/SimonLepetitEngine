@@ -1,5 +1,5 @@
 #pragma once
-#include "../../PlatformConfig.h"
+#include "../PlatformConfig.h"
 
 #if PLATFORM_LINUX
 
