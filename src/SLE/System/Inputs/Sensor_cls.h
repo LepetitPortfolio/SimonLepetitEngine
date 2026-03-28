@@ -1,4 +1,5 @@
 #pragma once
+#include "../../PlatformConfig.h"
 #include "InputsGlobal.h"
 #include "../../Common/Vector.h"
 
@@ -15,22 +16,10 @@ enum class SensorType_e : InputID
 
 static constexpr unsigned int SensorTypeCount = static_cast<unsigned int>(SensorType_e::Orientation) + 1;
 
-class Sensor_cls
-{
-public:
-	
-	static void Initialize();
-
-	static void Cleanup();
-
-	static bool IsAvailable(SensorType_e _SensorType);
-
-	bool Open(SensorType_e _SensorType);
-
-	void Close();
-
-	Vector3f Update();
-
-	void SetEnabled(bool _Enabled);
-
-};
+#if PLATFORM_WINDOWS
+#include "win/SensorWin32_cls.h"
+using Sensor_cls = SensorWin32_cls; 
+#elif PLATFORM_LINUX
+#include "Unix/SensorUnix_cls.h"
+using Sensor_cls = SensorUnix_cls; 
+#endif

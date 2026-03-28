@@ -34,7 +34,7 @@ class WindowUnix_cls : public WindowPlatform_cls
 public:
 	WindowUnix_cls(WindowHandle _Handle);
 
-	WindowUnix_cls(WindowConfig_cls _WindowConfig, const String& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings);
+	WindowUnix_cls(WindowConfig _WindowConfig, const String& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings);
 
 	~WindowUnix_cls() override;
 
@@ -126,7 +126,7 @@ protected:
 
 	bool InitRawMouse(Display* _Display);
 
-	void SetWindowConfig(const WindowConfig_cls& _WindowConfig);
+	void SetWindowConfig(const WindowConfig& _WindowConfig);
 	
 	void ResetWindowConfig();
 

@@ -33,7 +33,7 @@ public:
 
 	WindowWin32_cls(WindowHandle _Handle);
 
-	WindowWin32_cls(WindowConfig_cls _WindowConfig, const std::string& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings);
+	WindowWin32_cls(WindowConfig _WindowConfig, const std::string& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings);
 
 	~WindowWin32_cls() override;
 
@@ -96,7 +96,7 @@ protected:
 
 	void RegisterWindowClass();
 
-	void SwitchToFullscreen(const WindowConfig_cls& _WindowConfig);
+	void SwitchToFullscreen(const WindowConfig& _WindowConfig);
 
 	void SetTracking(bool _Track);
 

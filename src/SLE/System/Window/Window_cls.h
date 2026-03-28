@@ -19,8 +19,8 @@ class  Window_cls : public WindowBase_cls
 public:
 	Window_cls();
 
-	Window_cls(WindowConfig_cls _WindowConfig, const String& _Title, WindowStyle_e _Style  = WindowStyle_e::Default, WindowState_e _State = WindowState_e::Windowed, const WindowSettings_str& _WindowSettings = {});
-	Window_cls(WindowConfig_cls _WindowConfig, const String& _Title, WindowState_e _State, const WindowSettings_str& _WindowSettings = {});
+	Window_cls(WindowConfig _WindowConfig, const String& _Title, WindowStyle_e _Style  = WindowStyle_e::Default, WindowState_e _State = WindowState_e::Windowed, const WindowSettings_str& _WindowSettings = {});
+	Window_cls(WindowConfig _WindowConfig, const String& _Title, WindowState_e _State, const WindowSettings_str& _WindowSettings = {});
 	Window_cls(WindowHandle _Handle, const WindowSettings_str& _WindowSettings = {});
 	Window_cls(const Window_cls&) = delete;
 	Window_cls(Window_cls&&);
@@ -30,10 +30,10 @@ public:
 	Window_cls& operator=(const Window_cls&) = delete;
 	Window_cls& operator=(Window_cls&&);
 
-	void Create(WindowConfig_cls _WindowConfig, const String& _Title, WindowStyle_e _Style  = WindowStyle_e::Default, WindowState_e _State = WindowState_e::Windowed) override;
-	virtual void Create(WindowConfig_cls _WindowConfig, const String& _Title, WindowStyle_e _Style, WindowState_e _State, const WindowSettings_str& _Settings);
-	void Create(WindowConfig_cls _WindowConfig, const String& _Title, WindowState_e _State) override;
-	virtual void Create(WindowConfig_cls _WindowConfig, const String& _Title, WindowState_e _State, WindowSettings_str& _Settings);
+	void Create(WindowConfig _WindowConfig, const String& _Title, WindowStyle_e _Style  = WindowStyle_e::Default, WindowState_e _State = WindowState_e::Windowed) override;
+	virtual void Create(WindowConfig _WindowConfig, const String& _Title, WindowStyle_e _Style, WindowState_e _State, const WindowSettings_str& _Settings);
+	void Create(WindowConfig _WindowConfig, const String& _Title, WindowState_e _State) override;
+	virtual void Create(WindowConfig _WindowConfig, const String& _Title, WindowState_e _State, WindowSettings_str& _Settings);
 	void Create(WindowHandle _Handle) override;
 	virtual void Create(WindowHandle _Handle, const WindowSettings_str& _Settings);
 

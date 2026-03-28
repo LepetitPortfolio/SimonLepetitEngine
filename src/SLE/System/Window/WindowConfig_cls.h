@@ -4,15 +4,15 @@
 #include "../../Common/Vector.h"
 #include <vector>
 
-class  WindowConfig_cls
+class  WindowConfigBase_cls
 {
 public:
 
-	WindowConfig_cls() = default;
-	WindowConfig_cls(Vector2u _ModeSize, unsigned int _BitsPerPixel);
+	WindowConfigBase_cls() = default;
+	WindowConfigBase_cls(Vector2u _ModeSize, unsigned int _BitsPerPixel);
 	
-	static WindowConfig_cls GetDesktopMode();
-	static const std::vector<WindowConfig_cls>& GetFullscreenModes();
+	static WindowConfigBase_cls GetDesktopMode();
+	static const std::vector<WindowConfigBase_cls>& GetFullscreenModes();
 
 	bool IsValid() const;
 
@@ -20,3 +20,12 @@ public:
 	unsigned int m_BitsPerPixel = 32;
 
 };
+
+
+#if PLATFORM_WINDOWS
+#include "win/WindowConfigWin32_cls.h"
+using WindowConfig = WindowConfigWin_cls; 
+#elif PLATFORM_LINUX
+#include "Unix/WindowConfigUnix_cls.h"
+using WindowConfig = WindowConfigUnix_cls; 
+#endif

@@ -14,7 +14,7 @@
 
 class Cursor_cls;
 class String;
-class WindowConfig_cls;
+class WindowConfig;
 class WindowPlatform_cls;
 
 
@@ -23,8 +23,8 @@ class  WindowBase_cls
 public:
     WindowBase_cls();
 
-    WindowBase_cls(WindowConfig_cls _WindowConfig, const String& _Title, WindowStyle_e _Style  = WindowStyle_e::Default, WindowState_e _State = WindowState_e::Windowed);
-    WindowBase_cls(WindowConfig_cls _WindowConfig, const String& _Title, WindowState_e _State);
+    WindowBase_cls(WindowConfig _WindowConfig, const String& _Title, WindowStyle_e _Style  = WindowStyle_e::Default, WindowState_e _State = WindowState_e::Windowed);
+    WindowBase_cls(WindowConfig _WindowConfig, const String& _Title, WindowState_e _State);
     WindowBase_cls(WindowHandle _Handle);
     WindowBase_cls(const WindowBase_cls&) = delete;
     WindowBase_cls(WindowBase_cls&&);
@@ -34,8 +34,8 @@ public:
     WindowBase_cls& operator=(const WindowBase_cls&) = delete;
 	WindowBase_cls& operator=(WindowBase_cls&&);
 
-	virtual void Create(WindowConfig_cls _WindowConfig, const String& _Title, WindowStyle_e _Style  = WindowStyle_e::Default, WindowState_e _State = WindowState_e::Windowed);
-	virtual void Create(WindowConfig_cls _WindowConfig, const String& _Title, WindowState_e _State);
+	virtual void Create(WindowConfig _WindowConfig, const String& _Title, WindowStyle_e _Style  = WindowStyle_e::Default, WindowState_e _State = WindowState_e::Windowed);
+	virtual void Create(WindowConfig _WindowConfig, const String& _Title, WindowState_e _State);
 	virtual void Create(WindowHandle _Handle);
 
     virtual void Close();

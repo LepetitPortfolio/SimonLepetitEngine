@@ -9,12 +9,12 @@
 
 Window_cls::Window_cls() = default;
 
-Window_cls::Window_cls(WindowConfig_cls _WindowConfig, const String &_Title, WindowStyle_e _Style, WindowState_e _State, const WindowSettings_str &_WindowSettings)
+Window_cls::Window_cls(WindowConfig _WindowConfig, const String &_Title, WindowStyle_e _Style, WindowState_e _State, const WindowSettings_str &_WindowSettings)
 {
     Window_cls::Create(_WindowConfig, _Title, _Style, _State, _WindowSettings);
 }
 
-Window_cls::Window_cls(WindowConfig_cls _WindowConfig, const String &_Title, WindowState_e _State, const WindowSettings_str &_WindowSettings)
+Window_cls::Window_cls(WindowConfig _WindowConfig, const String &_Title, WindowState_e _State, const WindowSettings_str &_WindowSettings)
 {
     Window_cls::Create(_WindowConfig, _Title, WindowStyle_e::Default, _State, _WindowSettings);
 }
@@ -30,12 +30,12 @@ Window_cls::~Window_cls() = default;
 
 Window_cls &Window_cls::operator=(Window_cls &&) = default;
 
-void Window_cls::Create(WindowConfig_cls _WindowConfig, const String &_Title, WindowStyle_e _Style, WindowState_e _State)
+void Window_cls::Create(WindowConfig _WindowConfig, const String &_Title, WindowStyle_e _Style, WindowState_e _State)
 {
     Window_cls::Create(_WindowConfig, _Title, _Style, _State, WindowSettings_str{});
 }
 
-void Window_cls::Create(WindowConfig_cls _WindowConfig, const String &_Title, WindowStyle_e _Style, WindowState_e _State, const WindowSettings_str &_Settings)
+void Window_cls::Create(WindowConfig _WindowConfig, const String &_Title, WindowStyle_e _Style, WindowState_e _State, const WindowSettings_str &_Settings)
 {
     Close();
 
@@ -47,12 +47,12 @@ void Window_cls::Create(WindowConfig_cls _WindowConfig, const String &_Title, Wi
 
 }
 
-void Window_cls::Create(WindowConfig_cls _WindowConfig, const String &_Title, WindowState_e _State)
+void Window_cls::Create(WindowConfig _WindowConfig, const String &_Title, WindowState_e _State)
 {
     Window_cls::Create(_WindowConfig, _Title, WindowStyle_e::Default, _State, WindowSettings_str{});
 }
 
-void Window_cls::Create(WindowConfig_cls _WindowConfig, const String &_Title, WindowState_e _State, WindowSettings_str &_Settings)
+void Window_cls::Create(WindowConfig _WindowConfig, const String &_Title, WindowState_e _State, WindowSettings_str &_Settings)
 {
     Window_cls::Create(_WindowConfig, _Title, WindowStyle_e::Default, _State, _Settings);
 }
@@ -68,7 +68,7 @@ void Window_cls::Create(WindowHandle _Handle, const WindowSettings_str &_Setting
 
     m_WindowPlatform_cls = WindowPlatform_cls::CreateNewWindow(_Handle);
 
-    //m_Contexte = GlContext::Create(_Settings, *m_WindowPlatform_cls, WindowConfig_cls::GetDesktopMode().m_BitsPerPixel);
+    //m_Contexte = GlContext::Create(_Settings, *m_WindowPlatform_cls, WindowConfig::GetDesktopMode().m_BitsPerPixel);
 
     Initialize();
 }

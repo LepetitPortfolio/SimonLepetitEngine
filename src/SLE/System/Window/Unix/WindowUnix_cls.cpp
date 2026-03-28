@@ -83,7 +83,7 @@ WindowUnix_cls::WindowUnix_cls(WindowHandle _Handle) : m_IsExternal(true)
     }    
 }
 
-WindowUnix_cls::WindowUnix_cls(WindowConfig_cls _WindowConfig, const String& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings) :
+WindowUnix_cls::WindowUnix_cls(WindowConfig _WindowConfig, const String& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings) :
             m_Fullscreen(_State == WindowState_e::Fullscreen), m_Cursor_clsGrabbed(m_Fullscreen)
 {
     
@@ -1017,10 +1017,10 @@ bool WindowUnix_cls::InitRawMouse(Display* _Display)
     return false;
 }
 
-void WindowUnix_cls::SetWindowConfig_cls(const WindowConfig_cls& _WindowConfig)
+void WindowUnix_cls::SetWindowConfig_cls(const WindowConfig& _WindowConfig)
 {   
 
-    if (_WindowConfig == WindowConfig_cls::GetDesktopMode())
+    if (_WindowConfig == WindowConfig::GetDesktopMode())
     {
         return;
     }

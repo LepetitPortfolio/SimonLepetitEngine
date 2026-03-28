@@ -22,7 +22,7 @@ if(FIND_USE_DRM)
     find_dependency(DRM)
     find_dependency(GBM)
 elseif(FIND_PLATFORM_LINUX)
-    find_dependency(X11 REQUIRED COMPONENTS Xrandr XCursor_cls)
+    find_dependency(X11 REQUIRED COMPONENTS Xrandr Xcursor)
 endif()
 
 if(FIND_PLATFORM_LINUX)

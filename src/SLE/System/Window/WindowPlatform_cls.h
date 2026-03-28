@@ -24,7 +24,7 @@ class WindowPlatform_cls
 {
 
 public:
-	static std::unique_ptr<WindowPlatform_cls> CreateNewWindow(WindowConfig_cls _WindowConfig, const String& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings);
+	static std::unique_ptr<WindowPlatform_cls> CreateNewWindow(WindowConfig _WindowConfig, const String& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings);
 
 	static std::unique_ptr<WindowPlatform_cls> CreateNewWindow(WindowHandle _Handle);
 	

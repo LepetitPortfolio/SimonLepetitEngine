@@ -30,7 +30,7 @@ WindowWin32_cls::WindowWin32_cls(WindowHandle _Handle) : m_WindowHandle(_Handle)
 	}
 }
 
-WindowWin32_cls::WindowWin32_cls(WindowConfig_cls _WindowConfig, const std::string& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings)
+WindowWin32_cls::WindowWin32_cls(WindowConfig _WindowConfig, const std::string& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings)
 m_LastSize(_WindowConfig.m_Size), m_FullScreen(_State == WindowState_e::Fullscreen), m_Cursor_clsGrabbed(m_FullScreen)
 {
 	SetProcessDPIAware();
@@ -214,7 +214,7 @@ void WindowWin32_cls::RegisterWindowClass()
 	RegisterClassW(&windowClass);
 }
 
-void WindowWin32_cls::SwitchToFullscreen(const WindowConfig_cls& _WindowConfig)
+void WindowWin32_cls::SwitchToFullscreen(const WindowConfig& _WindowConfig)
 {
 	DEVMODE devMode;
 	devMode.dmSize = sizeof(devMode);

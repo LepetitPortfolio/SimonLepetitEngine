@@ -35,7 +35,7 @@ WindowPlatform_cls::~WindowPlatform_cls()
 	}
 }
 
-std::unique_ptr<WindowPlatform_cls> WindowPlatform_cls::CreateNewWindow(WindowConfig_cls _WindowConfig, const String& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings)
+std::unique_ptr<WindowPlatform_cls> WindowPlatform_cls::CreateNewWindow(WindowConfig _WindowConfig, const String& _Title, std::uint32_t _Style, WindowState_e _State, const WindowSettings_str& _WindowSettings)
 {
 	if (_State == WindowState_e::Fullscreen)
 	{
@@ -47,10 +47,10 @@ std::unique_ptr<WindowPlatform_cls> WindowPlatform_cls::CreateNewWindow(WindowCo
 		else if (!_WindowConfig.IsValid())
 		{
 			Err() << "The requested video mode is not valid, Window_cls creation failed." << std::endl;
-			assert(!WindowConfig_cls::GetFullscreenModes().empty() && "No Window_cls config available");
-			_WindowConfig = WindowConfig_cls::GetFullscreenModes()[0];
+			assert(!WindowConfig::GetFullscreenModes().empty() && "No Window_cls config available");
+			_WindowConfig = WindowConfig::GetFullscreenModes()[0];
 
-			Err() << "WindowConfig_cls { Size : { " << _WindowConfig.m_Size.X << ", " << _WindowConfig.m_Size.Y << " }, bitsPerPixel: " << _WindowConfig.m_BitsPerPixel << " }" << std::endl;
+			Err() << "WindowConfig { Size : { " << _WindowConfig.m_Size.X << ", " << _WindowConfig.m_Size.Y << " }, bitsPerPixel: " << _WindowConfig.m_BitsPerPixel << " }" << std::endl;
 		}
 
 		if ((_Style & static_cast<std::uint32_t>(WindowStyle_e::Close)) || (_Style & static_cast<std::uint32_t>(WindowStyle_e::Resize)))

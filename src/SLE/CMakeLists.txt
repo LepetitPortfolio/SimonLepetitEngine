@@ -9,17 +9,17 @@ set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/Lib")
 
 # add the modules subdirectories
 
-# sfml-system
+# Common 
 add_subdirectory(Common)
 
-# sfml-main
+# main
 if(PLATFORM_WINDOWS)
     add_subdirectory(Main)
 endif()
 
-# sfml-window
+# window
 if(BUILD_WINDOW OR BUILD_GRAPHICS)
-    add_subdirectory(Window)
+    add_subdirectory(System)
 endif()
 
 if(COMPILER_GCC)
@@ -27,10 +27,10 @@ if(COMPILER_GCC)
     check_cxx_source_compiles("#include <atomic> int main(){std::atomic_ullong x(1); return x.fetch_add(1);}" ATOMIC_TEST)
     if(NOT ATOMIC_TEST)
 #        if(BUILD_GRAPHICS)
-#            target_link_libraries(sfml-graphics PRIVATE atomic)
+#            target_link_libraries(graphics PRIVATE atomic)
 #        endif()
 #        if(BUILD_AUDIO)
-#            target_link_libraries(sfml-audio PRIVATE atomic)
+#            target_link_libraries(audio PRIVATE atomic)
 #        endif()
     endif()
 endif()
