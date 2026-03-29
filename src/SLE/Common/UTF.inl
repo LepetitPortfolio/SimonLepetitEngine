@@ -39,7 +39,7 @@ Out UTF::FromANSI(In _Begin, In _End, Out _Output, std::locale& _Locale)
 {
     while (_Begin != _End)
     {
-        const char32_t codepoint = UTF32::DecodeANSI(*_Bengin++, _Locale);
+        const char32_t codepoint = UTF32::DecodeANSI(*_Begin++, _Locale);
         _Output = Encode(codepoint, _Output);
     }
 
@@ -144,7 +144,7 @@ T UTF8::Decode(T _Begin, T _End, char32_t& _Output, char32_t _Replacement)
 
     if (trailingBytes < std::distance(_Begin, _End))
     {
-        _Ouput = 0;
+        _Output = 0;
 
         switch (trailing)
         {
@@ -427,7 +427,7 @@ std::size_t UTF32::Count(T _Begin, T _End)
 }
 
 template<typename In, typename Out>
-Out UTF32::FromANSI(In _Begin, In _End, Out _Output, std::locale& _Locale)
+Out UTF32::FromANSI(In _Begin, In _End, Out _Output, const std::locale& _Locale)
 {
     while (_Begin != _End)
     {
@@ -449,7 +449,7 @@ Out UTF32::FromWIDE(In _Begin, In _End, Out _Output)
 }
 
 template<typename In, typename Out>
-Out UTF32::ToANSI(In _Begin, In _End, Out _Output, char _Replacement = 0, std::locale& _Locale = {})
+Out UTF32::ToANSI(In _Begin, In _End, Out _Output, char _Replacement = 0, const std::locale& _Locale = {})
 {
     while (_Begin != _End)
     {

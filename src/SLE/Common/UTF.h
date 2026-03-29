@@ -92,7 +92,7 @@ public:
 	static Out ToUTF32(In _Begin, In _End, Out _Output);
 };
 
-class UTF32
+class UTF32 : public UTF
 {
 public:
 
@@ -109,13 +109,13 @@ public:
 	static std::size_t Count(T _Begin, T _End);
 
 	template<typename In, typename Out>
-	static Out FromANSI(In _Begin, In _End, Out _Output, std::locale& _Locale = {});
+	static Out FromANSI(In _Begin, In _End, Out _Output, const std::locale& _Locale = {});
 
 	template<typename In, typename Out>
 	static Out FromWIDE(In _Begin, In _End, Out _Output);
 
 	template<typename In, typename Out>
-	static Out ToANSI(In _Begin, In _End, Out _Output, char _Replacement = 0, std::locale& _Locale = {});
+	static Out ToANSI(In _Begin, In _End, Out _Output, char _Replacement = 0, const std::locale& _Locale = {});
 
 	template<typename In, typename Out>
 	static Out ToWIDE(In _Begin, In _End, Out _Output, wchar_t _Replacement = 0);
@@ -139,3 +139,4 @@ public:
 	static T EncodeWIDE(char32_t _Codepoint, T _Output, wchar_t _Replacement = 0);
 };
 
+#include "UTF.inl"

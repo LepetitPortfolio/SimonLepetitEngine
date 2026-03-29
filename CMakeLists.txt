@@ -9,7 +9,7 @@ macro(SetOption var default type docstring)
     set(${var} ${${var}} CACHE ${type} ${docstring} FORCE)
 endmacro()
 
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.10)
 project(SimonLepetitEngine LANGUAGES CXX)
 
 include(cmake/Config.cmake)

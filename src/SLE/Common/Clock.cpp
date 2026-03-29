@@ -5,7 +5,7 @@ void Clock::Start()
 {
 	if (!IsRunning())
 	{
-		m_RefPoint += ClockType::now() - m_StopPoint();
+		m_RefPoint += ClockType::now() - m_StopPoint;
 		m_StopPoint = {};
 	}
 }
@@ -21,7 +21,7 @@ void Clock::Stop()
 Time Clock::Restart()
 {
 	const Time outTime = GetElapsedTime();
-	m_RefPoint += ClockType::now();
+	m_RefPoint = ClockType::now();
 	m_StopPoint = {};
 
 	return outTime;
@@ -30,7 +30,7 @@ Time Clock::Restart()
 Time Clock::Reset()
 {
 	const Time outTime = GetElapsedTime();
-	m_RefPoint += ClockType::now();
+	m_RefPoint = ClockType::now();
 	m_StopPoint = m_RefPoint;
 
 	return outTime;

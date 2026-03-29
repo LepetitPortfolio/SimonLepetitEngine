@@ -4,10 +4,10 @@
 #include <ratio>
 #include <type_traits>
 
-using ClockType = std::conditional<std::chrono::high_resolution_clock::is_steady, std::chrono::high_resolution_clock, std::chrono::steady_clock>;
+using ClockType = std::conditional_t<std::chrono::high_resolution_clock::is_steady, std::chrono::high_resolution_clock, std::chrono::steady_clock>;
 
 static_assert(ClockType::is_steady, "Provided implementation is not a monotonic clock");
-static_assert(ClockType::ratio_less_equal_v < ClockType::period, std::micro >, "Clock resolution is too low. Expecting at least a microsecond precision");
+static_assert(std::ratio_less_equal_v<ClockType::period, std::micro >, "Clock resolution is too low. Expecting at least a microsecond precision");
 
 
 class Time;
