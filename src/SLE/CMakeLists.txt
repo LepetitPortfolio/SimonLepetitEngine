@@ -1,36 +1,42 @@
-# include the SFML specific macros
-include(${PROJECT_SOURCE_DIR}/cmake/Macros.cmake)
+message(STATUS "SLE - CMkeList")
 
-# define the path of our additional CMake modules
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+find_package(Threads REQUIRED)
 
-# set the output directory for libraries
-set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/Lib")
+set(SLESRCROOT ${PROJECT_SOURCE_DIR}/src/SLE)
 
-# add the modules subdirectories
+file(GLOB_RECURSE SLE_SOURCES
+  "${SLESRCROOT}/*.cpp"
+  "${SLESRCROOT}/*.cxx"
+  "${SLESRCROOT}/*.cc"
+)
 
-# Common 
-add_subdirectory(Common)
+# Also add headers to the IDE view (optional)
+file(GLOB_RECURSE SLE_HEADERS
+  "${SLESRCROOT}/*.h"
+  "${SLESRCROOT}/*.hpp"
+)
 
-# main
-if(PLATFORM_WINDOWS)
-    add_subdirectory(Main)
+add_library(SLE STATIC ${SLE_SOURCES})
+
+target_link_libraries(SLE PRIVATE Threads::Threads)
+target_include_directories(SLE PRIVATE ${Vulkan_INCLUDE_DIRS})
+
+target_link_libraries(SLE PRIVATE glfw Vulkan::Vulkan)
+
+
+
+if(Vulkan_FOUND)
+    get_filename_component(Vulkan_SDK ${Vulkan_INCLUDE_DIRS} DIRECTORY)
+
+    file(GLOB_RECURSE VULKAN_DLLS "${Vulkan_SDK}/Bin/*.dll")
+
+    foreach(DLL ${VULKAN_DLLS})
+        get_filename_component(DLL_NAME ${DLL} NAME)
+
+        add_custom_command(
+            TARGET SLE POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DLL}" "$<TARGET_FILE_DIR:SLE>/${DLL_NAME}"
+        )
+    endforeach()
 endif()
 
-# window
-if(BUILD_WINDOW OR BUILD_GRAPHICS)
-    add_subdirectory(System)
-endif()
-
-if(COMPILER_GCC)
-    include(CheckCXXSourceCompiles)
-    check_cxx_source_compiles("#include <atomic> int main(){std::atomic_ullong x(1); return x.fetch_add(1);}" ATOMIC_TEST)
-    if(NOT ATOMIC_TEST)
-#        if(BUILD_GRAPHICS)
-#            target_link_libraries(graphics PRIVATE atomic)
-#        endif()
-#        if(BUILD_AUDIO)
-#            target_link_libraries(audio PRIVATE atomic)
-#        endif()
-    endif()
-endif()

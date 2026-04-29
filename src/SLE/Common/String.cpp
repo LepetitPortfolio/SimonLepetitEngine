@@ -158,7 +158,7 @@ std::string String::ToANSIString(const std::locale& _Locale) const
 
 	UTF32::ToANSI(m_String.begin(), m_String.end(), std::back_inserter(outStr), 0, _Locale);
 
-	return std::string();
+	return outStr;
 }
 
 std::wstring String::ToWideString() const
@@ -201,6 +201,11 @@ String& String::operator+=(const String& _Right)
 	m_String += _Right.m_String;
 
 	return *this;
+}
+
+String String::operator+(const String& _Right)
+{
+	return String(m_String + _Right.m_String);
 }
 
 char32_t String::operator[](std::size_t _Index) const
@@ -268,6 +273,40 @@ void String::Replace(const String& _SearchFor, const String& _ReplaceWith)
 String String::SubString(std::size_t _Position, std::size_t _Legth) const
 {
 	return m_String.substr(_Position, _Legth);
+}
+
+std::vector<String> String::Split(const String& _Str, const String& _Delimiter)
+{
+	String inStr = _Str;
+	std::vector<String> tokens;
+	size_t pos = 0;
+	String token;
+	while ((pos = inStr.Find(_Delimiter)) != std::string::npos)
+	{
+		token = inStr.SubString(0, pos);
+		tokens.push_back(token);
+		inStr.Erase(0, pos + _Delimiter.GetSize());
+	}
+	tokens.push_back(inStr);
+
+	return tokens;
+}
+
+std::vector<String> String::Split(const String& _Delimiter)
+{
+	String inStr = m_String;
+	std::vector<String> tokens;
+	size_t pos = 0;
+	String token;
+	while ((pos = inStr.Find(_Delimiter)) != std::string::npos)
+	{
+		token = inStr.SubString(0, pos);
+		tokens.push_back(token);
+		inStr.Erase(0, pos + _Delimiter.GetSize());
+	}
+	tokens.push_back(inStr);
+
+	return tokens;
 }
 
 const char32_t* String::GetData() const

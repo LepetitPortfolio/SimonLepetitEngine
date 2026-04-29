@@ -29,60 +29,60 @@ private:
 	std::chrono::microseconds m_Duration{};
 };
 
-constexpr Time Seconds(float _Amount);
+Time Seconds(float _Amount);
 
-constexpr Time Milliseconds(std::int32_t _Amount);
+Time Milliseconds(std::int32_t _Amount);
 
-constexpr Time Microseconds(std::int64_t _Amount);
+Time Microseconds(std::int64_t _Amount);
 
-constexpr bool operator==(Time _Left, Time _Right);
+bool operator==(Time _Left, Time _Right);
 
-constexpr bool operator!=(Time _Left, Time _Right);
+bool operator!=(Time _Left, Time _Right);
 
-constexpr bool operator<(Time _Left, Time _Right);
+bool operator<(Time _Left, Time _Right);
 
-constexpr bool operator<=(Time _Left, Time _Right);
+bool operator<=(Time _Left, Time _Right);
 
-constexpr bool operator>(Time _Left, Time _Right);
+bool operator>(Time _Left, Time _Right);
 
-constexpr bool operator>=(Time _Left, Time _Right);
+bool operator>=(Time _Left, Time _Right);
 
-constexpr Time operator+(Time _Left, Time _Right);
+Time operator+(Time _Left, Time _Right);
 
-constexpr Time operator-(Time _Left, Time _Right);
+Time operator-(Time _Left, Time _Right);
 
-constexpr Time& operator+=(Time _Left, Time _Right);
+Time& operator+=(Time _Left, Time _Right);
 
-constexpr Time& operator-=(Time _Left, Time _Right);
+Time& operator-=(Time _Left, Time _Right);
 
-constexpr Time operator*(Time _Left, float _Right);
+Time operator*(Time _Left, float _Right);
 
-constexpr Time operator*(float _Left, Time _Right);
+Time operator*(float _Left, Time _Right);
 
-constexpr Time operator*(Time _Left, int64_t _Right);
+Time operator*(Time _Left, int64_t _Right);
 
-constexpr Time operator*(int64_t _Left, Time _Right);
+Time operator*(int64_t _Left, Time _Right);
 
-constexpr Time& operator*=(Time _Left, float _Right);
+Time& operator*=(Time _Left, float _Right);
 
-constexpr Time& operator*=(Time _Left, int64_t _Right);
+Time& operator*=(Time _Left, int64_t _Right);
 
-constexpr Time operator/(Time _Left, float _Right);
+Time operator/(Time _Left, float _Right);
 
-constexpr Time operator/(float _Left, Time _Right);
+Time operator/(float _Left, Time _Right);
 
-constexpr Time operator/(Time _Left, int64_t _Right);
+Time operator/(Time _Left, int64_t _Right);
 
-constexpr Time operator/(int64_t _Left, Time _Right);
+Time operator/(int64_t _Left, Time _Right);
 
-constexpr Time& operator/=(Time _Left, float _Right);
+Time& operator/=(Time _Left, float _Right);
 
-constexpr Time& operator/=(Time _Left, int64_t _Right);
+Time& operator/=(Time _Left, int64_t _Right);
 
-constexpr float operator/(Time _Left, Time _Right);
+float operator/(Time _Left, Time _Right);
 
-constexpr Time operator%(Time _Left, Time _Right);
+Time operator%(Time _Left, Time _Right);
 
-constexpr Time& operator%=(Time _Left, Time _Right);
+Time& operator%=(Time _Left, Time _Right);
 
 #include "Time.inl"

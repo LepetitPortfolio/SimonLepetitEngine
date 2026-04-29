@@ -3,6 +3,7 @@
 
 #include <locale>
 #include <string>
+#include <vector>
 
 #include <cstddef>
 #include <cstdint>
@@ -31,7 +32,8 @@ struct  U8StringCharTraits
     static IntType NotEof(IntType _Int) noexcept;
 };
 
-using U8String = std::basic_string<std::uint8_t, U8StringCharTraits>;
+using U8String = std::basic_string<std::uint8_t>;
+//using U8String = std::basic_string<std::uint8_t, U8StringCharTraits>;
 
 
 class String
@@ -78,6 +80,7 @@ public:
     std::u32string ToUTF32() const;
 
     String& operator+= (const String& _Right);
+    String operator+ (const String& _Right);
 
     char32_t operator[](std::size_t _Index) const;
     char32_t& operator[](std::size_t _Index);
@@ -98,6 +101,10 @@ public:
     void Replace(const String& _SearchFor, const String& _ReplaceWith);
 
     String SubString(std::size_t _Position, std::size_t _Legth = InvalidPos) const;
+
+    static std::vector<String> Split(const String& _Str, const String& _Delimiter);
+    std::vector<String> Split(const String& _Delimiter);
+    
 
     const char32_t* GetData() const;
 

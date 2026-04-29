@@ -109,7 +109,7 @@ Out UTF::ToUTF8(In _Begin, In _End, Out _Output)
 }
 
 template<typename In, typename Out>
-Out UTF::ToUTF32(In _Begin, In _End, Out _Output)
+Out UTF::ToUTF16(In _Begin, In _End, Out _Output)
 {
     return Copy(_Begin, _End, _Output);
 }
@@ -254,9 +254,9 @@ T UTF8::Encode(char32_t _Input, T _Output, std::uint8_t _Replacement)
 template<typename In, typename Out>
 Out UTF8::FromLATIN1(In _Begin, In _End, Out _Output)
 {
-    while (_Bengin != _End)
+    while (_Begin != _End)
     {
-        _Output = Encode(*_Bengin++, _Output);
+        _Output = Encode(*_Begin++, _Output);
     }
 
     return _Output;
@@ -304,7 +304,7 @@ Out UTF8::ToUTF32(In _Begin, In _End, Out _Output)
 ////////////////////////////////////////////////////// UTF16
 
 template<typename T>
-T UTF16::Decode(T _Begin, T _End, char32_t& _Output, char32_t _Replacement = 0)
+T UTF16::Decode(T _Begin, T _End, char32_t& _Output, char32_t _Replacement)
 {
     const char16_t first = *_Begin++;
 
@@ -312,7 +312,7 @@ T UTF16::Decode(T _Begin, T _End, char32_t& _Output, char32_t _Replacement = 0)
     {
         if (_Begin != _End)
         {
-            const std::uint16_t szcond = *_Begin++;
+            const std::uint16_t second = *_Begin++;
 
             if ((second >= 0xDC00) && (second <= 0xDFFF))
             {
@@ -320,7 +320,7 @@ T UTF16::Decode(T _Begin, T _End, char32_t& _Output, char32_t _Replacement = 0)
             }
             else
             {
-                ouput = _Replacement;
+                _Output = _Replacement;
             }
         }
         else
@@ -449,18 +449,18 @@ Out UTF32::FromWIDE(In _Begin, In _End, Out _Output)
 }
 
 template<typename In, typename Out>
-Out UTF32::ToANSI(In _Begin, In _End, Out _Output, char _Replacement = 0, const std::locale& _Locale = {})
+Out UTF32::ToANSI(In _Begin, In _End, Out _Output, char _Replacement, const std::locale& _Locale)
 {
     while (_Begin != _End)
     {
-        _Output = EncodeANSI(*_Begin++, _Output, _Locale);
+        _Output = EncodeANSI(*_Begin++, _Output, _Replacement, _Locale);
     }
 
     return _Output;
 }
 
 template<typename In, typename Out>
-Out UTF32::ToWIDE(In _Begin, In _End, Out _Output, wchar_t _Replacement = 0)
+Out UTF32::ToWIDE(In _Begin, In _End, Out _Output, wchar_t _Replacement)
 {
     while (_Begin != _End)
     {
