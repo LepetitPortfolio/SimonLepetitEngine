@@ -2,6 +2,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "../Common/Vertex.h"
+
 #include "VulkanStructs.h"
 
 #include <iostream>
@@ -10,10 +12,28 @@
 #include <cstdlib>
 #include <vector>
 
+const std::vector<const char*> DeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+const std::vector<const char*> ValidationLayers = { "VK_LAYER_KHRONOS_validation" };
+
+const uint32_t WIDTH = 800;
+const uint32_t HEIGHT = 600;
+
+const int MAX_FRAMES_IN_FLIGHT = 2;
+
+#if defined(NDEBUG) 
+const bool EnableValidationLayers = true;
+#elif defined(_DEBUG) 
+const bool EnableValidationLayers = true;
+#else
+const bool EnableValidationLayers = false;
+#endif // !NDEBUG
 
 class VulkanPlatform
 {
 public :
+
+	~VulkanPlatform();
+
 	void Run();
 	
 private:
@@ -40,7 +60,7 @@ private:
 	std::vector<VkImageView> m_SwapChainImageViews;
 
 	VkRenderPass m_RenderPass;
-
+	VkDescriptorSetLayout m_DescriptorSetLayout;
 	VkPipelineLayout m_PipelineLayout;
 	VkPipeline m_GraphicsPipeline;
 
@@ -48,24 +68,26 @@ private:
 
 	VkCommandPool m_CommandPool;
 
-	VkCommandBuffer m_CommandBuffer;
+	VkBuffer m_VertexBuffer;
+	VkDeviceMemory m_VertexBufferMemory;
+	VkBuffer m_IndexBuffer;
+	VkDeviceMemory m_IndexBufferMemory;
+
+	std::vector<VkBuffer> m_UniformBuffers;
+	std::vector<VkDeviceMemory> m_UniformBuffersMemory;
+
+	VkDescriptorPool m_DescriptorPool;
+	std::vector<VkDescriptorSet> m_DescriptorSets;
+
 	std::vector<VkCommandBuffer> m_CommandBuffers;
 
-	VkSemaphore m_ImageAvailableSemaphore;
-	VkSemaphore m_RenderFinishedSemaphore;
+	std::vector <VkSemaphore> m_ImageAvailableSemaphores;
+	std::vector <VkSemaphore> m_RenderFinishedSemaphores;
+	std::vector <VkFence> m_InFlightFences;
 
-	const std::vector<const char*> m_DeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
-	const std::vector<const char*> m_ValidationLayers = { "VK_LAYER_KHRONOS_validation"	};
+	size_t m_CurrentFrame = 0;
 
-	uint32_t m_Width = 800;
-	uint32_t m_Height = 600;
-
-#ifndef NDEBUG
-	const bool m_EnableValidationLayers = false;
-#else
-	const bool m_EnableValidationLayers = true;
-#endif // !NDEBUG
-
+	bool m_FrameBufferResized = false;
 
 	void InitWindow();
 
@@ -105,6 +127,8 @@ private:
 
 	void CreateRenderPass();
 
+	void CreateDescriptorSetLayout();
+
 	void CreateGraphicsPipeline();
 
 	VkShaderModule CreateShaderModule(const std::vector<char>& _ShaderCode);
@@ -113,15 +137,37 @@ private:
 
 	void CreateCommandPool();
 
+	void CreateVertexBuffer();
+
+	void CreateIndexBuffer();
+
+	void CreateUniformBuffers();
+
+	void CreateBuffer(VkDeviceSize _DeviceSize, VkBufferUsageFlags _UsageFlags, VkMemoryPropertyFlags _MemoryPropertyFlags, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory);
+
+	void CopyBuffer(VkBuffer _SrcBuffer, VkBuffer _DstBuffer, VkDeviceSize _Size);
+
+	uint32_t FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _MemoryProperty);
+
+	void CreateDescriptorPool();
+
+	void CreateDescriptorSets();
+
 	void CreateCommandBuffers();
 
-	void CreateSemaphores();
+	void CreateSyncObjects();
 
 	void RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex);
 
 	void MainLoop();
 
 	void DrawFrame();
+
+	void UpdateUniformBuffer(uint32_t _CurrentImage);
+
+	void CleanupSwapChain();
+
+	void RecreateSwapChain();
 
 	void Cleanup();
 
@@ -132,5 +178,6 @@ private:
 	static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT _MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT _MessageType,
 														const VkDebugUtilsMessengerCallbackDataEXT* _pCallbackData, void* _pUserData);
 
+	static void FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Heigth);
 
 };

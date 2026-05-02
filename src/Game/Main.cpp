@@ -1,8 +1,4 @@
 #pragma once
-
-//#define GLFW_INCLUDE_VULKAN
-//#include <GLFW/glfw3.h>
-
 #include "System/VulkanPlatform.h"
 
 #include <Common/FileReader.h>
@@ -22,5 +18,5 @@ int main()
         return EXIT_FAILURE;
     }
 
-    return EXIT_SUCCESS;
+    return 0;
 }
