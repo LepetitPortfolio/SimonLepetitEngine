@@ -571,7 +571,9 @@ void VulkanPlatform::CreateRenderPass()
 	subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 	subpassDependency.dstSubpass = 0;
 	subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	subpassDependency.dstAccessMask = 0;
+	subpassDependency.srcAccessMask = 0;
+	subpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 	VkRenderPassCreateInfo renderPassCreateInfo{};
 	renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -787,8 +789,8 @@ void VulkanPlatform::CreateCommandPool()
 	
 	VkCommandPoolCreateInfo commandPoolCreateInfo{};
 	commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 	commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndices.GraphicsFamily.value();
-	commandPoolCreateInfo.flags = 0;
 
 	if(vkCreateCommandPool(m_Device, &commandPoolCreateInfo, nullptr, &m_CommandPool) != VK_SUCCESS)
 	{
@@ -840,14 +842,17 @@ void VulkanPlatform::CreateIndexBuffer()
 
 void VulkanPlatform::CreateUniformBuffers()
 {
-	VkDeviceSize bufferSize = sizeof(m_UniformBuffers);
+	VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
 	m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 	m_UniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+	m_UniformBufferMapped.resize(MAX_FRAMES_IN_FLIGHT);
 
 	for (size_t uniformBufferIndex = 0; uniformBufferIndex < MAX_FRAMES_IN_FLIGHT; uniformBufferIndex++)
 	{
 		CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_UniformBuffers[uniformBufferIndex], m_UniformBuffersMemory[uniformBufferIndex]);
+
+		vkMapMemory(m_Device, m_UniformBuffersMemory[uniformBufferIndex], 0, bufferSize, 0, &m_UniformBufferMapped[uniformBufferIndex]);
 	}
 }
 
@@ -977,16 +982,16 @@ void VulkanPlatform::CreateDescriptorSets()
 		Err() << "failed to allocate descriptor sets!" << std::endl;
 	}
 
-	for (size_t swapChainImageIndex = 0; swapChainImageIndex < MAX_FRAMES_IN_FLIGHT; swapChainImageIndex++)
+	for (size_t frameIndex = 0; frameIndex < MAX_FRAMES_IN_FLIGHT; frameIndex++)
 	{
 		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = m_UniformBuffers[swapChainImageIndex];
+		bufferInfo.buffer = m_UniformBuffers[frameIndex];
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
 		VkWriteDescriptorSet writeDescriptorSet{};
 		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writeDescriptorSet.dstSet = m_DescriptorSets[swapChainImageIndex];
+		writeDescriptorSet.dstSet = m_DescriptorSets[frameIndex];
 		writeDescriptorSet.dstBinding = 0;
 		writeDescriptorSet.dstArrayElement = 0;
 		writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1001,14 +1006,13 @@ void VulkanPlatform::CreateDescriptorSets()
 
 void VulkanPlatform::CreateCommandBuffers()
 {
-	m_CommandBuffers.resize(m_SwapChainFramebuffers.size());
+	m_CommandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
 	VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
 	commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	commandBufferAllocateInfo.commandPool = m_CommandPool;
 	commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	commandBufferAllocateInfo.commandBufferCount = (uint32_t)m_CommandBuffers.size();
-	//commandBufferAllocateInfo.commandBufferCount = 1;
 
 	if(vkAllocateCommandBuffers(m_Device, &commandBufferAllocateInfo, m_CommandBuffers.data()) != VK_SUCCESS)
 	{
@@ -1018,7 +1022,6 @@ void VulkanPlatform::CreateCommandBuffers()
 
 void VulkanPlatform::CreateSyncObjects()
 {
-
 	m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -1188,6 +1191,8 @@ void VulkanPlatform::UpdateUniformBuffer(uint32_t _CurrentImage)
 	ubo.View = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 	ubo.Projection = glm::perspective(glm::radians(45.0f), m_SwapChainExtent.width / (float)m_SwapChainExtent.height, 0.1f, 10.0f);
 	ubo.Projection[1][1] *= -1;
+
+	memcpy(m_UniformBufferMapped[m_CurrentFrame], &ubo, sizeof(ubo));
 }
 
 void VulkanPlatform::CleanupSwapChain()
@@ -1225,8 +1230,6 @@ void VulkanPlatform::RecreateSwapChain()
 	CreateSwapChain();
 	CreateImageViews();
 	CreateFramebuffers();
-	CreateUniformBuffers();
-	CreateCommandBuffers();
 }
 
 void VulkanPlatform::Cleanup()
@@ -1244,8 +1247,6 @@ void VulkanPlatform::Cleanup()
 	}
 
 	vkDestroyDescriptorPool(m_Device, m_DescriptorPool, nullptr);
-
-	vkDestroyDescriptorSetLayout(m_Device, m_DescriptorSetLayout, nullptr);
 
 	vkDestroyDescriptorSetLayout(m_Device, m_DescriptorSetLayout, nullptr);
 
@@ -1273,7 +1274,9 @@ void VulkanPlatform::Cleanup()
 
 	vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
 	vkDestroyInstance(m_Instance, nullptr);
+
 	glfwDestroyWindow(m_Window);
+	
 	glfwTerminate();
 }
 
