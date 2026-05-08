@@ -2,6 +2,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
 #include "Vector.h"
 
 #include <array>
@@ -11,8 +14,9 @@ struct Vertex
 {
 public:
 
-	Vector2f Position;
-	Vector3f Color;
+	glm::vec3 Position;
+	glm::vec3 Color;
+	glm::vec2 TexCoord;
 
 	static VkVertexInputBindingDescription GetBindingDescription()
 	{
@@ -24,13 +28,13 @@ public:
 		return bindingDescription;
 	}
 
-	static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions()
+	static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
 	{
-		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
-		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributeDescriptions[0].offset = offsetof(Vertex, Position);
 
 		attributeDescriptions[1].binding = 0;
@@ -38,20 +42,46 @@ public:
 		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 		attributeDescriptions[1].offset = offsetof(Vertex, Color);
 
+		attributeDescriptions[2].binding = 0;
+		attributeDescriptions[2].location = 2;
+		attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[2].offset = offsetof(Vertex, TexCoord);
+
 		return attributeDescriptions;
 	}
 
+	bool operator==(const Vertex& _Other) const
+	{
+		return (Position == _Other.Position) && (Color == _Other.Color) && (TexCoord == _Other.TexCoord);
+	}
 };
 
-const std::vector<Vertex> Vertices = 
+namespace std
 {
-	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-	{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-	{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+	template<> struct hash<Vertex>
+	{
+		size_t operator()(Vertex const& _Vertex) const
+		{
+			return ((hash<glm::vec3>()(_Vertex.Position) ^ (hash<glm::vec3>()(_Vertex.Color) << 1)) >> 1) ^ (hash<glm::vec2>()(_Vertex.TexCoord) << 1);
+		}
+	};
+}
+
+/*const std::vector<Vertex> Vertices =
+{
+	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+
+	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
 };
 
 const std::vector<uint16_t> Indices = 
 {
-	0, 1, 2, 2, 3, 0
-};
+	0, 1, 2, 2, 3, 0,
+	4, 5, 6, 6, 7, 4
+};*/

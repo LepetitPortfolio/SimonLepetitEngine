@@ -21,6 +21,10 @@ add_library(SLE STATIC ${SLE_SOURCES})
 target_link_libraries(SLE PRIVATE Threads::Threads)
 target_include_directories(SLE PRIVATE ${Vulkan_INCLUDE_DIRS})
 
+target_compile_definitions(SLE PRIVATE STB_IMAGE_IMPLEMENTATION)
+
+target_compile_definitions(SLE PRIVATE TINYOBJLOADER_IMPLEMENTATION)
+
 target_link_libraries(SLE PRIVATE glfw Vulkan::Vulkan)
 
 

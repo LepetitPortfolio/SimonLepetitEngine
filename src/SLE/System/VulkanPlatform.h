@@ -2,6 +2,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+//#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include "../Common/Vertex.h"
 
 #include "VulkanStructs.h"
@@ -68,6 +71,17 @@ private:
 
 	VkCommandPool m_CommandPool;
 
+	VkImage m_DepthImage;
+	VkDeviceMemory m_DepthImageMemory;
+	VkImageView m_DepthImageView;
+
+	VkImage m_TextureImage;
+	VkDeviceMemory m_TextureMemory;
+	VkImageView m_TextureImageView;
+	VkSampler m_TextureSampler;
+
+	std::vector<Vertex> m_Vertices;
+	std::vector<uint32_t> m_Indices;
 	VkBuffer m_VertexBuffer;
 	VkDeviceMemory m_VertexBufferMemory;
 	VkBuffer m_IndexBuffer;
@@ -138,6 +152,30 @@ private:
 
 	void CreateCommandPool();
 
+	void CreateDepthResources();
+
+	VkFormat FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features);
+
+	VkFormat FindDepthFormat();
+
+	bool HasStencilComponent(VkFormat _Format);
+
+	void CreateTextureImage();
+
+	void CreateImage(uint32_t _Width, uint32_t _Heigth, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags  _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
+
+	void TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout);
+
+	void CopyBufferToImage(VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height);
+
+	void CreateTextureImageView();
+
+	void CreateTextureSampler();
+
+	VkImageView CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags);
+
+	void LoadModel();
+
 	void CreateVertexBuffer();
 
 	void CreateIndexBuffer();
@@ -149,6 +187,10 @@ private:
 	void CopyBuffer(VkBuffer _SrcBuffer, VkBuffer _DstBuffer, VkDeviceSize _Size);
 
 	uint32_t FindMemoryType(uint32_t _TypeFilter, VkMemoryPropertyFlags _MemoryProperty);
+
+	VkCommandBuffer BeginSingleTimeCommands();
+
+	void EndSingleTimeCommands(VkCommandBuffer _CommandBuffer);
 
 	void CreateDescriptorPool();
 

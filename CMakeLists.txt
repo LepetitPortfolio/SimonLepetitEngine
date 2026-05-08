@@ -1,5 +1,5 @@
 ﻿cmake_minimum_required(VERSION 3.10)
-project("Test")
+project("SLE")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -19,6 +19,13 @@ include_directories(${PROJECT_SOURCE_DIR}/Libs/headers/glfw/include)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/Libs/headers/glm)
 include_directories(${PROJECT_SOURCE_DIR}/Libs/headers/glm)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/Libs/headers/stb)
+include_directories(${PROJECT_SOURCE_DIR}/Libs/headers/stb)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/Libs/headers/tinyobjloader)
+include_directories(${PROJECT_SOURCE_DIR}/Libs/headers/tinyobjloader)
+
 
 #find_package (tinyobjloader REQUIRED)
 
