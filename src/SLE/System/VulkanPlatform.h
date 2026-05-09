@@ -50,6 +50,7 @@ private:
 	VkSurfaceKHR m_Surface;
 
 	VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
+	VkSampleCountFlagBits m_MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 	VkDevice m_Device;
 
 	VkQueue m_GraphicsQueue;
@@ -71,10 +72,15 @@ private:
 
 	VkCommandPool m_CommandPool;
 
+	VkImage m_ColorImage;
+	VkDeviceMemory m_ColorImageMemory;
+	VkImageView m_ColorImageView;
+
 	VkImage m_DepthImage;
 	VkDeviceMemory m_DepthImageMemory;
 	VkImageView m_DepthImageView;
 
+	uint32_t m_MipLevels;
 	VkImage m_TextureImage;
 	VkDeviceMemory m_TextureMemory;
 	VkImageView m_TextureImageView;
@@ -152,6 +158,8 @@ private:
 
 	void CreateCommandPool();
 
+	void CreateColorRessources();
+
 	void CreateDepthResources();
 
 	VkFormat FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features);
@@ -162,9 +170,13 @@ private:
 
 	void CreateTextureImage();
 
-	void CreateImage(uint32_t _Width, uint32_t _Heigth, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags  _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
+	void CreateImage(uint32_t _Width, uint32_t _Heigth, uint32_t _MipLevels, VkSampleCountFlagBits _NumSample, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags  _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
 
-	void TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout);
+	void GenerateMipMaps(VkImage _Image, VkFormat _ImageFormat, int32_t _TexWidth, int32_t _TexHeight, uint32_t _MipLevels);
+
+	VkSampleCountFlagBits GetMaxUsableSampleCount();
+
+	void TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout, uint32_t _MipLevels);
 
 	void CopyBufferToImage(VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height);
 
@@ -172,7 +184,7 @@ private:
 
 	void CreateTextureSampler();
 
-	VkImageView CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags);
+	VkImageView CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags, uint32_t _MipLevels);
 
 	void LoadModel();
 
