@@ -98,7 +98,7 @@ typedef struct _GLFWmutex       _GLFWmutex;
 #define GL_CONTEXT_FLAG_NO_ERROR_BIT_KHR 0x00000008
 
 typedef int GLint;
-typedef unsigned int GLuint;
+typedef unsigned int uint32_t;
 typedef unsigned int GLenum;
 typedef unsigned int GLbitfield;
 typedef unsigned char GLubyte;
@@ -106,7 +106,7 @@ typedef unsigned char GLubyte;
 typedef void (APIENTRY * PFNGLCLEARPROC)(GLbitfield);
 typedef const GLubyte* (APIENTRY * PFNGLGETSTRINGPROC)(GLenum);
 typedef void (APIENTRY * PFNGLGETINTEGERVPROC)(GLenum,GLint*);
-typedef const GLubyte* (APIENTRY * PFNGLGETSTRINGIPROC)(GLenum,GLuint);
+typedef const GLubyte* (APIENTRY * PFNGLGETSTRINGIPROC)(GLenum,uint32_t);
 
 #define EGL_SUCCESS 0x3000
 #define EGL_NOT_INITIALIZED 0x3001

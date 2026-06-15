@@ -1,22 +1,41 @@
 #pragma once
-#include "System/VulkanPlatform.h"
+#include "Engine.h"
 
-#include <Common/FileReader.h>
+#include "common/FileReader.h"
+#include "common/String.h"
+#include "Graphics/ShaderLoader.h"
+#include "Graphics/TextureLoader.h"
+#include "Graphics/ModelLoader.h"
+#include "Core/GlobalFunctionLibrary.h"
+#include "GameplayConcepts/Scene.h"
 
 
 int main() 
 {
-    VulkanPlatform app;
+    Engine* app = Engine::GetInstance();
 
-    try 
+    if(app)
     {
-        app.Run();
-    }
-    catch (const std::exception& e) 
-    {
-        std::cerr << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
+        std::string vertexShader = FileReader::GetRootFolder().ToANSIString() + "Shaders/4_vert.spv";
+        std::string fragmentShader = FileReader::GetRootFolder().ToANSIString() + "Shaders/4_frag.spv";
+        std::string textureFile = FileReader::GetRootFolder().ToANSIString() + "Assets/Textures/viking_room.png";
+        std::string modelFile = FileReader::GetRootFolder().ToANSIString() + "Assets/Models/viking_room.obj";
+
+
+		Shader* shader = ShaderLoader::LoadVertexFragmentShader<Vertex>("BasicShader", vertexShader.c_str(), fragmentShader.c_str());
+
+		Texture* texture = TextureLoader::LoadTexture(textureFile.c_str());
+
+        Model* model = ModelLoader::LoadModel(modelFile.c_str(), texture, shader);
+
+        GlobalFunctionLibrary::GetCurrentScene()->AddGameObject(model);
+
+
+        app->MainLoop();
+        app->Cleanup();
+	}
+
+
 
     return 0;
 }

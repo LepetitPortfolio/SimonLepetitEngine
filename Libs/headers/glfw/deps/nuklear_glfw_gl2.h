@@ -54,7 +54,7 @@ NK_API void                 nk_gflw3_scroll_callback(GLFWwindow *win, double xof
 struct nk_glfw_device {
     struct nk_buffer cmds;
     struct nk_draw_null_texture null;
-    GLuint font_tex;
+    uint32_t font_tex;
 };
 
 struct nk_glfw_vertex {
@@ -164,7 +164,7 @@ nk_glfw3_render(enum nk_anti_aliasing AA)
         nk_draw_foreach(cmd, &glfw.ctx, &dev->cmds)
         {
             if (!cmd->elem_count) continue;
-            glBindTexture(GL_TEXTURE_2D, (GLuint)cmd->texture.id);
+            glBindTexture(GL_TEXTURE_2D, (uint32_t)cmd->texture.id);
             glScissor(
                 (GLint)(cmd->clip_rect.x * glfw.fb_scale.x),
                 (GLint)((glfw.height - (GLint)(cmd->clip_rect.y + cmd->clip_rect.h)) * glfw.fb_scale.y),

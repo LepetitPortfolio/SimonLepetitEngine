@@ -1,16 +1,17 @@
 #pragma once
-#define GLFW_INCLUDE_VULKAN
+#include "../Core/IVulkanDescription.h"
+
 #include <GLFW/glfw3.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
-#include "Vector.h"
+#include "../Common/Vector.h"
 
 #include <array>
 #include <vector>
 
-struct Vertex
+struct Vertex : public IVulkanDescription
 {
 public:
 
@@ -28,9 +29,9 @@ public:
 		return bindingDescription;
 	}
 
-	static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
+	static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
 	{
-		std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
 
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
@@ -66,22 +67,3 @@ namespace std
 		}
 	};
 }
-
-/*const std::vector<Vertex> Vertices =
-{
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-};
-
-const std::vector<uint16_t> Indices = 
-{
-	0, 1, 2, 2, 3, 0,
-	4, 5, 6, 6, 7, 4
-};*/

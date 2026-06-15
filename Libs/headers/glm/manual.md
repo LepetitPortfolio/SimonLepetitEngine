@@ -1979,7 +1979,7 @@ glm::vec3 computeNormal(glm::vec3 const& a, glm::vec3 const& b, glm::vec3 const&
 #include <glm/gtc/matrix_transform.hpp> // translate, rotate, scale, perspective
 #include <glm/gtc/type_ptr.hpp> // value_ptr
 
-void setUniformMVP(GLuint Location, glm::vec3 const& Translate, glm::vec3 const& Rotate)
+void setUniformMVP(uint32_t Location, glm::vec3 const& Translate, glm::vec3 const& Rotate)
 {
     glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.f);
     glm::mat4 ViewTranslate = glm::translate(

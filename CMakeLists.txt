@@ -26,6 +26,9 @@ include_directories(${PROJECT_SOURCE_DIR}/Libs/headers/stb)
 add_subdirectory(${PROJECT_SOURCE_DIR}/Libs/headers/tinyobjloader)
 include_directories(${PROJECT_SOURCE_DIR}/Libs/headers/tinyobjloader)
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/Libs/headers/SPIRV-Reflect)
+include_directories(${PROJECT_SOURCE_DIR}/Libs/headers/SPIRV-Reflect)
+
 
 #find_package (tinyobjloader REQUIRED)
 

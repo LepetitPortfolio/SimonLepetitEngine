@@ -16,16 +16,23 @@ file(GLOB_RECURSE SLE_HEADERS
   "${SLESRCROOT}/*.hpp"
 )
 
-add_library(SLE STATIC ${SLE_SOURCES})
+add_library(SLE STATIC ${SLE_SOURCES} "GameplayConcepts/GameObject/GameObject.cpp")
+
 
 target_link_libraries(SLE PRIVATE Threads::Threads)
 target_include_directories(SLE PRIVATE ${Vulkan_INCLUDE_DIRS})
+
+#message(STATUS "Vulkan - ${Vulkan_INCLUDE_DIRS}")
+
 
 target_compile_definitions(SLE PRIVATE STB_IMAGE_IMPLEMENTATION)
 
 target_compile_definitions(SLE PRIVATE TINYOBJLOADER_IMPLEMENTATION)
 
 target_link_libraries(SLE PRIVATE glfw Vulkan::Vulkan)
+
+#target_link_libraries(SLE PRIVATE spirv-reflect)
+target_link_libraries(SLE PRIVATE spirv-reflect-static)
 
 
 
