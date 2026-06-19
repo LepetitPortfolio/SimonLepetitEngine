@@ -4,7 +4,7 @@
 enum class Gamepad
 {
 	Unknown = -1,
-	X = 0,
+	X = GLFW_GAMEPAD_BUTTON_A,
 	Y,
 	Z,
 	R,
