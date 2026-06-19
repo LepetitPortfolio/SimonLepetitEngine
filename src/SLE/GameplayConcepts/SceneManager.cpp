@@ -17,6 +17,16 @@ SceneManager::~SceneManager()
 	
 }
 
+void SceneManager::Cleanup()
+{
+	for (auto& pair : m_SceneList)
+	{
+		delete pair.second;
+	}
+	m_SceneList.clear();
+	m_CurrentScene = nullptr;
+}
+
 Scene* SceneManager::GetSpecificScene(const std::string& _Name)
 {
 	if (m_SceneList.count(_Name) > 0)

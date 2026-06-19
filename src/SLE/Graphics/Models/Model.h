@@ -33,6 +33,8 @@ public:
 
 	void ShowInGame(bool _Value);
 
+	virtual void CreateModel() override;
+
 	virtual void Draw(VulkanData& _VulkanData, VkCommandBuffer& _CommandBuffer, uint32_t _ImageIndex) override final;
 	virtual void SetProgram(Shader* _ShaderProgram) override final;
 	void Destroy() override final;
@@ -64,6 +66,29 @@ protected:
 	std::vector<VkDescriptorSet> m_DescriptorSets;
 
 	void UpdateDescriptorSets();
+
+	/**
+	* Crée un buffer de vertices (VkBuffer) pour un modèle 3D et le remplit avec les données des vertices.
+	* Utilise une approche en deux étapes (staging buffer) pour transférer les données du CPU vers le GPU :
+	* 1. Crée un staging buffer (mémoire accessible par le CPU) et copie les données des vertices dedans.
+	* 2. Crée le vertex buffer final (mémoire locale au GPU, optimisée pour les performances).
+	* 3. Copie les données du staging buffer vers le vertex buffer via VulkanPlatform::CopyBuffer.
+	* 4. Libère le staging buffer et sa mémoire.
+	* _Model : Référence vers l'objet Model contenant les vertices à transférer vers le GPU.
+	*/
+	void CreateVertexBuffer();
+
+	/**
+	* Crée un buffer d'indices (VkBuffer) pour un modèle 3D et le remplit avec les indices du modèle.
+	* Utilise la même approche en deux étapes que CreateVertexBuffer :
+	* 1. Crée un staging buffer pour transférer les indices du CPU vers le GPU.
+	* 2. Copie les données des indices dans le staging buffer.
+	* 3. Crée le index buffer final (mémoire locale au GPU, optimisée pour les performances).
+	* 4. Copie les données du staging buffer vers le index buffer via VulkanPlatform::CopyBuffer.
+	* 5. Libère le staging buffer et sa mémoire.
+	* _Model : Référence vers l'objet Model contenant les indices à transférer vers le GPU.
+	*/
+	void CreateIndexBuffer();
 };
 
 

@@ -14,6 +14,7 @@ public:
 	Scene* GetSpecificScene(const std::string& _Name);
 
 	void Init();
+	void Cleanup();
 
 	void ChangeCurrentScene(const std::string& _Name);
 

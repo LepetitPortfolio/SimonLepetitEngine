@@ -10,6 +10,9 @@ Texture* TextureLoader::LoadTexture(const char* _FilePath)
 {
 	Texture* texture = new Texture();
 	LoadTexture(_FilePath, *texture);
+
+	GlobalFunctionLibrary::GetAssetDataManager()->AddData(texture);
+
 	return texture;
 }
 

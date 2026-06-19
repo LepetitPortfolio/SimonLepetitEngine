@@ -19,6 +19,15 @@ Model::Model(Texture* _Texture, Shader* _ShaderProgram)
 
 Model::~Model()
 {
+	m_Vertices.clear();
+	m_Indices.clear();
+	vkDestroyBuffer(GlobalFunctionLibrary::GetVulkanDevice(), m_VertexBuffer, nullptr);
+	vkFreeMemory(GlobalFunctionLibrary::GetVulkanDevice(), m_VertexBufferMemory, nullptr);
+	vkDestroyBuffer(GlobalFunctionLibrary::GetVulkanDevice(), m_IndexBuffer, nullptr);
+	vkFreeMemory(GlobalFunctionLibrary::GetVulkanDevice(), m_IndexBufferMemory, nullptr);
+
+	m_Texture = nullptr;
+	m_ShaderProgram = nullptr;
 }
 
 std::vector<Vertex>& Model::GetVertices()
@@ -64,6 +73,10 @@ void Model::ShowInGame(bool _Value)
 		GlobalFunctionLibrary::GetVulkanPlatform()->GetDrawDelegate() -= std::bind(&Model::Draw, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 		//m_StartTime.Stop();
 	}
+}
+
+void Model::CreateModel()
+{
 }
 
 void Model::Draw(VulkanData& _VulkanData, VkCommandBuffer& _CommandBuffer, uint32_t _ImageIndex)
@@ -131,6 +144,12 @@ void Model::Draw(VulkanData& _VulkanData, VkCommandBuffer& _CommandBuffer, uint3
 
 void Model::SetProgram(Shader* _ShaderProgram)
 {
+	if (_ShaderProgram == nullptr)
+	{
+		Err() << "Shader Program is null!" << std::endl;
+		return;
+	}
+
 	std::vector<VkDescriptorSetLayout> setLayouts(MAX_FRAMES_IN_FLIGHT, _ShaderProgram->GetDescriptorSetLayout());
 	m_DescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
 
@@ -193,37 +212,75 @@ void Model::UpdateDescriptorSets()
 
 	for (size_t frameIndex = 0; frameIndex < MAX_FRAMES_IN_FLIGHT; frameIndex++)
 	{
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = GlobalFunctionLibrary::GetVulkanData()->UniformBuffers[frameIndex];
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
+		std::vector<VkDescriptorSetLayoutBinding>* layoutBinding = m_ShaderProgram->GetLayoutBinding();
 
-		VkDescriptorImageInfo imageInfo{};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		if (m_Texture)
+		std::vector<VkWriteDescriptorSet> writeDescriptorSets{};
+
+		for (size_t layoutBindingIndex = 0; layoutBindingIndex < layoutBinding->size(); layoutBindingIndex++)
 		{
-			imageInfo.imageView = m_Texture->GetTextureImageView();
-			imageInfo.sampler = m_Texture->GetTextureSampler();
+			VkDescriptorSetLayoutBinding lBinding = layoutBinding->at(layoutBindingIndex);
+			
+			switch (lBinding.descriptorType)
+			{
+			case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+
+				m_ShaderProgram->GenertateUniformBufferDescriptorSetLayout(lBinding, m_DescriptorSets[frameIndex], frameIndex, writeDescriptorSets);
+				
+			break;
+
+			case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+
+				m_ShaderProgram->GenertateCombinedImageSamplerDescriptorSetLayout(lBinding, m_DescriptorSets[frameIndex], m_Texture, writeDescriptorSets);
+			break;
+
+			case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+
+				//m_ShaderProgram->GenertateStorageBufferDescriptorSetLayout(lBinding, m_DescriptorSets[frameIndex], writeDescriptorSets);
+				
+			break;
+
+			};
 		}
-
-		std::array<VkWriteDescriptorSet, 2> writeDescriptorSets{};
-
-		writeDescriptorSets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writeDescriptorSets[0].dstSet = m_DescriptorSets[frameIndex];
-		writeDescriptorSets[0].dstBinding = 0;
-		writeDescriptorSets[0].dstArrayElement = 0;
-		writeDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		writeDescriptorSets[0].descriptorCount = 1;
-		writeDescriptorSets[0].pBufferInfo = &bufferInfo;
-
-		writeDescriptorSets[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writeDescriptorSets[1].dstSet = m_DescriptorSets[frameIndex];
-		writeDescriptorSets[1].dstBinding = 1;
-		writeDescriptorSets[1].dstArrayElement = 0;
-		writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		writeDescriptorSets[1].descriptorCount = 1;
-		writeDescriptorSets[1].pImageInfo = &imageInfo;
 
 		vkUpdateDescriptorSets(GlobalFunctionLibrary::GetVulkanDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
 	}
+}
+
+void Model::CreateVertexBuffer()
+{
+	VkDeviceSize bufferSize = sizeof(GetVertices()[0]) * GetVertices().size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanPlatform::CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, GetVertices().data(), (size_t)bufferSize);
+	vkUnmapMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory);
+
+	VulkanPlatform::CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, GetVertexBuffer(), GetVertexBufferMemory());
+
+	VulkanPlatform::CopyBuffer(stagingBuffer, GetVertexBuffer(), bufferSize);
+
+	vkDestroyBuffer(GlobalFunctionLibrary::GetVulkanDevice(), stagingBuffer, nullptr);
+	vkFreeMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory, nullptr);
+}
+
+void Model::CreateIndexBuffer()
+{
+	VkDeviceSize bufferSize = sizeof(GetIndices()[0]) * GetIndices().size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	VulkanPlatform::CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	void* data;
+	vkMapMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, GetIndices().data(), (size_t)bufferSize);
+	vkUnmapMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory);
+	VulkanPlatform::CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, GetIndexBuffer(), GetIndexBufferMemory());
+
+	VulkanPlatform::CopyBuffer(stagingBuffer, GetIndexBuffer(), bufferSize);
+	vkDestroyBuffer(GlobalFunctionLibrary::GetVulkanDevice(), stagingBuffer, nullptr);
+	vkFreeMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory, nullptr);
 }

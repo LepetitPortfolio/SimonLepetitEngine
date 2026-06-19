@@ -14,30 +14,119 @@
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
+/**
+ * Stocke les indices des familles de files d'attente (queue families) pour le rendu et la présentation.
+ *
+ * En Vulkan, une "queue family" est un ensemble de files d'attente qui partagent les mêmes capacités.
+ * Par exemple, une famille peut supporter le rendu graphique, tandis qu'une autre peut supporter la présentation à l'écran.
+ */
 struct QueueFamilyIndices
 {
+	/**
+	 * Index de la famille de files d'attente qui supporte les opérations graphiques (rendu).
+	 * @details
+	 * - `std::optional<uint32_t>` permet de représenter un index qui peut être absent (si aucune famille ne supporte le rendu graphique).
+	 * - Utilisé pour les commandes de dessin (ex: `vkCmdDraw`).
+	 */
 	std::optional<uint32_t> GraphicsFamily;
+
+	/**
+	 * Index de la famille de files d'attente qui supporte la présentation (affichage à l'écran).
+	 * @details
+	 * - `std::optional<uint32_t>` permet de représenter un index qui peut être absent (si aucune famille ne supporte la présentation).
+	 * - Utilisé pour présenter les images rendues à la surface de l'écran (ex: via `vkQueuePresentKHR`).
+	 */
 	std::optional<uint32_t> PresentFamily;
 
+	/**
+	* Vérifie si les indices des familles de files d'attente sont complets.
+	* @return true si les deux indices (GraphicsFamily et PresentFamily) sont définis, false sinon.
+	*
+	* @details
+	* - Utilise `has_value()` pour vérifier si `GraphicsFamily` et `PresentFamily` contiennent une valeur.
+	* - Une instance de `QueueFamilyIndices` est considérée comme "complète" si elle a à la fois un index pour le rendu et un index pour la présentation.
+	*/
 	bool IsComplete()
 	{
 		return GraphicsFamily.has_value() && PresentFamily.has_value();
 	}
 };
 
+/**
+ * Stocke les détails de support du swap chain pour une surface Vulkan.
+ *
+ * Ces détails sont utilisés pour configurer le swap chain, qui est responsable de la présentation des images rendues à l'écran.
+ */
 struct SwapChainSupportDetails
 {
+	/**
+	 * Capacités de la surface (ex: taille minimale/maximale des images, nombre d'images, etc.).
+	 * @details
+	 * - `VkSurfaceCapabilitiesKHR` contient des informations comme :
+	 *   - `minImageCount` : Nombre minimal d'images dans le swap chain.
+	 *   - `maxImageCount` : Nombre maximal d'images dans le swap chain (0 = pas de limite).
+	 *   - `currentExtent` : Taille actuelle de la surface (en pixels).
+	 *   - `minImageExtent` / `maxImageExtent` : Tailles minimale et maximale des images.
+	 *   - `supportedUsageFlags` : Utilisations supportées pour les images du swap chain (ex: `VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT`).
+	 */
 	VkSurfaceCapabilitiesKHR Capabilities;
+
+	/**
+	 * Liste des formats de surface supportés (ex: RGBA8, BGRA8, etc.).
+	 * @details
+	 * - `std::vector<VkSurfaceFormatKHR>` contient les formats disponibles pour les images du swap chain.
+	 * - Chaque `VkSurfaceFormatKHR` contient :
+	 *   - `format` : Format des pixels (ex: `VK_FORMAT_B8G8R8A8_SRGB`).
+	 *   - `colorSpace` : Espace colorimétrique (ex: `VK_COLOR_SPACE_SRGB_NONLINEAR_KHR`).
+	 */
 	std::vector<VkSurfaceFormatKHR> Formats;
+
+	/**
+	 * Liste des modes de présentation supportés (ex: FIFO, MAILBOX, etc.).
+	 * @details
+	 * - `std::vector<VkPresentModeKHR>` contient les modes de présentation disponibles.
+	 * - Exemples de modes :
+	 *   - `VK_PRESENT_MODE_IMMEDIATE_KHR` : Présentation immédiate (peut causer des déchirures).
+	 *   - `VK_PRESENT_MODE_FIFO_KHR` : Présentation en file d'attente (VSYNC, pas de déchirure).
+	 *   - `VK_PRESENT_MODE_MAILBOX_KHR` : Présentation en mode "boîte aux lettres" (triple buffering, pas de déchirure).
+	 *   - `VK_PRESENT_MODE_RELAXED_FIFO_KHR` : Similaire à FIFO, mais peut sauter des images si l'application est en retard.
+	 */
 	std::vector<VkPresentModeKHR> PresentModes;
 };
 
+/**
+ * Stocke les matrices de transformation pour le rendu 3D.
+ *
+ * Les UBOs sont utilisés pour passer des données uniformes (comme les matrices de transformation) aux shaders.
+ * L'alignement (`alignas`) est nécessaire pour respecter les exigences d'alignement du GPU.
+ */
 struct UniformBufferObject
 {
+	/**
+	 * Matrice de modèle (transformation de l'objet dans l'espace monde).
+	 * @details
+	 * - `glm::mat4` est une matrice 4x4 utilisée pour transformer les sommets d'un objet (translation, rotation, mise à l'échelle).
+	 * - `alignas(16)` garantit que la matrice est alignée sur une frontière de 16 octets, ce qui est souvent requis par le GPU pour des performances optimales.
+	 */
 	alignas(16) glm::mat4 Model;
+
+	/**
+	 * Matrice de vue (transformation de la caméra dans l'espace monde).
+	 * @details
+	 * - `glm::mat4` représente la position et l'orientation de la caméra.
+	 * - `alignas(16)` garantit l'alignement sur 16 octets.
+	 */
 	alignas(16) glm::mat4 View;
+
+	/**
+	 * Matrice de projection (transformation de la vue 3D en 2D pour l'écran).
+	 * @details
+	 * - `glm::mat4` représente la projection (perspective ou orthographique).
+	 * - `alignas(16)` garantit l'alignement sur 16 octets.
+	 */
 	alignas(16) glm::mat4 Projection;
 };
+
 
 struct VulkanData
 {
@@ -76,7 +165,7 @@ struct VulkanData
 	// Les commandes soumises ici sont exécutées par le GPU.
 	VkQueue GraphicsQueue;
 
-	VkQueue ComputeQueue;
+	//VkQueue ComputeQueue;
 
 	// --------------------------------------------------------------------
 	// File d'attente de présentation : utilisée pour présenter les images rendues à l'écran (via la swap chain).
@@ -84,118 +173,12 @@ struct VulkanData
 	VkQueue PresentQueue;
 
 	// --------------------------------------------------------------------
-	// Swap chain : série d'images utilisées pour l'affichage.
-	// Gère l'échange entre les images rendues par le GPU et celles affichées à l'écran.
-	VkSwapchainKHR SwapChain;
-
-	// --------------------------------------------------------------------
-	// Liste des images appartenant à la swap chain.
-	// Chaque image peut être rendue puis présentée à l'écran.
-	std::vector<VkImage> SwapChainImages;
-
-	// --------------------------------------------------------------------
-	// Format des images de la swap chain (ex: VK_FORMAT_B8G8R8A8_SRGB pour RGBA 8 bits par canal).
-	// Détermine comment les couleurs sont stockées dans les images.
-	VkFormat SwapChainImageFormat;
-
-	// --------------------------------------------------------------------
-	// Étendue (largeur et hauteur) des images de la swap chain, en pixels.
-	// Doit correspondre à la résolution de la fenêtre (ou être ajustée).
-	VkExtent2D SwapChainExtent;
-
-	// --------------------------------------------------------------------
-	// Liste des vues d'images pour chaque image de la swap chain.
-	// Une vue d'image permet d'accéder à une image (ou une partie) dans les shaders.
-	std::vector<VkImageView> SwapChainImageViews;
-
-	// --------------------------------------------------------------------
-	// Liste des framebuffers, un pour chaque image de la swap chain.
-	// Un framebuffer est une collection d'attaches (couleur, profondeur, etc.) utilisées pour le rendu.
-	std::vector<VkFramebuffer> SwapChainFramebuffers;
-
-	// --------------------------------------------------------------------
-	// Render pass : définit comment les attaches (couleur, profondeur, etc.) sont utilisées pendant le rendu.
-	// Décrit les étapes de rendu (ex: effacement, rendu des triangles, résolution du MSAA).
-	VkRenderPass RenderPass;
-
-	// --------------------------------------------------------------------
 	// Pool de commandes : réservoir de mémoire pour allouer des buffers de commandes.
 	// Les buffers de commandes stockent les commandes de rendu (ex: vkCmdDraw) à soumettre au GPU.
 	VkCommandPool CommandPool;
 
-	// --------------------------------------------------------------------
-	// Image de couleur multi-échantillonnée (MSAA) : utilisée comme attache de couleur dans le render pass.
-	// Stocke les données de couleur avec un échantillonnage multiple pour réduire les aliasing.
-	VkImage ColorImage;
+	VulkanData() = default;
 
-	// --------------------------------------------------------------------
-	// Mémoire allouée pour l'image de couleur MSAA.
-	// Chaque image Vulkan nécessite de la mémoire explicitement allouée et liée.
-	VkDeviceMemory ColorImageMemory;
-
-	// --------------------------------------------------------------------
-	// Vue de l'image de couleur MSAA : permet d'accéder à l'image dans les shaders.
-	VkImageView ColorImageView;
-
-	// --------------------------------------------------------------------
-	// Image de profondeur : utilisée pour les tests de profondeur (z-buffer).
-	// Stocke les informations de profondeur pour chaque pixel, permettant de masquer les objets cachés.
-	VkImage DepthImage;
-
-	// --------------------------------------------------------------------
-	// Mémoire allouée pour l'image de profondeur.
-	VkDeviceMemory DepthImageMemory;
-
-	// --------------------------------------------------------------------
-	// Vue de l'image de profondeur : permet d'accéder à l'image dans les shaders (ex: pour le shadow mapping).
-	VkImageView DepthImageView;
-
-	// --------------------------------------------------------------------
-	// Liste des buffers uniformes, un pour chaque frame en vol (MAX_FRAMES_IN_FLIGHT).
-	// Stockent des données globales (ex: matrices de transformation) accessibles par les shaders.
-	std::vector<VkBuffer> UniformBuffers;
-
-	// --------------------------------------------------------------------
-	// Liste des mémoires allouées pour les buffers uniformes.
-	// Chaque buffer uniformes nécessite sa propre mémoire.
-	std::vector<VkDeviceMemory> UniformBuffersMemory;
-
-	// --------------------------------------------------------------------
-	// Liste des pointeurs vers la mémoire mappée des buffers uniformes.
-	// Permet au CPU de mettre à jour directement le contenu des buffers uniformes sans appel Vulkan supplémentaire.
-	// Chaque pointeur correspond à un buffer uniforme mappé en mémoire.
-	std::vector<void*> UniformBufferMapped;
-
-	// --------------------------------------------------------------------
-	// Pool de descripteurs : réservoir de mémoire pour allouer des sets de descripteurs.
-	// Les sets de descripteurs lient des ressources (buffers, textures) à des bindings dans les shaders.
-	VkDescriptorPool DescriptorPool;
-
-	// --------------------------------------------------------------------
-	// Liste des buffers de commandes, un pour chaque frame en vol.
-	// Chaque buffer stocke les commandes de rendu (ex: vkCmdDraw) pour une frame.
-	// Permet d'enregistrer les commandes à l'avance et de les réutiliser.
-	std::vector<VkCommandBuffer> CommandBuffers;
-
-	std::vector<VkCommandBuffer> ComputeCommandBuffers;
-
-	// --------------------------------------------------------------------
-	// Liste des sémaphores pour signaler qu'une image de la swap chain est disponible pour le rendu.
-	// Utilisés pour synchroniser l'acquisition d'une image avec le début du rendu.
-	// Un sémaphore par frame en vol.
-	std::vector<VkSemaphore> ImageAvailableSemaphores;
-
-	// --------------------------------------------------------------------
-	// Liste des sémaphores pour signaler que le rendu d'une frame est terminé.
-	// Utilisés pour synchroniser la fin du rendu avec la présentation de l'image.
-	// Un sémaphore par frame en vol.
-	std::vector<VkSemaphore> RenderFinishedSemaphores;
-
-	std::vector<VkSemaphore> ComputeFinishedSemaphores;
-
-	// --------------------------------------------------------------------
-	// Liste des clôtures (fences) pour synchroniser les frames en vol.
-	// Une clôture par frame permet de s'assurer qu'une frame est terminée avant de commencer une nouvelle.
-	// Empêche le CPU de soumettre trop de frames au GPU.
-	std::vector<VkFence> InFlightFences;
+	VulkanData(const VulkanData&) = delete;
+	VulkanData& operator=(const VulkanData&) = delete;
 };

@@ -46,9 +46,9 @@ private:
 	* Crée un layout de set de descripteurs, qui définit comment les ressources (buffers, textures) sont accessibles dans les shaders.
 	* Configure deux bindings : un pour les buffers uniformes (accès en vertex shader) et un pour les échantillonneurs de texture (accès en fragment shader).
 	*/
-	static void CreateDescriptorSetLayout(Shader& _Shader, std::vector<VkDescriptorSetLayoutBinding>& _Bindings);
+	static void CreateDescriptorSetLayout(Shader& _Shader, std::vector<VkDescriptorSetLayoutBinding>* _Bindings);
 
-	static void CreateComputeDescriptorSetLayout(Shader& _Shader, std::vector<VkDescriptorSetLayoutBinding>& _Bindings);
+	static void CreateComputeDescriptorSetLayout(Shader& _Shader, std::vector<VkDescriptorSetLayoutBinding>* _Bindings);
 
 	/**
 	* Crée le pipeline graphique, qui définit comment les vertex sont transformés en pixels à l'écran.
@@ -64,8 +64,7 @@ private:
 	* le multisampling, la profondeur/stencil, le blending des couleurs, et le layout du pipeline.
 	* Les shaders sont chargés depuis des fichiers SPIR-V.
 	*/
-	template<typename T>
-	static void CreateGraphicsPipeline(Shader& _Shader, const std::vector<VkPipelineShaderStageCreateInfo>& _ShaderStagesCreateInfo);
+	static void CreateGraphicsPipeline(Shader& _Shader, const std::vector<VkPipelineShaderStageCreateInfo>& _ShaderStagesCreateInfo, const PipelineConfigInfo& _ConfigInfo);
 
 	template<typename T>
 	static void CreateComputePipeline(Shader& _Shader, const std::vector<VkPipelineShaderStageCreateInfo>& _ShaderStagesCreateInfo);
@@ -80,7 +79,7 @@ private:
 	* Analyse un shader SPIR-V et affiche ses bindings (sets, bindings, types).
 	* _ShaderCode : Code binaire du shader au format SPIR-V.
 	*/
-	static void ReflectShaderBindings(ShaderType _ShaderType, const std::vector<char>& _ShaderCode, std::vector<VkDescriptorSetLayoutBinding>& _Bindings);
+	static void ReflectShaderBindings(ShaderType _ShaderType, const std::vector<char>& _ShaderCode, std::vector<VkDescriptorSetLayoutBinding>* _Bindings);
 };
 
 #include "ShaderLoader.inl"

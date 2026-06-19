@@ -11,6 +11,4 @@ public:
 	std::string ShaderVariableName;
 	uint32_t MipLevels;
 	Vector2i Size;
-	
-
 };

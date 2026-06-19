@@ -29,8 +29,7 @@ Model* ModelLoader::LoadModel(const char* _FilePath, Texture* _Texture, Shader* 
 		model->SetProgram(_Shader);
 	}
 
-	GlobalFunctionLibrary::GetAssetDataManager()->GetModelManager()->AddData(model);
-
+	GlobalFunctionLibrary::GetAssetDataManager()->AddData(model);
 
 	return model;
 }

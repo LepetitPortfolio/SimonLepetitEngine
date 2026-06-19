@@ -48,5 +48,10 @@ void Scene::RemoveGameObject(GameObjectBase* _GameObject)
 
 void Scene::ClearAllGameObjects()
 {
+	for(GameObjectBase* gameObject : m_GameObjectList)
+	{
+		delete gameObject;
+	}
+	m_GameObjectList.clear();
 }
 

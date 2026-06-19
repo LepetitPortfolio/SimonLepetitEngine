@@ -4,6 +4,12 @@ GameObjectBase::GameObjectBase()
 {
 }
 
+GameObjectBase::~GameObjectBase()
+{
+	ClearComponents();
+}
+
+
 void GameObjectBase::AddComponent(GameObjectComponentBase* _Component)
 {
 	uint64_t id = reinterpret_cast<uint64_t>(_Component);

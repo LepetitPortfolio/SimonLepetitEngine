@@ -1,5 +1,7 @@
 #include "Error.h"
 
+#include <stdexcept>
+
 DefaultErrorStreamBuf::DefaultErrorStreamBuf()
 {
 	constexpr int size = 64;
@@ -43,10 +45,36 @@ int DefaultErrorStreamBuf::sync()
 	return 0;
 }
 
-std::ostream& Err()
+std::ostream& Log()
 {
 	static DefaultErrorStreamBuf buffer;
 	static std::ostream stream(&buffer);
 
 	return stream;
+}
+
+std::ostream& Warning()
+{
+	static DefaultErrorStreamBuf buffer;
+	static std::ostream stream(&buffer);
+
+	return stream << "Warning : ";
+}
+
+std::ostream& Err()
+{
+	static DefaultErrorStreamBuf buffer;
+	static std::ostream stream(&buffer);
+
+	return stream << "Error : ";
+}
+
+std::ostream& FatalErr()
+{
+	static DefaultErrorStreamBuf buffer;
+	static std::ostream stream(&buffer);
+
+	//return std::runtime_error(stream);
+	return stream << "Fatal Error : ";
+
 }

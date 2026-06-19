@@ -1,6 +1,7 @@
 #pragma once
 #include "System/WindowPlatform.h"
 #include "System/VulkanPlatform.h"
+#include "System/Renderer.h"
 #include "GameplayConcepts/SceneManager.h"
 #include "System/AssetDataManager.h"
 
@@ -9,6 +10,10 @@
 class Engine
 {
 public:
+
+	static constexpr int WIDTH = 1600;
+	static constexpr int HEIGHT = 900;
+
 	Engine();
 	~Engine();
 
@@ -30,17 +35,18 @@ public:
 
 	void Cleanup();
 
-	void ClearEngine();
-
 private:
-
 
 	static std::unique_ptr<Engine> m_Engine;
 
 	std::unique_ptr <WindowPlatform> m_WindowPlatform;
 	std::unique_ptr <VulkanPlatform> m_VulkanPlatform;
+	std::unique_ptr <Renderer> m_Renderer;
 
 	std::unique_ptr <SceneManager> m_SceneManager;
 	std::unique_ptr <AssetDataManager> m_AssetDataManager;
+
+	class CameraBase* m_MainCamera = nullptr;
+	bool m_IsInitialized = false;
 
 };

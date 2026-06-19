@@ -1,7 +1,7 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <vulkan/vulkan.h>
-#include "../Core/TextureInfos.h"
+#include "../Core/Init/TextureInfos.h"
 
 class Texture
 {
