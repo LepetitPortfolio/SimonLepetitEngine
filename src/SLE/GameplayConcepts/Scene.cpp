@@ -1,7 +1,7 @@
 #include "Scene.h"
-#include "../Graphics/Models/Model.h"
+#include "../Graphics/Mesh.h"
 #include "GameObject/GameObject.h"
-#include "GameObjectComponents/ModelComponent.h"
+#include "GameObjectComponents/MeshComponent.h"
 
 Scene::Scene()
 {
@@ -29,16 +29,25 @@ void Scene::Update()
 
 }
 
+void Scene::UpdateDraw(VulkanFrameInfo _FrameInfo)
+{
+	for (GameObjectBase* gameObject : m_GameObjectList)
+	{
+		gameObject->DrawGameObject(_FrameInfo);
+	}
+}
+
+
 void Scene::AddGameObject(GameObjectBase* _GameObject)
 {
 	m_GameObjectList.push_back(_GameObject);
 }
 
-void Scene::AddGameObject(Model* _Model)
+void Scene::AddGameObject(Mesh* _Mesh)
 {
 	GameObjectBase* gameObject = new GameObject();
 
-	gameObject->AddComponent(new ModelComponent(_Model));
+	gameObject->AddComponent(new MeshComponent(_Mesh));
 	AddGameObject(gameObject);
 }
 

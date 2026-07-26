@@ -1,5 +1,5 @@
 #pragma once
-#include "DataManagerBase.h"
+#include "AssetDataManagerBase.h"
 
 #include <memory>
 
@@ -10,26 +10,31 @@ public:
 	AssetDataManager();
 	~AssetDataManager();
 
-	DataManagerBase<class Shader*>* GetShaderManager() { return m_ShaderManager.get(); }
-	DataManagerBase<class Texture*>* GetTextureManager() { return m_TextureManager.get(); }
-	DataManagerBase<class Model*>* GetModelManager() { return m_ModelManager.get(); }
+	AssetDataManagerBase* GetShaderManager() { return m_ShaderManager.get(); }
+	AssetDataManagerBase* GetTextureManager() { return m_TextureManager.get(); }
+	AssetDataManagerBase* GetModelManager() { return m_ModelManager.get(); }
+	AssetDataManagerBase* GetGameObjectManager() { return m_GameObjectManager.get(); }
 
 	void AddData(class Shader* _Data);
 	void AddData(class Texture* _Data);
 	void AddData(class Model* _Data);
+	void AddData(class GameObjectBase* _Data);
 	void RemoveData(class Shader* _Data);
 	void RemoveData(class Texture* _Data);
 	void RemoveData(class Model* _Data);
+	void RemoveData(class GameObjectBase* _Data);
 
 	void ClearAllShaderData();
 	void ClearAllTextureData();
 	void ClearAllModelData();
+	void ClearAllGameObjectData();
 	void ClearAllData();
 
 
 protected:
-	std::unique_ptr <DataManagerBase<class Shader*>> m_ShaderManager;
-	std::unique_ptr <DataManagerBase<class Texture*>> m_TextureManager;
-	std::unique_ptr <DataManagerBase<class Model*>> m_ModelManager;
+	std::unique_ptr <AssetDataManagerBase> m_ShaderManager;
+	std::unique_ptr <AssetDataManagerBase> m_TextureManager;
+	std::unique_ptr <AssetDataManagerBase> m_ModelManager;
+	std::unique_ptr <AssetDataManagerBase> m_GameObjectManager;
 
 };

@@ -16,7 +16,7 @@ file(GLOB_RECURSE SLE_HEADERS
   "${SLESRCROOT}/*.hpp"
 )
 
-add_library(SLE STATIC ${SLE_SOURCES} "GameplayConcepts/GameObject/GameObject.cpp")
+add_library(SLE STATIC ${SLE_SOURCES} "GameplayConcepts/GameObject/GameObject.cpp" "Core/AssetData.h")
 
 
 target_link_libraries(SLE PRIVATE Threads::Threads)

@@ -8,9 +8,9 @@ public:
 	Transform();
 	~Transform();
 
-	const glm::vec3 GetPosition();
-	const glm::vec3 GetRotation();
-	const glm::vec3 GetScale();
+	glm::vec3 GetPosition();
+	glm::vec3 GetRotation();
+	glm::vec3 GetScale();
 
 	void SetPosition(glm::vec3 _Position);
 	void SetRotation(glm::vec3 _Rotation);
@@ -19,6 +19,19 @@ public:
 	glm::mat4 TransformMatrix();
 
 	glm::mat3 TransformNormalMatrix();
+
+	Transform operator+(Transform& _Other);
+	Transform operator+(Transform* _Other);
+
+	void operator+=(Transform& _Other);
+	void operator+=(Transform* _Other);
+
+	Transform operator-(Transform& _Other);
+	Transform operator-(Transform* _Other);
+
+	void operator-=(Transform& _Other);
+	void operator-=(Transform* _Other);
+	
 
 private:
 	glm::vec3 m_Position{};

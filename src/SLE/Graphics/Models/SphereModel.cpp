@@ -1,10 +1,17 @@
 #include "SphereModel.h"
+#include "../../Core/GlobalFunctionLibrary.h"
+#include "../../System/AssetDataManager.h"
 
-SphereModel::SphereModel(float _Radius, unsigned int _Rings, unsigned int _Sectors, Texture* _Texture , Shader* _ShaderProgram)
+
+
+SphereModel::SphereModel(float _Radius, unsigned int _Rings, unsigned int _Sectors)
 {
 	CreateModel(_Radius, _Rings, _Sectors);
-	SetTexture(_Texture);
-	SetProgram(_ShaderProgram);
+
+	CreateVertexBuffers();
+	CreateIndexBuffers();
+
+	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
 }
 
 SphereModel::~SphereModel()
@@ -14,6 +21,11 @@ SphereModel::~SphereModel()
 void SphereModel::CreateModel()
 {
 	CreateModel(1.0f, 16, 16);
+
+	CreateVertexBuffers();
+	CreateIndexBuffers();
+
+	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
 }
 
 void SphereModel::CreateModel(float _Radius, unsigned int _Rings, unsigned int _Sectors)
@@ -33,7 +45,7 @@ void SphereModel::CreateModel(float _Radius, unsigned int _Rings, unsigned int _
 
 			Vertex vertex{};
 			vertex.Position = glm::vec3(x * _Radius, y, z * _Radius);
-			vertex.TexCoord = glm::vec2(countSectors * sectorsRecip, countRings * ringsRecip);
+			vertex.UV = glm::vec2(countSectors * sectorsRecip, countRings * ringsRecip);
 			vertex.Color = glm::vec3(1.0f, 1.0f, 1.0f);
 
 			m_Vertices.push_back(vertex);
@@ -55,6 +67,6 @@ void SphereModel::CreateModel(float _Radius, unsigned int _Rings, unsigned int _
 		}
 	}
 
-	CreateVertexBuffer();
-	CreateIndexBuffer();
+	//CreateVertexBuffer();
+	//CreateIndexBuffer();
 }

@@ -1,33 +1,34 @@
-#include "Renderer.h"
+#include "VulkanRenderer.h"
+#include "../Core/GlobalFunctionLibrary.h"
 
 #include <array>
 #include <cassert>
 #include <stdexcept>
 
-Renderer::Renderer(WindowPlatform& _Window, VulkanPlatform& _VulkanPlatform) : m_Window(_Window), m_VulkanPlatform(_VulkanPlatform)
+VulkanRenderer::VulkanRenderer()
 {
 	RecreateSwapChain();
 	CreateCommandBuffers();
 }
 
-Renderer::~Renderer() 
+VulkanRenderer::~VulkanRenderer() 
 { 
 	FreeCommandBuffers(); 
 }
 
-VkCommandBuffer Renderer::GetCurrentCommandBuffer() const
+VkCommandBuffer VulkanRenderer::GetCurrentCommandBuffer() const
 {
 	assert(m_IsFrameStarted && "Cannot get command buffer when frame not in progress");
 	return m_CommandBuffers[m_CurrentFrameIndex];
 }
 
-int Renderer::GetFrameIndex() const
+int VulkanRenderer::GetFrameIndex() const
 {
 	assert(m_IsFrameStarted && "Cannot get frame index when frame not in progress");
 	return m_CurrentFrameIndex;
 }
 
-VkCommandBuffer Renderer::BeginFrame()
+VkCommandBuffer VulkanRenderer::BeginFrame()
 {
 	assert(!m_IsFrameStarted && "Can't call beginFrame while already in progress");
 
@@ -57,7 +58,7 @@ VkCommandBuffer Renderer::BeginFrame()
 	return commandBuffer;
 }
 
-void Renderer::EndFrame()
+void VulkanRenderer::EndFrame()
 {
 	assert(m_IsFrameStarted && "Can't call endFrame while frame is not in progress");
 	auto commandBuffer = GetCurrentCommandBuffer();
@@ -68,9 +69,9 @@ void Renderer::EndFrame()
 	}
 
 	auto result = m_SwapChain->SubmitCommandBuffers(&commandBuffer, &m_CurrentImageIndex);
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_Window.WasWindowResized()) 
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || GlobalFunctionLibrary::GetWindowPlatform()->WasWindowResized())
 	{
-		m_Window.ResetWindowResizedFlag();
+		GlobalFunctionLibrary::GetWindowPlatform()->ResetWindowResizedFlag();
 		RecreateSwapChain();
 	}
 	else if (result != VK_SUCCESS) 
@@ -79,10 +80,10 @@ void Renderer::EndFrame()
 	}
 
 	m_IsFrameStarted = false;
-	m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
+	m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % VulkanSwapChain::MAX_FRAMES_IN_FLIGHT;
 }
 
-void Renderer::BeginSwapChainRenderPass(VkCommandBuffer _CommandBuffer)
+void VulkanRenderer::BeginSwapChainRenderPass(VkCommandBuffer _CommandBuffer)
 {
 	assert(m_IsFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
 	assert(_CommandBuffer == GetCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
@@ -115,53 +116,53 @@ void Renderer::BeginSwapChainRenderPass(VkCommandBuffer _CommandBuffer)
 	vkCmdSetScissor(_CommandBuffer, 0, 1, &scissor);
 }
 
-void Renderer::EndSwapChainRenderPass(VkCommandBuffer _CommandBuffer)
+void VulkanRenderer::EndSwapChainRenderPass(VkCommandBuffer _CommandBuffer)
 {
 	assert(m_IsFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
 	assert(_CommandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
 	vkCmdEndRenderPass(_CommandBuffer);
 }
 
-void Renderer::CreateCommandBuffers()
+void VulkanRenderer::CreateCommandBuffers()
 {
-	m_CommandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+	m_CommandBuffers.resize(VulkanSwapChain::MAX_FRAMES_IN_FLIGHT);
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = m_VulkanPlatform.GetCommandPool();
+	allocInfo.commandPool = GlobalFunctionLibrary::GetVulkanPlatform()->GetCommandPool();
 	allocInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
 
-	if (vkAllocateCommandBuffers(m_VulkanPlatform.GetDevice(), &allocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
+	if (vkAllocateCommandBuffers(GlobalFunctionLibrary::GetVulkanDevice(), &allocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 }
 
-void Renderer::FreeCommandBuffers()
+void VulkanRenderer::FreeCommandBuffers()
 {
-	vkFreeCommandBuffers(m_VulkanPlatform.GetDevice(), m_VulkanPlatform.GetCommandPool(), static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
+	vkFreeCommandBuffers(GlobalFunctionLibrary::GetVulkanDevice(), GlobalFunctionLibrary::GetVulkanPlatform()->GetCommandPool(), static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
 	m_CommandBuffers.clear();
 }
 
-void Renderer::RecreateSwapChain()
+void VulkanRenderer::RecreateSwapChain()
 {
-	auto extent = m_Window.GetExtent();
+	auto extent = GlobalFunctionLibrary::GetWindowPlatform()->GetExtent();
 	while (extent.width == 0 || extent.height == 0) 
 	{
-		extent = m_Window.GetExtent();
+		extent = GlobalFunctionLibrary::GetWindowPlatform()->GetExtent();
 		glfwWaitEvents();
 	}
-	vkDeviceWaitIdle(m_VulkanPlatform.GetDevice());
+	vkDeviceWaitIdle(GlobalFunctionLibrary::GetVulkanDevice());
 
 	if (m_SwapChain == nullptr) 
 	{
-		m_SwapChain = std::make_unique<SwapChain>(m_VulkanPlatform, extent);
+		m_SwapChain = std::make_unique<VulkanSwapChain>(extent);
 	}
 	else 
 	{
-		std::shared_ptr<SwapChain> oldSwapChain = std::move(m_SwapChain);
-		m_SwapChain = std::make_unique<SwapChain>(m_VulkanPlatform, extent, oldSwapChain);
+		std::shared_ptr<VulkanSwapChain> oldSwapChain = std::move(m_SwapChain);
+		m_SwapChain = std::make_unique<VulkanSwapChain>(extent, oldSwapChain);
 
 		if (!oldSwapChain->CompareSwapFormats(*m_SwapChain.get())) 
 		{

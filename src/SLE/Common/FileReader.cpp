@@ -25,17 +25,7 @@ String FileReader::GetRootFolder()
 {
 	if (m_RootFolder.IsEmpty())
 	{
-		String newRootFolder;
-		String rep = _getcwd(NULL, 0);
-
-		std::vector<String> repDecompose = rep.Split('\\');
-
-		for (int folderIndex = 0; folderIndex < repDecompose.size() - 2; folderIndex++)
-		{
-			newRootFolder += repDecompose[folderIndex] + "\\";
-		}
-
-		m_RootFolder = String(newRootFolder);
+		m_RootFolder = String(ENGINE_DIR) + String(ENGINE_DIR);
 	}
 
 	return m_RootFolder;

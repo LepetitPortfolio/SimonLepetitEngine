@@ -12,7 +12,7 @@
 #include <optional>
 #include <vector>
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
+const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
 
 /**
  * Stocke les indices des familles de files d'attente (queue families) pour le rendu et la présentation.
@@ -22,6 +22,7 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
  */
 struct QueueFamilyIndices
 {
+public:
 	/**
 	 * Index de la famille de files d'attente qui supporte les opérations graphiques (rendu).
 	 * @details
@@ -59,6 +60,7 @@ struct QueueFamilyIndices
  */
 struct SwapChainSupportDetails
 {
+public:
 	/**
 	 * Capacités de la surface (ex: taille minimale/maximale des images, nombre d'images, etc.).
 	 * @details
@@ -102,13 +104,14 @@ struct SwapChainSupportDetails
  */
 struct UniformBufferObject
 {
+public:
 	/**
-	 * Matrice de modèle (transformation de l'objet dans l'espace monde).
+	 * Matrice de projection (transformation de la vue 3D en 2D pour l'écran).
 	 * @details
-	 * - `glm::mat4` est une matrice 4x4 utilisée pour transformer les sommets d'un objet (translation, rotation, mise à l'échelle).
-	 * - `alignas(16)` garantit que la matrice est alignée sur une frontière de 16 octets, ce qui est souvent requis par le GPU pour des performances optimales.
+	 * - `glm::mat4` représente la projection (perspective ou orthographique).
+	 * - `alignas(16)` garantit l'alignement sur 16 octets.
 	 */
-	alignas(16) glm::mat4 Model;
+	alignas(16) glm::mat4 Projection;
 
 	/**
 	 * Matrice de vue (transformation de la caméra dans l'espace monde).
@@ -118,13 +121,7 @@ struct UniformBufferObject
 	 */
 	alignas(16) glm::mat4 View;
 
-	/**
-	 * Matrice de projection (transformation de la vue 3D en 2D pour l'écran).
-	 * @details
-	 * - `glm::mat4` représente la projection (perspective ou orthographique).
-	 * - `alignas(16)` garantit l'alignement sur 16 octets.
-	 */
-	alignas(16) glm::mat4 Projection;
+	alignas(16) glm::mat4 InverseView;	
 };
 
 
@@ -181,4 +178,36 @@ struct VulkanData
 
 	VulkanData(const VulkanData&) = delete;
 	VulkanData& operator=(const VulkanData&) = delete;
+};
+
+struct VulkanFrameInfo
+{
+public:
+	int FrameIndex;
+	float FrameTime;
+	VkCommandBuffer CommandBuffer;
+	class CameraBase* Cemera;
+};
+
+struct PipelineConfigInfo 
+{
+public:
+	std::vector<VkVertexInputBindingDescription> BindingDescriptions{};
+	std::vector<VkVertexInputAttributeDescription> AttributeDescriptions{};
+	VkPipelineViewportStateCreateInfo ViewportInfo;
+	VkPipelineInputAssemblyStateCreateInfo InputAssemblyInfo;
+	VkPipelineRasterizationStateCreateInfo RasterizationInfo;
+	VkPipelineMultisampleStateCreateInfo MultisampleInfo;
+	VkPipelineColorBlendAttachmentState ColorBlendAttachment;
+	VkPipelineColorBlendStateCreateInfo ColorBlendInfo;
+	VkPipelineDepthStencilStateCreateInfo DepthStencilInfo;
+	std::vector<VkDynamicState> DynamicStateEnables;
+	VkPipelineDynamicStateCreateInfo DynamicStateInfo;
+	VkPipelineLayout PipelineLayout = nullptr;
+	VkRenderPass RenderPass = nullptr;
+	uint32_t Subpass = 0;
+
+	PipelineConfigInfo() = default;
+	PipelineConfigInfo(const PipelineConfigInfo&) = delete;
+	PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
 };

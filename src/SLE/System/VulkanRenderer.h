@@ -1,6 +1,6 @@
 #pragma once
 #include "VulkanPlatform.h"
-#include "SwapChain.h"
+#include "VulkanSwapChain.h"
 #include "WindowPlatform.h"
 
 #include <cassert>
@@ -8,15 +8,17 @@
 #include <vector>
 
 
-class Renderer
+class VulkanRenderer
 {
 public:
-	Renderer(WindowPlatform& _Window, VulkanPlatform& _VulkanPlatform);
-	~Renderer();
+	VulkanRenderer();
+	~VulkanRenderer();
 
-	Renderer(const Renderer&) = delete;
-	Renderer& operator=(const Renderer&) = delete;
+	VulkanRenderer(const VulkanRenderer&) = delete;
+	VulkanRenderer& operator=(const VulkanRenderer&) = delete;
 
+
+	VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
 	VkRenderPass GetSwapChainRenderPass() const { return m_SwapChain->GetRenderPass(); }
 	float GetAspectRatio() const { return m_SwapChain->ExtentAspectRatio(); }
 	bool IsFrameInProgress() const { return m_IsFrameStarted; }
@@ -31,9 +33,7 @@ public:
 
 private:
 
-	WindowPlatform& m_Window;
-	VulkanPlatform& m_VulkanPlatform;
-	std::unique_ptr<SwapChain> m_SwapChain;
+	std::unique_ptr<VulkanSwapChain> m_SwapChain;
 	std::vector<VkCommandBuffer> m_CommandBuffers;
 
 	uint32_t m_CurrentImageIndex;

@@ -20,6 +20,33 @@ Engine* GlobalFunctionLibrary::GetEngine()
 	return Engine::GetInstance();
 }
 
+WindowPlatform* GlobalFunctionLibrary::GetWindowPlatform()
+{
+	Engine* engine = GetEngine();
+	WindowPlatform* windowPlatform = engine->GetWindowPlatform();
+
+	if (windowPlatform == nullptr)
+	{
+		Err() << "Window Platform is not initialized!" << std::endl;
+		return nullptr;
+	}
+
+	return windowPlatform;
+}
+
+GLFWwindow* GlobalFunctionLibrary::GetWindow()
+{
+	WindowPlatform* windowPlatform = GetWindowPlatform();
+
+	if (windowPlatform == nullptr)
+	{
+		Err() << "Window Platform is not initialized!" << std::endl;
+		return nullptr;
+	}
+
+	return windowPlatform->GetWindow();
+}
+
 const VkDevice GlobalFunctionLibrary::GetVulkanDevice()
 {
 
@@ -38,6 +65,20 @@ VulkanPlatform* GlobalFunctionLibrary::GetVulkanPlatform()
 	}
 
 	return vulkanPlatform;
+}
+
+VulkanRenderer* GlobalFunctionLibrary::GetVulkanRenderer()
+{
+	Engine* engine = GetEngine();
+	VulkanRenderer* vulkanRenderer = engine->GetVulkanRenderer();
+
+	if (vulkanRenderer == nullptr)
+	{
+		Err() << "vulkanRenderer is not initialized!" << std::endl;
+		return nullptr;
+	}
+
+	return vulkanRenderer;
 }
 
 const VulkanData* GlobalFunctionLibrary::GetVulkanData()

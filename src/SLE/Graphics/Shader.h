@@ -1,61 +1,47 @@
 #pragma once
-#define GLFW_INCLUDE_VULKAN
-#include <vulkan/vulkan.h>
 
-#include <vector>
+#include "../Core/AssetData.h"
+
+#include "../System/VulkanSimpleRenderSystem.h"
+#include "../System/VulkanDescriptorSetLayout.h"
+
+#include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
-struct PipelineConfigInfo 
+template<typename T>
+struct ShaderSettings
 {
-	PipelineConfigInfo() = default;
-	PipelineConfigInfo(const PipelineConfigInfo&) = delete;
-	PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
+	VkShaderStageFlags ShaderStageFlags;
+	std::string ShaderName;
+	std::map<VkShaderStageFlagBits, std::vector<char>*> ShaderCode;
 
-	std::vector<VkVertexInputBindingDescription> BindingDescriptions{};
-	std::vector<VkVertexInputAttributeDescription> AttributeDescriptions{};
-	VkPipelineViewportStateCreateInfo ViewportInfo;
-	VkPipelineInputAssemblyStateCreateInfo InputAssemblyInfo;
-	VkPipelineRasterizationStateCreateInfo RasterizationInfo;
-	VkPipelineMultisampleStateCreateInfo MultisampleInfo;
-	VkPipelineColorBlendAttachmentState ColorBlendAttachment;
-	VkPipelineColorBlendStateCreateInfo ColorBlendInfo;
-	VkPipelineDepthStencilStateCreateInfo DepthStencilInfo;
-	std::vector<VkDynamicState> DynamicStateEnables;
-	VkPipelineDynamicStateCreateInfo DynamicStateInfo;
-	VkPipelineLayout PipelineLayout = nullptr;
-	VkRenderPass RenderPass = nullptr;
-	uint32_t Subpass = 0;
+	VkRenderPass RenderPass;
+	VulkanDescriptorSetBuilder DescriptorSetBuilder;
+	VulkanDescriptorPoolBuilder DescriptorPoolBuilder;
 };
 
-
-class Shader
+class Shader : public AssetData
 {
 public:
-	Shader();
-	Shader(std::string _ShaderName);
+
+	template<typename T>
+	Shader(ShaderSettings<T> _ShaderSettings);
 	~Shader();
 
 	Shader(const Shader&) = delete;
 	Shader& operator=(const Shader&) = delete;
 
-
 	std::string GetShaderName() const;
-	VkDescriptorSetLayout& GetDescriptorSetLayout();
-	VkPipelineLayout& GetPipelineLayout();
-	VkPipeline& GetPipeline();
 
-	std::vector<VkDescriptorSetLayoutBinding>* GetLayoutBinding();
-	void SetLayoutBinding(std::vector<VkDescriptorSetLayoutBinding> _LayoutBinding);
+	VulkanDescriptorSetLayout* GetDescriptorSetLayout() const { return m_DescriptorSetLayout.get(); }
+	VulkanDescriptorPool* GetDescriptorPool() const { return m_DescriptorPool.get(); }
 
-	template<typename T>
-	static void DefaultPipelineConfigInfo(PipelineConfigInfo& _ConfigInfo);
-	static void EnableAlphaBlending(PipelineConfigInfo& _ConfigInfo);
+	void RenderGameObjects(VkCommandBuffer _CommandBuffer, VkDescriptorSet _DescriptorSet, class Transform* _Transform, class Model* _Model);
 
-	bool FindLayoutBinding(VkDescriptorType _DescriptorType);
-
-	void GenertateUniformBufferDescriptorSetLayout(const VkDescriptorSetLayoutBinding& _LayoutBinding, VkDescriptorSet _DescriptorSet, uint32_t _FrameIndex, std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets);
-	void GenertateCombinedImageSamplerDescriptorSetLayout(const VkDescriptorSetLayoutBinding& _LayoutBinding, VkDescriptorSet _DescriptorSet, class Texture* _Texture, std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets);
-	void GenertateStorageBufferDescriptorSetLayout(const VkDescriptorSetLayoutBinding& _LayoutBinding, VkDescriptorSet _DescriptorSet, std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets);
+	void GenertateDescriptorSetLayout(std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets, const VkDescriptorSetLayoutBinding& _LayoutBinding, VkDescriptorSet _DescriptorSet, uint32_t _FrameIndex);
+	void GenertateDescriptorSetLayout(std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets, const VkDescriptorSetLayoutBinding& _LayoutBinding, VkDescriptorSet _DescriptorSet, class Texture* _Texture);
 
 	void Cleanup();
 
@@ -63,22 +49,10 @@ private :
 
 	std::string m_ShaderName;
 
-	// --------------------------------------------------------------------
-	// Layout des sets de descripteurs : définit la structure des ressources accessibles dans les shaders.
-	// Spécifie les bindings (ex: buffer uniforme en binding 0, texture en binding 1) et leurs types.
-	VkDescriptorSetLayout m_DescriptorSetLayout;
+	std::unique_ptr <VulkanSimpleRenderSystem> m_SimpleRenderSystem;
+	std::unique_ptr <VulkanDescriptorSetLayout> m_DescriptorSetLayout;
+	std::unique_ptr <VulkanDescriptorPool> m_DescriptorPool;
 
-	// --------------------------------------------------------------------
-	// Layout du pipeline graphique : définit les ressources (descripteurs, push constants) utilisées par le pipeline.
-	// Contient les layouts des sets de descripteurs et les plages de push constants.
-	VkPipelineLayout m_PipelineLayout;
-
-	// --------------------------------------------------------------------
-	// Pipeline graphique : définit toutes les étapes fixes du rendu (shaders, assemblage des primitives, rasterization, etc.).
-	// Représente le "chemin" que suivent les données pour être transformées en pixels à l'écran.
-	VkPipeline m_Pipeline;
-
-	std::vector<VkDescriptorSetLayoutBinding> m_LayoutBinding;
 
 };
 

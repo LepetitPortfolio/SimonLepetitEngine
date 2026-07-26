@@ -7,7 +7,7 @@ enum class InputState
 	Released = GLFW_RELEASE,
 	Pressed = GLFW_PRESS,
 	Repteated = GLFW_REPEAT
-}
+};
 
 class Controler
 {

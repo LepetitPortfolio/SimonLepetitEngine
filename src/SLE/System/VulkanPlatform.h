@@ -5,7 +5,7 @@
 #include "VulkanStructs.h"
 
 #include <memory>
-
+#include <iostream>
 
 
 class WindowPlatform;
@@ -39,7 +39,7 @@ public:
 	VkQueue GetGraphicsQueue() { return m_VulkanData->GraphicsQueue; }
 	VkQueue GetPresentQueue() { return m_VulkanData->PresentQueue; }
 	SwapChainSupportDetails GetSwapChainSupport() { return QuerySwapChainSupport(m_VulkanData->PhysicalDevice); }
-	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	static uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	QueueFamilyIndices FindPhysicalQueueFamilies() { return FindQueueFamilies(m_VulkanData->PhysicalDevice); }
 	VkFormat FindSupportedFormat( const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features);
 
@@ -51,31 +51,31 @@ public:
 	* _MemoryPropertyFlags : Propriétés de la mémoire (ex: accessible par l'hôte, locale au device).
 	* _Buffer, _BufferMemory : Références pour stocker le buffer et sa mémoire allouée.
 	*/
-	void CreateBuffer(VkDeviceSize _DeviceSize, VkBufferUsageFlags _UsageFlags, VkMemoryPropertyFlags _MemoryPropertyFlags, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory);
+	static void CreateBuffer(VkDeviceSize _DeviceSize, VkBufferUsageFlags _UsageFlags, VkMemoryPropertyFlags _MemoryPropertyFlags, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory);
 
 	/**
 	* Copie le contenu d'un buffer source vers un buffer destination.
 	* Utilise une commande ponctuelle (single-time command) pour effectuer la copie de manière efficace.
 	*/
-	void CopyBuffer(VkBuffer _SrcBuffer, VkBuffer _DstBuffer, VkDeviceSize _Size);
+	static void CopyBuffer(VkBuffer _SrcBuffer, VkBuffer _DstBuffer, VkDeviceSize _Size);
 
 	/**
 	* Commence l'enregistrement d'une commande ponctuelle (single-time command).
 	* Les commandes ponctuelles sont utilisées pour des opérations comme la copie de buffers ou le changement de layout d'image.
 	* Retourne le buffer de commandes alloué et prêt à l'enregistrement.
 	*/
-	VkCommandBuffer BeginSingleTimeCommands();
+	static VkCommandBuffer BeginSingleTimeCommands();
 	
 	/**
 	* Termine et soumet une commande ponctuelle, puis attend sa complétion.
 	* Libère également le buffer de commandes.
 	* _CommandBuffer : Buffer de commandes à finaliser.
 	*/
-	void EndSingleTimeCommands(VkCommandBuffer _CommandBuffer);
+	static void EndSingleTimeCommands(VkCommandBuffer _CommandBuffer);
 
-	void CopyBufferToImage(	VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height, uint32_t _LayerCount);
+	static void CopyBufferToImage(	VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height, uint32_t _LayerCount = 1);
 
-	void CreateImageWithInfo( const VkImageCreateInfo& _ImageInfo, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
+	static void CreateImageWithInfo( const VkImageCreateInfo& _ImageInfo, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
 
 private:
 

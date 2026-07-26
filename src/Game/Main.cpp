@@ -7,6 +7,7 @@
 #include "Graphics/TextureLoader.h"
 #include "Graphics/ModelLoader.h"
 #include "Graphics/Models/ModelInclude.h"
+#include "Graphics/Mesh.h"
 #include "Core/GlobalFunctionLibrary.h"
 #include "GameplayConcepts/Scene.h"
 
@@ -30,10 +31,12 @@ int main()
         Texture* texture = TextureLoader::LoadTexture(earthTextureFile.c_str());
 
         //Model* model = ModelLoader::LoadModel(modelFile.c_str(), texture, shader);
-		SphereModel* sphere = new SphereModel(1.0f, 32, 32,texture, shader);
+		SphereModel* sphere = new SphereModel(1.0f, 32, 32);
+
+		Mesh* mesh = new Mesh(sphere, shader, texture);
 
         //GlobalFunctionLibrary::GetCurrentScene()->AddGameObject(model);
-        GlobalFunctionLibrary::GetCurrentScene()->AddGameObject(sphere);
+        GlobalFunctionLibrary::GetCurrentScene()->AddGameObject(mesh);
 
 
         app->MainLoop();

@@ -12,11 +12,17 @@ GameObjectBase::~GameObjectBase()
 
 void GameObjectBase::AddComponent(GameObjectComponentBase* _Component)
 {
-	uint64_t id = reinterpret_cast<uint64_t>(_Component);
+	if (_Component == nullptr)
+	{
+		return;
+	}
+
+	uint64_t id = _Component->GetUID();
 
 	if(m_Components.count(id) == 0)
 	{
-		_Component->Init();
+		_Component->Init(this);
+
 		_Component->Enabled(true);
 		m_Components[id] = _Component;
 	}	
@@ -24,7 +30,12 @@ void GameObjectBase::AddComponent(GameObjectComponentBase* _Component)
 
 void GameObjectBase::RemoveComponent(GameObjectComponentBase* _Component)
 {
-	uint64_t id = reinterpret_cast<uint64_t>(_Component);
+	if (_Component == nullptr)
+	{
+		return;
+	}
+
+	uint64_t id = _Component->GetUID();
 
 	if (m_Components.count(id) == 0)
 	{
@@ -51,4 +62,22 @@ void GameObjectBase::UpdateComponents()
 	{
 		component.second->Update();
 	}
+}
+
+void GameObjectBase::DrawGameObject(VulkanFrameInfo _FrameInfo)
+{
+	if (m_DrawCallback.IsValid())
+	{
+		m_DrawCallback.Execute(_FrameInfo);
+	}
+}
+
+void GameObjectBase::AddDrawCallback(const std::function<void(VulkanFrameInfo)>& _Callback)
+{
+	m_DrawCallback += _Callback;
+}
+
+void GameObjectBase::RemoveDrawCallback(const std::function<void(VulkanFrameInfo)>& _Callback)
+{
+	m_DrawCallback -= _Callback;
 }

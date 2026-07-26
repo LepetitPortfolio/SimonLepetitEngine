@@ -1,33 +1,39 @@
 #include "ShaderLoader.h"
+#include "../System/VulkanIncludes.h"
 
 template<typename T>
 Shader* ShaderLoader::LoadVertexFragmentShader(std::string _ShaderName, const char* _VertexShaderFilename, const char* _FragmentShaderFilename)
 {
-	Shader* shader = new Shader(_ShaderName);
-	std::vector<char> vertexShaderCode;
-	std::vector<char> fragmentShaderCode;
-	VkShaderModule vertShaderModule{};
-	VkShaderModule fragShaderModule{};
-	std::vector<VkPipelineShaderStageCreateInfo> shaderStagesCreateInfo;
+	std::vector<VkDescriptorSetLayoutBinding> bindings;
 
-	shaderStagesCreateInfo.push_back(CreateShaderProgram(_VertexShaderFilename, ShaderType::VERTEX_SHADER, vertexShaderCode, vertShaderModule));
-	shaderStagesCreateInfo.push_back(CreateShaderProgram(_FragmentShaderFilename, ShaderType::FRAGMENT_SHADER, fragmentShaderCode, fragShaderModule));
+	auto vertCode = FileReader::ReadBinaryFile(_VertexShaderFilename);
+	auto fragCode = FileReader::ReadBinaryFile(_FragmentShaderFilename);
 
-	ReflectShaderBindings(ShaderType::VERTEX_SHADER, vertexShaderCode, shader->GetLayoutBinding());
-	ReflectShaderBindings(ShaderType::FRAGMENT_SHADER, fragmentShaderCode, shader->GetLayoutBinding());
+	ReflectShaderBindings(ShaderType::VERTEX_SHADER, vertCode, &bindings);
+	ReflectShaderBindings(ShaderType::FRAGMENT_SHADER, fragCode, &bindings);
 
-	CreateDescriptorSetLayout(*shader, shader->GetLayoutBinding());
+	VulkanDescriptorPoolBuilder descriptorPoolBuilder;
+	VulkanDescriptorSetBuilder descriptorSetBuilder;
 
-	CreateGraphicsPipeline(*shader, shaderStagesCreateInfo, Shader::DefaultPipelineConfigInfo<T>());
+	descriptorPoolBuilder.SetMaxSets(MAX_FRAMES_IN_FLIGHT).AddPoolsSize(&bindings, MAX_FRAMES_IN_FLIGHT);
+	descriptorSetBuilder.AddBindings(&bindings);
 
-	GlobalFunctionLibrary::GetAssetDataManager()->AddData(shader);
 
-	vkDestroyShaderModule(GlobalFunctionLibrary::GetVulkanDevice(), vertShaderModule, nullptr);
-	vkDestroyShaderModule(GlobalFunctionLibrary::GetVulkanDevice(), fragShaderModule, nullptr);
+	ShaderSettings<T> shaderSettings{};
+	shaderSettings.ShaderName = _ShaderName;
+	shaderSettings.ShaderCode[VK_SHADER_STAGE_VERTEX_BIT] = &vertCode;
+	shaderSettings.ShaderCode[VK_SHADER_STAGE_FRAGMENT_BIT] = &fragCode;
+	shaderSettings.ShaderStageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+	shaderSettings.RenderPass = GlobalFunctionLibrary::GetVulkanRenderer()->GetSwapChainRenderPass();
+	shaderSettings.DescriptorSetBuilder = descriptorSetBuilder;
+	shaderSettings.DescriptorPoolBuilder = descriptorPoolBuilder;
+
+	Shader* shader = new Shader(shaderSettings);
+	
 
 	return shader;
 }
-
+/*
 template<typename T>
 Shader* ShaderLoader::LoadComputeShader(std::string _ShaderName, const char* _ComputeShaderFilename)
 {
@@ -50,7 +56,8 @@ Shader* ShaderLoader::LoadComputeShader(std::string _ShaderName, const char* _Co
 
 	return shader;
 }
-
+*/
+/*
 template<typename T>
 void ShaderLoader::CreateComputePipeline(Shader& _Shader, const std::vector<VkPipelineShaderStageCreateInfo>& _ShaderStagesCreateInfo)
 {
@@ -74,3 +81,4 @@ void ShaderLoader::CreateComputePipeline(Shader& _Shader, const std::vector<VkPi
 		throw std::runtime_error("failed to create compute pipeline!");
 	}
 }
+*/

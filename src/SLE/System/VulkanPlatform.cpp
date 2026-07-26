@@ -7,6 +7,8 @@
 #include <unordered_set>
 
 
+std::unique_ptr<VulkanData> VulkanPlatform::m_VulkanData = std::make_unique<VulkanData>();
+
 VkResult CreateDebugUntilsMessageEXT(VkInstance _Instance, const VkDebugUtilsMessengerCreateInfoEXT* _pCreateInfo, const VkAllocationCallbacks* _pAllocator, VkDebugUtilsMessengerEXT* _pCallback)
 {
 	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(_Instance, "vkCreateDebugUtilsMessengerEXT");

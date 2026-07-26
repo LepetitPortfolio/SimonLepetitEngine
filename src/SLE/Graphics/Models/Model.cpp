@@ -2,6 +2,11 @@
 #include "../../Core/GlobalFunctionLibrary.h"
 #include "../../System/VulkanPlatform.h"
 #include "../../Common/Error.h"
+#include "../../System/AssetDataManager.h"
+
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
 
 #include <functional>
 
@@ -9,25 +14,22 @@
 
 Model::Model()
 {
+	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
 }
 
-Model::Model(Texture* _Texture, Shader* _ShaderProgram)
+Model::Model(const std::string& _Filepath)
 {
-	SetTexture(_Texture);
-	SetProgram(_ShaderProgram);
+	CreateModel(_Filepath);
+	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
 }
 
 Model::~Model()
 {
 	m_Vertices.clear();
 	m_Indices.clear();
-	vkDestroyBuffer(GlobalFunctionLibrary::GetVulkanDevice(), m_VertexBuffer, nullptr);
-	vkFreeMemory(GlobalFunctionLibrary::GetVulkanDevice(), m_VertexBufferMemory, nullptr);
-	vkDestroyBuffer(GlobalFunctionLibrary::GetVulkanDevice(), m_IndexBuffer, nullptr);
-	vkFreeMemory(GlobalFunctionLibrary::GetVulkanDevice(), m_IndexBufferMemory, nullptr);
 
-	m_Texture = nullptr;
-	m_ShaderProgram = nullptr;
+	m_VertexBuffer.reset();
+	m_IndexBuffer.reset();
 }
 
 std::vector<Vertex>& Model::GetVertices()
@@ -40,157 +42,50 @@ std::vector<uint32_t>& Model::GetIndices()
 	return m_Indices;
 }
 
-VkBuffer& Model::GetVertexBuffer()
-{
-	return m_VertexBuffer;
-}
-
-VkDeviceMemory& Model::GetVertexBufferMemory()
-{
-	return m_VertexBufferMemory;
-}
-
-VkBuffer& Model::GetIndexBuffer()
-{
-	return m_IndexBuffer;
-}
-
-VkDeviceMemory& Model::GetIndexBufferMemory()
-{
-	return m_IndexBufferMemory;
-}
-
-
-void Model::ShowInGame(bool _Value)
-{
-	if (_Value)
-	{
-		GlobalFunctionLibrary::GetVulkanPlatform()->GetDrawDelegate() += std::bind(&Model::Draw, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-		//m_StartTime.Reset();
-	}
-	else
-	{
-		GlobalFunctionLibrary::GetVulkanPlatform()->GetDrawDelegate() -= std::bind(&Model::Draw, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-		//m_StartTime.Stop();
-	}
-}
 
 void Model::CreateModel()
 {
 }
 
-void Model::Draw(VulkanData& _VulkanData, VkCommandBuffer& _CommandBuffer, uint32_t _ImageIndex)
+void Model::CreateModel(const std::string& _Filepath)
 {
-	VkCommandBufferBeginInfo commandBufferBeginInfo{};
-	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	LoadModel(_Filepath);
+	CreateVertexBuffers();
+	CreateIndexBuffers();
+}
 
-	if (vkBeginCommandBuffer(_CommandBuffer, &commandBufferBeginInfo) != VK_SUCCESS) {
-		Err() << "failed to begin recording command buffer!" << std::endl;
-	}
-
-	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-	clearValues[1].depthStencil = { 1.0f, 0 };
-
-	VkRenderPassBeginInfo renderPassBeginInfo{};
-	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassBeginInfo.renderPass = _VulkanData.RenderPass;
-	renderPassBeginInfo.framebuffer = _VulkanData.SwapChainFramebuffers[_ImageIndex];
-	renderPassBeginInfo.renderArea.offset = { 0, 0 };
-	renderPassBeginInfo.renderArea.extent = _VulkanData.SwapChainExtent;
-	renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassBeginInfo.pClearValues = clearValues.data();
-
-	vkCmdBeginRenderPass(_CommandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	if (m_ShaderProgram)
+void Model::Draw(VkCommandBuffer _CommandBuffer)
+{
+	if (m_HasIndexBuffer) 
 	{
-		vkCmdBindPipeline(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_ShaderProgram->GetPipeline());
+		vkCmdDrawIndexed(_CommandBuffer, m_IndexCount, 1, 0, 0, 0);
 	}
-
-	VkViewport viewport{};
-	viewport.x = 0.0f;
-	viewport.y = 0.0f;
-	viewport.width = (float)_VulkanData.SwapChainExtent.width;
-	viewport.height = (float)_VulkanData.SwapChainExtent.height;
-	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 1.0f;
-	vkCmdSetViewport(_CommandBuffer, 0, 1, &viewport);
-
-	VkRect2D scissor{};
-	scissor.offset = { 0, 0 };
-	scissor.extent = _VulkanData.SwapChainExtent;
-	vkCmdSetScissor(_CommandBuffer, 0, 1, &scissor);
-
-	VkBuffer vertexBuffers[] = { m_VertexBuffer };
-	VkDeviceSize offsets[] = { 0 };
-	vkCmdBindVertexBuffers(_CommandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(_CommandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-	if (m_ShaderProgram)
+	else 
 	{
-		vkCmdBindDescriptorSets(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_ShaderProgram->GetPipelineLayout(), 0, 1, &m_DescriptorSets[GlobalFunctionLibrary::GetVulkanPlatform()->GetCurrentFrameIndex()], 0, nullptr);
-	}
-
-	
-	vkCmdDrawIndexed(_CommandBuffer, static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
-
-	vkCmdEndRenderPass(_CommandBuffer);
-
-	if (vkEndCommandBuffer(_CommandBuffer) != VK_SUCCESS) {
-		Err() << "failed to record command buffer!" << std::endl;
+		vkCmdDraw(_CommandBuffer, m_VertexCount, 1, 0, 0);
 	}
 }
 
-void Model::SetProgram(Shader* _ShaderProgram)
+void Model::Bind(VkCommandBuffer _CommandBuffer)
 {
-	if (_ShaderProgram == nullptr)
+	VkBuffer buffers[] = { m_VertexBuffer->GetBuffer() };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(_CommandBuffer, 0, 1, buffers, offsets);
+
+	if (m_HasIndexBuffer) 
 	{
-		Err() << "Shader Program is null!" << std::endl;
-		return;
+		vkCmdBindIndexBuffer(_CommandBuffer, m_IndexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
 	}
-
-	std::vector<VkDescriptorSetLayout> setLayouts(MAX_FRAMES_IN_FLIGHT, _ShaderProgram->GetDescriptorSetLayout());
-	m_DescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-
-	VkDescriptorSetAllocateInfo setAllocateInfo{};
-	setAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	setAllocateInfo.descriptorPool = GlobalFunctionLibrary::GetVulkanData()->DescriptorPool;
-	setAllocateInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-	setAllocateInfo.pSetLayouts = setLayouts.data();
-
-	if (vkAllocateDescriptorSets(GlobalFunctionLibrary::GetVulkanDevice(), &setAllocateInfo, m_DescriptorSets.data()) != VK_SUCCESS)
-	{
-		Err() << "failed to allocate descriptor sets!" << std::endl;
-	}
-
-	m_ShaderProgram = _ShaderProgram;
-	UpdateDescriptorSets();
 }
 
 void Model::Destroy()
 {
-	vkDestroyBuffer(GlobalFunctionLibrary::GetVulkanDevice(), m_IndexBuffer, nullptr);
-	vkFreeMemory(GlobalFunctionLibrary::GetVulkanDevice(), m_IndexBufferMemory, nullptr);
+	m_Vertices.clear();
+	m_Indices.clear();
 
-	vkDestroyBuffer(GlobalFunctionLibrary::GetVulkanDevice(), m_VertexBuffer, nullptr);
-	vkFreeMemory(GlobalFunctionLibrary::GetVulkanDevice(), m_VertexBufferMemory, nullptr);
-}
-
-void Model::SetTexture(Texture* _Texture)
-{
-	if(!_Texture)
-	{
-		Err() << "Texture is null!" << std::endl;
-		return;
-	}
-	m_Texture = _Texture;
-	UpdateDescriptorSets();
-}
-
-const Texture* Model::GetTexture() const
-{
-	return m_Texture;
+	m_VertexBuffer.reset();
+	m_IndexBuffer.reset();
+	
 }
 
 void Model::AddVertex(Vertex _Vertex)
@@ -203,6 +98,52 @@ void Model::AddIndex(uint32_t _Index)
 	m_Indices.push_back(_Index);
 }
 
+
+void Model::CreateVertexBuffers()
+{
+	VulkanPlatform* vulkanPlatform = GlobalFunctionLibrary::GetVulkanPlatform();
+
+	m_VertexCount = static_cast<uint32_t>(m_Vertices.size());
+	assert(m_VertexCount >= 3 && "Vertex count must be at least 3");
+
+	VkDeviceSize bufferSize = sizeof(m_Vertices[0]) * m_VertexCount;
+	uint32_t vertexSize = sizeof(m_Vertices[0]);
+
+	VulkanBuffer stagingBuffer{ vertexSize, m_VertexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,};
+
+	stagingBuffer.Map();
+	stagingBuffer.WriteToBuffer((void*)m_Vertices.data(), bufferSize);
+
+	m_VertexBuffer = std::make_unique<VulkanBuffer>(vertexSize, m_VertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+	vulkanPlatform->CopyBuffer(stagingBuffer.GetBuffer(), m_VertexBuffer->GetBuffer(), bufferSize);
+}
+
+void Model::CreateIndexBuffers()
+{
+	m_IndexCount = static_cast<uint32_t>(m_Indices.size());
+	m_HasIndexBuffer = m_IndexCount > 0;
+
+	if (!m_HasIndexBuffer) {
+		return;
+	}
+
+	VulkanPlatform* vulkanPlatform = GlobalFunctionLibrary::GetVulkanPlatform();
+
+	VkDeviceSize bufferSize = sizeof(m_Indices[0]) * m_IndexCount;
+	uint32_t indexSize = sizeof(m_Indices[0]);
+
+	VulkanBuffer stagingBuffer(indexSize, m_IndexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	stagingBuffer.Map();
+	stagingBuffer.WriteToBuffer((void*)m_Indices.data(), bufferSize);
+
+	m_IndexBuffer = std::make_unique<VulkanBuffer>(indexSize, m_IndexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+	vulkanPlatform->CopyBuffer(stagingBuffer.GetBuffer(), m_IndexBuffer->GetBuffer(), bufferSize);
+}
+
+/*
 void Model::UpdateDescriptorSets()
 {
 	if(m_ShaderProgram == nullptr)
@@ -245,42 +186,69 @@ void Model::UpdateDescriptorSets()
 		vkUpdateDescriptorSets(GlobalFunctionLibrary::GetVulkanDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
 	}
 }
+*/
 
-void Model::CreateVertexBuffer()
+void Model::LoadModel(const std::string& _Filepath)
 {
-	VkDeviceSize bufferSize = sizeof(GetVertices()[0]) * GetVertices().size();
+	tinyobj::attrib_t attrib;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+	std::string warn, err;
 
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	VulkanPlatform::CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, _Filepath.c_str())) 
+	{
+		throw std::runtime_error(warn + err);
+	}
 
-	void* data;
-	vkMapMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, GetVertices().data(), (size_t)bufferSize);
-	vkUnmapMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory);
+	m_Vertices.clear();
+	m_Indices.clear();
 
-	VulkanPlatform::CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, GetVertexBuffer(), GetVertexBufferMemory());
+	std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+	for (const auto& shape : shapes) {
+		for (const auto& index : shape.mesh.indices) {
+			Vertex vertex{};
 
-	VulkanPlatform::CopyBuffer(stagingBuffer, GetVertexBuffer(), bufferSize);
+			if (index.vertex_index >= 0) 
+			{
+				vertex.Position = 
+				{
+					attrib.vertices[3 * index.vertex_index + 0],
+					attrib.vertices[3 * index.vertex_index + 1],
+					attrib.vertices[3 * index.vertex_index + 2],
+				};
 
-	vkDestroyBuffer(GlobalFunctionLibrary::GetVulkanDevice(), stagingBuffer, nullptr);
-	vkFreeMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory, nullptr);
-}
+				vertex.Color = 
+				{
+					attrib.colors[3 * index.vertex_index + 0],
+					attrib.colors[3 * index.vertex_index + 1],
+					attrib.colors[3 * index.vertex_index + 2],
+				};
+			}
 
-void Model::CreateIndexBuffer()
-{
-	VkDeviceSize bufferSize = sizeof(GetIndices()[0]) * GetIndices().size();
+			if (index.normal_index >= 0) 
+			{
+				vertex.Normal = 
+				{
+					attrib.normals[3 * index.normal_index + 0],
+					attrib.normals[3 * index.normal_index + 1],
+					attrib.normals[3 * index.normal_index + 2],
+				};
+			}
 
-	VkBuffer stagingBuffer;
-	VkDeviceMemory stagingBufferMemory;
-	VulkanPlatform::CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-	void* data;
-	vkMapMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
-	memcpy(data, GetIndices().data(), (size_t)bufferSize);
-	vkUnmapMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory);
-	VulkanPlatform::CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, GetIndexBuffer(), GetIndexBufferMemory());
+			if (index.texcoord_index >= 0) 
+			{
+				vertex.UV = 
+				{
+					attrib.texcoords[2 * index.texcoord_index + 0],
+					attrib.texcoords[2 * index.texcoord_index + 1],
+				};
+			}
 
-	VulkanPlatform::CopyBuffer(stagingBuffer, GetIndexBuffer(), bufferSize);
-	vkDestroyBuffer(GlobalFunctionLibrary::GetVulkanDevice(), stagingBuffer, nullptr);
-	vkFreeMemory(GlobalFunctionLibrary::GetVulkanDevice(), stagingBufferMemory, nullptr);
+			if (uniqueVertices.count(vertex) == 0) {
+				uniqueVertices[vertex] = static_cast<uint32_t>(m_Vertices.size());
+				m_Vertices.push_back(vertex);
+			}
+			m_Indices.push_back(uniqueVertices[vertex]);
+		}
+	}
 }

@@ -7,19 +7,19 @@
 #include <string>
 #include <vector>
 
-class SwapChain
+class VulkanSwapChain
 {
 public :
 
 	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-	SwapChain(VulkanPlatform& _VulkanPlatform, VkExtent2D _WindowExtent);
-	SwapChain(VulkanPlatform& _VulkanPlatform, VkExtent2D _WindowExtent, std::shared_ptr<SwapChain> _Previous);
+	VulkanSwapChain(VkExtent2D _WindowExtent);
+	VulkanSwapChain(VkExtent2D _WindowExtent, std::shared_ptr<VulkanSwapChain> _Previous);
 
-	~SwapChain();
+	~VulkanSwapChain();
 
-	SwapChain(const SwapChain&) = delete;
-	SwapChain& operator=(const SwapChain&) = delete;
+	VulkanSwapChain(const VulkanSwapChain&) = delete;
+	VulkanSwapChain& operator=(const VulkanSwapChain&) = delete;
 
 	VkFramebuffer GetFrameBuffer(int index) { return m_SwapChainFramebuffers[index]; }
 	VkRenderPass GetRenderPass() { return m_RenderPass; }
@@ -37,7 +37,9 @@ public :
 	VkResult AcquireNextImage(uint32_t* _ImageIndex);
 	VkResult SubmitCommandBuffers(const VkCommandBuffer* _Buffers, uint32_t* _ImageIndex);
 
-	bool CompareSwapFormats(const SwapChain& _SwapChain);
+	VkImageView CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags, uint32_t _MipLevels);
+
+	bool CompareSwapFormats(const VulkanSwapChain& _SwapChain);
 
 private:
 
@@ -48,16 +50,21 @@ private:
 	std::vector<VkFramebuffer> m_SwapChainFramebuffers;
 	VkRenderPass m_RenderPass;
 
+	std::vector <VkImage> m_ColorImage;
+	std::vector<VkDeviceMemory> m_ColorImageMemory;
+	std::vector<VkImageView> m_ColorImageView;
+
 	std::vector<VkImage> m_DepthImages;
 	std::vector<VkDeviceMemory> m_DepthImageMemorys;
 	std::vector<VkImageView> m_DepthImageViews;
+
 	std::vector<VkImage> m_SwapChainImages;
 	std::vector<VkImageView> m_SwapChainImageViews;
 
-	VulkanPlatform& m_VulkanPlatform;
+	VulkanPlatform* m_VulkanPlatform;
 	VkExtent2D m_WindowExtent;
 	VkSwapchainKHR m_SwapChain;
-	std::shared_ptr<SwapChain> m_OldSwapChain;
+	std::shared_ptr<VulkanSwapChain> m_OldSwapChain;
 
 	std::vector<VkSemaphore> m_ImageAvailableSemaphores;
 	std::vector<VkSemaphore> m_RenderFinishedSemaphores;
@@ -68,10 +75,13 @@ private:
 	void Init();
 	void CreateSwapChain();
 	void CreateImageViews();
+	void CreateColorResources();
 	void CreateDepthResources();
 	void CreateRenderPass();
 	void CreateFramebuffers();
 	void CreateSyncObjects();
+
+
 
 	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(	const std::vector<VkSurfaceFormatKHR>& _AvailableFormats);
 	VkPresentModeKHR ChooseSwapPresentMode(	const std::vector<VkPresentModeKHR>& _AvailablePresentModes);

@@ -8,17 +8,17 @@ Transform::~Transform()
 {
 }
 
-const glm::vec3 Transform::GetPosition()
+glm::vec3 Transform::GetPosition()
 {
 	return m_Position;
 }
 
-const glm::vec3 Transform::GetRotation()
+glm::vec3 Transform::GetRotation()
 {
 	return m_Rotation;
 }
 
-const glm::vec3 Transform::GetScale()
+glm::vec3 Transform::GetScale()
 {
 	return m_Scale;
 }
@@ -98,4 +98,74 @@ glm::mat3 Transform::TransformNormalMatrix()
             invScale.z * (c1 * c2),
         },
     };
+}
+
+
+
+Transform Transform::operator+(Transform& _Other)
+{
+    Transform outTransform = Transform();
+    outTransform.SetPosition(m_Position + _Other.GetPosition());
+    outTransform.SetRotation(m_Rotation + _Other.GetRotation());
+    outTransform.SetScale(m_Scale + _Other.GetScale());
+
+    return outTransform;
+}
+
+Transform Transform::operator+(Transform* _Other)
+{
+    Transform outTransform = Transform();
+    outTransform.SetPosition(m_Position + _Other->GetPosition());
+    outTransform.SetRotation(m_Rotation + _Other->GetRotation());
+    outTransform.SetScale(m_Scale + _Other->GetScale());
+
+    return outTransform;
+}
+
+void Transform::operator+=(Transform& _Other)
+{
+    m_Position += _Other.GetPosition();
+    m_Rotation += _Other.GetRotation();
+    m_Scale += _Other.GetScale();
+}
+
+void Transform::operator+=(Transform* _Other)
+{
+    m_Position += _Other->GetPosition();
+    m_Rotation += _Other->GetRotation();
+    m_Scale += _Other->GetScale();
+}
+
+Transform Transform::operator-(Transform& _Other)
+{
+    Transform outTransform = Transform();
+    outTransform.SetPosition(m_Position - _Other.GetPosition());
+    outTransform.SetRotation(m_Rotation - _Other.GetRotation());
+    outTransform.SetScale(m_Scale - _Other.GetScale());
+
+    return outTransform;
+}
+
+Transform Transform::operator-(Transform* _Other)
+{
+    Transform outTransform = Transform();
+    outTransform.SetPosition(m_Position - _Other->GetPosition());
+    outTransform.SetRotation(m_Rotation - _Other->GetRotation());
+    outTransform.SetScale(m_Scale - _Other->GetScale());
+
+    return outTransform;
+}
+
+void Transform::operator-=(Transform& _Other)
+{
+    m_Position -= _Other.GetPosition();
+    m_Rotation -= _Other.GetRotation();
+    m_Scale -= _Other.GetScale();
+}
+
+void Transform::operator-=(Transform* _Other)
+{
+    m_Position -= _Other->GetPosition();
+    m_Rotation -= _Other->GetRotation();
+    m_Scale -= _Other->GetScale();
 }

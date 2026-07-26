@@ -4,7 +4,8 @@
 #include <algorithm>
 
 template<typename... Args>
-class DelegateMulticast {
+class DelegateMulticast 
+{
 public:
 
 	/**
@@ -25,6 +26,16 @@ public:
 	void Clear() 
 	{
 		m_FunctionsDelegate.clear();
+	}
+
+	bool IsValid()
+	{
+		if (m_FunctionsDelegate.empty())
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

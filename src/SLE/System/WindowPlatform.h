@@ -1,6 +1,7 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 
 #include <string>
 
@@ -8,8 +9,6 @@
 const uint32_t WIDTH = 1600;
 const uint32_t HEIGHT = 900;
 
-
-class VulkanPlatform;
 
 class WindowPlatform
 {
@@ -35,7 +34,7 @@ public:
 	GLFWwindow* GetWindow() { return m_Window; }
 
 	bool ShouldClose() { return glfwWindowShouldClose(m_Window); }
-	VkExtent2D GetExtent() { return { static_cast<uint32_t>(m_Width), static_cast<uint32_t>(m_Height) }; }
+	VkExtent2D GetExtent() { return VkExtent2D{ static_cast<uint32_t>(m_Width), static_cast<uint32_t>(m_Height) }; }
 	bool WasWindowResized() { return m_FramebufferResized; }
 	void ResetWindowResizedFlag() { m_FramebufferResized = false; }
 
@@ -92,5 +91,5 @@ private:
 	*   - Si `app->m_VulkanPlatform` n'est pas `nullptr`, appelle `SetFrameBufferResized(true)` sur la plateforme Vulkan associée.
 	*   - Cela permet de notifier la plateforme Vulkan que le framebuffer a été redimensionné, afin qu'elle puisse recréer les ressources nécessaires (comme le swap chain).
 	*/
-	static void FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Heigth);
+	static void FrameBufferResizeCallback(GLFWwindow* _Window, int _Width, int _Height);
 };

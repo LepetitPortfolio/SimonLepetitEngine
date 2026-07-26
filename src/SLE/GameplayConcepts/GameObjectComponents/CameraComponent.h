@@ -1,18 +1,20 @@
 #pragma once
-#include "../GameObjectComponentBase.h"
+#include "LocationComponent.h"
 #include "../CameraBase.h"
 
-class CameraComponent
+class CameraComponent : public LocationComponent
 {
 public:
-	CameraComponent(CameraBase* _CameraBase);
+	CameraComponent(CameraBase* _CameraBase, Transform _LocalTransform = Transform{});
 	~CameraComponent();
 
 
-	virtual void Init() override;
+	virtual void Init(GameObjectBase* _GameObjectParent) override;
 	virtual void Desinit() override;
-	virtual void Update() override;
 
 protected:
 	CameraBase* m_Camera;
+
+	virtual void EnabledAction() override;
+	virtual void DisableAction() override;
 };

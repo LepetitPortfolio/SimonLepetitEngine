@@ -1,7 +1,9 @@
 #pragma once
 #include <GLFW/glfw3.h>
 
-enum class Keyboard
+#include "InputCommon.h"
+
+enum class KeyboardInput : InputBase
 {
     Unknown = -1,
     A = GLFW_KEY_A,
@@ -105,4 +107,12 @@ enum class Keyboard
     F14 = GLFW_KEY_F14,
     F15 = GLFW_KEY_F15,
     Pause = GLFW_KEY_PAUSE,
+};
+
+class Keyboard
+{
+public:
+    static bool GetKeyInputDown(KeyboardInput _KeyboardInput);
+    static bool GetKeyInputUp(KeyboardInput _KeyboardInput);
+    static InputStatus GetKeyInputStatut(KeyboardInput _KeyboardInput);
 };

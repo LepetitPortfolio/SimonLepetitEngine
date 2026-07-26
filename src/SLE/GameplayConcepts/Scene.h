@@ -16,9 +16,10 @@ public:
 	void UnloadScene();
 
 	void Update();
+	void UpdateDraw(VulkanFrameInfo _FrameInfo);
 
 	void AddGameObject(GameObjectBase* _GameObject);
-	void AddGameObject(class Model* _Model);
+	void AddGameObject(class Mesh* _Mesh);
 	void RemoveGameObject(GameObjectBase* _GameObject);
 
 	void ClearAllGameObjects();
