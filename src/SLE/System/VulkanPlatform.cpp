@@ -46,6 +46,7 @@ VulkanPlatform::VulkanPlatform(WindowPlatform& _WindowPlatform) : m_WindowPlatfo
 
 VulkanPlatform::~VulkanPlatform()
 {
+
 	vkDestroyCommandPool(m_VulkanData->Device, m_VulkanData->CommandPool, nullptr);
 
 	vkDestroyDevice(m_VulkanData->Device, nullptr);

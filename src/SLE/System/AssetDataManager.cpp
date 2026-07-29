@@ -10,6 +10,7 @@ AssetDataManager::AssetDataManager()
 
 AssetDataManager::~AssetDataManager()
 {
+	ClearAllData();
 	m_ShaderManager.reset();
 	m_TextureManager.reset();
 	m_ModelManager.reset();

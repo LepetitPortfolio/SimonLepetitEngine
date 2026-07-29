@@ -61,9 +61,9 @@ void Engine::Init()
 
 
 	m_DefaultCamera = std::make_unique<CameraBase>();
+	m_DefaultCamera->SetViewTarget(glm::vec3{ 0.f, 0.f, -10.f }, glm::vec3{ 0.f, 0.f, 0.f });
 	ChangeMainCamera(m_DefaultCamera.get());
 
-	m_DefaultCamera->SetViewDirection(glm::vec3{ 0.f, 0.f, -10.f }, glm::vec3{ 0.f, 0.f, 1.f });
 
 	m_InputManager = std::make_unique<InputManager>();
 	m_InputManager->Init();
@@ -73,12 +73,12 @@ void Engine::Init()
 	m_AssetDataManager = std::make_unique<AssetDataManager>();
 
 	m_UBOBuffers = std::vector<std::unique_ptr<VulkanBuffer>>(VulkanSwapChain::MAX_FRAMES_IN_FLIGHT);
+
 	for (int uboBuffersIndex = 0; uboBuffersIndex < m_UBOBuffers.size(); uboBuffersIndex++)
 	{
 		m_UBOBuffers[uboBuffersIndex] = std::make_unique<VulkanBuffer>(sizeof(UniformBufferObject), 1, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 		m_UBOBuffers[uboBuffersIndex]->Map();
 	}
-
 
 	m_IsInitialized = true;
 
@@ -94,6 +94,10 @@ void  Engine::ChangeMainCamera(CameraBase* _Camera)
 		}
 
 		m_MainCamera = _Camera;
+
+		float aspect = m_Renderer->GetAspectRatio();
+		m_MainCamera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
+
 		m_MainCamera->SetUsed(true);
 
 	}
@@ -118,6 +122,12 @@ void Engine::RemoveMainCamera()
 
 void Engine::MainLoop()
 {
+
+	UniformBufferObject ubo{};
+	ubo.Projection = m_MainCamera->GetProjection();
+	ubo.View = m_MainCamera->GetView();
+	ubo.InverseView = m_MainCamera->GetInverseView();
+
 	auto currentTime = std::chrono::high_resolution_clock::now();
 
 	while (!m_WindowPlatform->ShouldClose())
@@ -130,19 +140,12 @@ void Engine::MainLoop()
 
 		m_InputManager->Update();
 
-		float aspect = m_Renderer->GetAspectRatio();
-		m_MainCamera->SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
-
 		if (auto commandBuffer = m_Renderer->BeginFrame())
 		{
 			int frameIndex = m_Renderer->GetFrameIndex();
 			VulkanFrameInfo frameInfo{ frameIndex, frameTime, commandBuffer, m_MainCamera};
 
 			// update
-			UniformBufferObject ubo{};
-			ubo.Projection = m_MainCamera->GetProjection();
-			ubo.View = m_MainCamera->GetView();
-			ubo.InverseView = m_MainCamera->GetInverseView();
 
 			//pointLightSystem.update(frameInfo, ubo);
 
@@ -189,6 +192,14 @@ void Engine::Cleanup()
 		return;
 	}
 
+	
+	
+	m_InputManager.reset();
+
+	m_SceneManager.reset();
+
+	m_AssetDataManager.reset();
+
 	for (int uboBuffersIndex = 0; uboBuffersIndex < m_UBOBuffers.size(); uboBuffersIndex++)
 	{
 		m_UBOBuffers[uboBuffersIndex].reset();
@@ -196,15 +207,8 @@ void Engine::Cleanup()
 
 	m_UBOBuffers.clear();
 
-	m_SceneManager->Cleanup();
-	m_SceneManager.reset();
-	m_AssetDataManager->ClearAllData();
-	m_AssetDataManager.reset();
-	m_InputManager->Cleanup();
-	m_InputManager.reset();
 	m_Renderer.reset();
 	m_VulkanPlatform.reset();
-	m_WindowPlatform->Cleanup();
 	m_WindowPlatform.reset();
 	m_IsInitialized = false;
 }

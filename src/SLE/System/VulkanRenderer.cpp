@@ -12,8 +12,9 @@ VulkanRenderer::VulkanRenderer()
 }
 
 VulkanRenderer::~VulkanRenderer() 
-{ 
-	FreeCommandBuffers(); 
+{
+	FreeCommandBuffers();
+	m_SwapChain.reset();
 }
 
 VkCommandBuffer VulkanRenderer::GetCurrentCommandBuffer() const

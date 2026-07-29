@@ -16,7 +16,7 @@ public:
 	Texture(const Texture&) = delete;
 	Texture& operator=(const Texture&) = delete;
 
-	~Texture();
+	virtual ~Texture() override;
 
 	inline TextureInfos& GetTextureInfos() { return m_TextureInfos; }
 	inline VkImage& GetTextureImage() { return m_TextureImage; }

@@ -7,6 +7,7 @@
 VulkanBuffer::VulkanBuffer(VkDeviceSize _InstanceSize, uint32_t _InstanceCount, VkBufferUsageFlags _UsageFlags, VkMemoryPropertyFlags _MemoryPropertyFlags, VkDeviceSize _MinOffsetAlignment) 
 	: m_InstanceSize{ _InstanceSize }, m_InstanceCount{ _InstanceCount }, m_UsageFlags{ _UsageFlags }, m_MemoryPropertyFlags{ _MemoryPropertyFlags }
 {
+
 	m_AlignmentSize = GetAlignment(m_InstanceCount, _MinOffsetAlignment);
 	m_BufferSize = m_AlignmentSize * m_InstanceCount;
 	GlobalFunctionLibrary::GetVulkanPlatform()->CreateBuffer(m_BufferSize, m_UsageFlags, m_MemoryPropertyFlags, m_Buffer, m_Memory);

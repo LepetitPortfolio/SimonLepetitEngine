@@ -18,13 +18,13 @@ int main()
 
     if(app)
     {
-        std::string vertexShader = FileReader::GetRootFolder().ToANSIString() + "Shaders/4_vert.spv";
-        std::string fragmentShader = FileReader::GetRootFolder().ToANSIString() + "Shaders/4_frag.spv";
+        std::string vertexShader = FileReader::GetRootFolder().ToANSIString() + "Shaders/Vert.spv";
+        std::string fragmentShader = FileReader::GetRootFolder().ToANSIString() + "Shaders/Frag.spv";
         std::string textureFile = FileReader::GetRootFolder().ToANSIString() + "Assets/Textures/viking_room.png";
         std::string earthTextureFile = FileReader::GetRootFolder().ToANSIString() + "Assets/Textures/2k_earth_daymap.jpg";
         std::string modelFile = FileReader::GetRootFolder().ToANSIString() + "Assets/Models/viking_room.obj";
 
-
+        
 		Shader* shader = ShaderLoader::LoadVertexFragmentShader<Vertex>("BasicShader", vertexShader.c_str(), fragmentShader.c_str());
 
         //Texture* texture = TextureLoader::LoadTexture(textureFile.c_str());
@@ -35,7 +35,6 @@ int main()
 
 		Mesh* mesh = new Mesh(sphere, shader, texture);
 
-        //GlobalFunctionLibrary::GetCurrentScene()->AddGameObject(model);
         GlobalFunctionLibrary::GetCurrentScene()->AddGameObject(mesh);
 
 

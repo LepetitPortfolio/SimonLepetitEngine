@@ -92,6 +92,7 @@ class VulkanDescriptorWriter
 
 public:
 	VulkanDescriptorWriter(VulkanDescriptorSetLayout* _SetLayout, VulkanDescriptorPool* _Pool);
+	~VulkanDescriptorWriter();
 
 	VulkanDescriptorWriter& WriteBuffer(uint32_t _Binding, VkDescriptorBufferInfo* _BufferInfo);
 	VulkanDescriptorWriter& WriteImage(uint32_t _Binding, VkDescriptorImageInfo* _ImageInfo);

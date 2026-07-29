@@ -35,7 +35,6 @@ target_link_libraries(SLE PRIVATE glfw Vulkan::Vulkan)
 target_link_libraries(SLE PRIVATE spirv-reflect-static)
 
 
-
 if(Vulkan_FOUND)
     get_filename_component(Vulkan_SDK ${Vulkan_INCLUDE_DIRS} DIRECTORY)
 

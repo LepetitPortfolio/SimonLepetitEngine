@@ -28,7 +28,7 @@ public:
 
 	template<typename T>
 	Shader(ShaderSettings<T> _ShaderSettings);
-	~Shader();
+	virtual ~Shader() override;
 
 	Shader(const Shader&) = delete;
 	Shader& operator=(const Shader&) = delete;

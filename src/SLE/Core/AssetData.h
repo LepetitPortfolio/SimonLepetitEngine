@@ -7,7 +7,7 @@ class AssetData
 {
 public:
 	AssetData() = default;
-	~AssetData() = default;
+	virtual ~AssetData() = default;
 
 	AssetData(const AssetData&) = delete;
 	AssetData& operator=(const AssetData&) = delete;

@@ -21,7 +21,7 @@ class Model : public AssetData, public IDrawableGameObject
 public:
 	Model();
 	Model(const std::string& _Filepath);
-	virtual ~Model();
+	virtual ~Model() override;
 
 	Model(const Model&) = delete;
 	Model& operator=(const Model&) = delete;

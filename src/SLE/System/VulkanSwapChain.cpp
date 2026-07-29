@@ -36,6 +36,13 @@ VulkanSwapChain::~VulkanSwapChain()
 		m_SwapChain = nullptr;
 	}
 
+	for (int colorImagesIndex = 0; colorImagesIndex < m_ColorImage.size(); colorImagesIndex++)
+	{
+		vkDestroyImageView(m_VulkanPlatform->GetDevice(), m_ColorImageView[colorImagesIndex], nullptr);
+		vkDestroyImage(m_VulkanPlatform->GetDevice(), m_ColorImage[colorImagesIndex], nullptr);
+		vkFreeMemory(m_VulkanPlatform->GetDevice(), m_ColorImageMemory[colorImagesIndex], nullptr);
+	}
+
 	for (int depthImagesIndex = 0; depthImagesIndex < m_DepthImages.size(); depthImagesIndex++)
 	{
 		vkDestroyImageView(m_VulkanPlatform->GetDevice(), m_DepthImageViews[depthImagesIndex], nullptr);
@@ -57,6 +64,9 @@ VulkanSwapChain::~VulkanSwapChain()
 		vkDestroySemaphore(m_VulkanPlatform->GetDevice(), m_ImageAvailableSemaphores[FrameInFlightIndex], nullptr);
 		vkDestroyFence(m_VulkanPlatform->GetDevice(), m_InFlightFences[FrameInFlightIndex], nullptr);
 	}
+
+	m_VulkanPlatform = nullptr;
+
 }
 
 void VulkanSwapChain::Init()

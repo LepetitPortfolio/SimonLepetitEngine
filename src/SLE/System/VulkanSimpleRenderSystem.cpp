@@ -24,6 +24,7 @@ VulkanSimpleRenderSystem::VulkanSimpleRenderSystem(){}
 VulkanSimpleRenderSystem::~VulkanSimpleRenderSystem()
 {
 	vkDestroyPipelineLayout(GlobalFunctionLibrary::GetVulkanDevice(), m_PipelineLayout, nullptr);
+	m_Pipeline.reset();
 }
 
 void VulkanSimpleRenderSystem::RenderGameObjects(VkCommandBuffer _CommandBuffer, VkDescriptorSet _DescriptorSet, Transform* _Transform, Model* _Model)
@@ -32,7 +33,7 @@ void VulkanSimpleRenderSystem::RenderGameObjects(VkCommandBuffer _CommandBuffer,
 
 	vkCmdBindDescriptorSets(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &_DescriptorSet, 0, nullptr);
 
-	if (_Model != nullptr)
+	if (_Model)
 	{
 		VulkanSimplePushConstantData push{};
 		push.ModelMatrix = _Transform->TransformMatrix();
@@ -41,7 +42,7 @@ void VulkanSimpleRenderSystem::RenderGameObjects(VkCommandBuffer _CommandBuffer,
 		vkCmdPushConstants(_CommandBuffer, m_PipelineLayout, m_ShaderStageFlags, 0, sizeof(VulkanSimplePushConstantData), &push);
 
 		_Model->Bind(_CommandBuffer);
-		_Model->Draw(_CommandBuffer);
+ 		_Model->Draw(_CommandBuffer);
 	}
 }
 

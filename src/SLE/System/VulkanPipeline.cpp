@@ -15,6 +15,7 @@ VulkanPipeline::VulkanPipeline(const std::vector<char>* _VertCode, const std::ve
 
 VulkanPipeline::~VulkanPipeline()
 {
+
 	for (auto shaderModule : m_ShaderModules)
 	{
 		vkDestroyShaderModule(GlobalFunctionLibrary::GetVulkanDevice(), shaderModule.second, nullptr);

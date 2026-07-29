@@ -10,6 +10,8 @@ Scene::Scene()
 
 Scene::~Scene()
 {
+	// Clear all game objects
+	ClearAllGameObjects();
 }
 
 void Scene::Init()

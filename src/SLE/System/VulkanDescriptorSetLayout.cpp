@@ -131,6 +131,7 @@ VulkanDescriptorPool VulkanDescriptorPoolBuilder::Build() const
 
 VulkanDescriptorPool::VulkanDescriptorPool(uint32_t _MaxSets, VkDescriptorPoolCreateFlags _PoolFlags, const std::vector<VkDescriptorPoolSize>& _PoolSizes)
 {
+
 	VkDescriptorPoolCreateInfo descriptorPoolInfo{};
 	descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(_PoolSizes.size());
@@ -177,8 +178,20 @@ void VulkanDescriptorPool::ResetPool()
 
 VulkanDescriptorWriter::VulkanDescriptorWriter(VulkanDescriptorSetLayout* _SetLayout, VulkanDescriptorPool* _Pool)
 {
+	std::cout << "Creating VulkanDescriptorWriter" << std::endl;
+
 	m_SetLayout = _SetLayout;
 	m_Pool = _Pool;
+}
+
+VulkanDescriptorWriter::~VulkanDescriptorWriter()
+{
+	m_SetLayout = nullptr;
+	m_Pool = nullptr;
+
+	m_Writes.clear();
+	
+	std::cout << "Destroying VulkanDescriptorWriter" << std::endl;
 }
 
 VulkanDescriptorWriter& VulkanDescriptorWriter::WriteBuffer(uint32_t _Binding, VkDescriptorBufferInfo* _BufferInfo)

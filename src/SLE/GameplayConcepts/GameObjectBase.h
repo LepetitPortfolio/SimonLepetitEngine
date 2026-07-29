@@ -16,7 +16,7 @@ class GameObjectBase : public AssetData
 {
 public:
 	GameObjectBase();
-	virtual ~GameObjectBase();
+	virtual ~GameObjectBase() override;
 
 	GameObjectBase(const GameObjectBase&) = delete;
 	GameObjectBase& operator=(const GameObjectBase&) = delete;
