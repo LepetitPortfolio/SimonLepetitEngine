@@ -1,7 +1,8 @@
 #include "GlobalFunctionLibrary.h"
 
 #include "../Common/Error.h"
-#include "../System/VulkanPlatform.h"
+#include "../System/WindowPlatform.h"
+#include "../System/VulkanIncludes.h"
 #include "../System/VulkanStructs.h"
 #include "../Engine.h"
 #include "../GameplayConcepts/SceneManager.h"
@@ -18,6 +19,18 @@ Engine* GlobalFunctionLibrary::GetEngine()
 	}
 	
 	return Engine::GetInstance();
+}
+
+Config* GlobalFunctionLibrary::GetConfig()
+{
+	Engine* engine = GetEngine();
+	Config* config = engine->GetConfig();
+	if (config == nullptr)
+	{
+		Err() << "Config is not initialized!" << std::endl;
+		return nullptr;
+	}
+	return config;
 }
 
 WindowPlatform* GlobalFunctionLibrary::GetWindowPlatform()
@@ -47,10 +60,11 @@ GLFWwindow* GlobalFunctionLibrary::GetWindow()
 	return windowPlatform->GetWindow();
 }
 
-const VkDevice GlobalFunctionLibrary::GetVulkanDevice()
+VulkanDevice* GlobalFunctionLibrary::GetVulkanDevice()
 {
+	VulkanPlatform* vulkanPlatform = GetVulkanPlatform();
 
-	return GetVulkanData()->Device;
+	return vulkanPlatform->GetDevice();
 }
 
 VulkanPlatform* GlobalFunctionLibrary::GetVulkanPlatform()
@@ -67,24 +81,19 @@ VulkanPlatform* GlobalFunctionLibrary::GetVulkanPlatform()
 	return vulkanPlatform;
 }
 
-VulkanRenderer* GlobalFunctionLibrary::GetVulkanRenderer()
+VulkanData* GlobalFunctionLibrary::GetVulkanData()
 {
-	Engine* engine = GetEngine();
-	VulkanRenderer* vulkanRenderer = engine->GetVulkanRenderer();
+	VulkanPlatform* vulkanPlatform = GetVulkanPlatform();
 
-	if (vulkanRenderer == nullptr)
+	if (vulkanPlatform == nullptr)
 	{
-		Err() << "vulkanRenderer is not initialized!" << std::endl;
+		Err() << "VulkanPlatform is not initialized!" << std::endl;
 		return nullptr;
 	}
 
-	return vulkanRenderer;
+	return &vulkanPlatform->GetVulkanData();
 }
 
-const VulkanData* GlobalFunctionLibrary::GetVulkanData()
-{	
-	return GetVulkanPlatform()->GetVulkanData();
-}
 
 Scene* GlobalFunctionLibrary::GetCurrentScene()
 {

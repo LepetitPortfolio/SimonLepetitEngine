@@ -8,17 +8,17 @@ public:
 
 	static class Engine* GetEngine();
 
+	static struct Config* GetConfig();
+
 	static class WindowPlatform* GetWindowPlatform();
 
 	static class GLFWwindow* GetWindow();
 
-	static const VkDevice GetVulkanDevice();
+	static class VulkanDevice* GetVulkanDevice();
 	
 	static class VulkanPlatform* GetVulkanPlatform();
 
-	static class VulkanRenderer* GetVulkanRenderer();
-
-	static const VulkanData* GetVulkanData();
+	static struct VulkanData* GetVulkanData();
 
 	static class Scene* GetCurrentScene();
 

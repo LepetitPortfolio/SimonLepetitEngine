@@ -24,6 +24,7 @@ void SphereModel::CreateModel()
 
 	CreateVertexBuffers();
 	CreateIndexBuffers();
+	CreateUniformBuffers();
 
 	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
 }
@@ -43,7 +44,7 @@ void SphereModel::CreateModel(float _Radius, unsigned int _Rings, unsigned int _
 			const float x = cos(2 * PI * countSectors * sectorsRecip) * sin(PI * countRings * ringsRecip);
 			const float z = sin(2 * PI * countSectors * sectorsRecip) * sin(PI * countRings * ringsRecip);
 
-			Vertex vertex{};
+			StandardVertex vertex{};
 			vertex.Position = glm::vec3(x * _Radius, y, z * _Radius);
 			vertex.UV = glm::vec2(countSectors * sectorsRecip, countRings * ringsRecip);
 			vertex.Color = glm::vec3(1.0f, 1.0f, 1.0f);

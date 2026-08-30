@@ -11,7 +11,6 @@
 #include <functional>
 
 
-
 Model::Model()
 {
 	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
@@ -25,14 +24,10 @@ Model::Model(const std::string& _Filepath)
 
 Model::~Model()
 {
-	m_Vertices.clear();
-	m_Indices.clear();
-
-	m_VertexBuffer.reset();
-	m_IndexBuffer.reset();
+	Destroy();
 }
 
-std::vector<Vertex>& Model::GetVertices()
+std::vector<StandardVertex>& Model::GetVertices()
 {
 	return m_Vertices;
 }
@@ -52,6 +47,8 @@ void Model::CreateModel(const std::string& _Filepath)
 	LoadModel(_Filepath);
 	CreateVertexBuffers();
 	CreateIndexBuffers();
+	CreateUniformBuffers();
+
 }
 
 void Model::Draw(VkCommandBuffer _CommandBuffer)
@@ -68,13 +65,13 @@ void Model::Draw(VkCommandBuffer _CommandBuffer)
 
 void Model::Bind(VkCommandBuffer _CommandBuffer)
 {
-	VkBuffer buffers[] = { m_VertexBuffer->GetBuffer() };
+	VkBuffer vertexBuffers[] = { m_VertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
-	vkCmdBindVertexBuffers(_CommandBuffer, 0, 1, buffers, offsets);
+	vkCmdBindVertexBuffers(_CommandBuffer, 0, 1, vertexBuffers, offsets);
 
 	if (m_HasIndexBuffer) 
 	{
-		vkCmdBindIndexBuffer(_CommandBuffer, m_IndexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(_CommandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 }
 
@@ -83,12 +80,12 @@ void Model::Destroy()
 	m_Vertices.clear();
 	m_Indices.clear();
 
-	m_VertexBuffer.reset();
-	m_IndexBuffer.reset();
-	
+	VulkanBufferManager* bufferManager = GlobalFunctionLibrary::GetVulkanPlatform()->GetBufferManager();
+	bufferManager->DestroyBuffer(m_VertexBuffer, m_VertexBufferMemory);
+	bufferManager->DestroyBuffer(m_IndexBuffer, m_IndexBufferMemory);
 }
 
-void Model::AddVertex(Vertex _Vertex)
+void Model::AddVertex(StandardVertex _Vertex)
 {
 	m_Vertices.push_back(_Vertex);
 }
@@ -98,95 +95,28 @@ void Model::AddIndex(uint32_t _Index)
 	m_Indices.push_back(_Index);
 }
 
-
 void Model::CreateVertexBuffers()
 {
-	VulkanPlatform* vulkanPlatform = GlobalFunctionLibrary::GetVulkanPlatform();
+	VulkanBufferManager* bufferManager = GlobalFunctionLibrary::GetVulkanPlatform()->GetBufferManager();
 
-	m_VertexCount = static_cast<uint32_t>(m_Vertices.size());
-	assert(m_VertexCount >= 3 && "Vertex count must be at least 3");
+	bufferManager->CreateVertexBuffer(m_Vertices, m_VertexBuffer, m_VertexBufferMemory);
 
-	VkDeviceSize bufferSize = sizeof(m_Vertices[0]) * m_VertexCount;
-	uint32_t vertexSize = sizeof(m_Vertices[0]);
-
-	VulkanBuffer stagingBuffer{ vertexSize, m_VertexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,};
-
-	stagingBuffer.Map();
-	stagingBuffer.WriteToBuffer((void*)m_Vertices.data(), bufferSize);
-
-	m_VertexBuffer = std::make_unique<VulkanBuffer>(vertexSize, m_VertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-	vulkanPlatform->CopyBuffer(stagingBuffer.GetBuffer(), m_VertexBuffer->GetBuffer(), bufferSize);
 }
 
 void Model::CreateIndexBuffers()
 {
-	m_IndexCount = static_cast<uint32_t>(m_Indices.size());
-	m_HasIndexBuffer = m_IndexCount > 0;
+	VulkanBufferManager* bufferManager = GlobalFunctionLibrary::GetVulkanPlatform()->GetBufferManager();
 
-	if (!m_HasIndexBuffer) {
-		return;
-	}
-
-	VulkanPlatform* vulkanPlatform = GlobalFunctionLibrary::GetVulkanPlatform();
-
-	VkDeviceSize bufferSize = sizeof(m_Indices[0]) * m_IndexCount;
-	uint32_t indexSize = sizeof(m_Indices[0]);
-
-	VulkanBuffer stagingBuffer(indexSize, m_IndexCount, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-	stagingBuffer.Map();
-	stagingBuffer.WriteToBuffer((void*)m_Indices.data(), bufferSize);
-
-	m_IndexBuffer = std::make_unique<VulkanBuffer>(indexSize, m_IndexCount, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-	vulkanPlatform->CopyBuffer(stagingBuffer.GetBuffer(), m_IndexBuffer->GetBuffer(), bufferSize);
+	bufferManager->CreateIndexBuffer(m_Indices, m_IndexBuffer, m_IndexBufferMemory);
 }
 
-/*
-void Model::UpdateDescriptorSets()
+void Model::CreateUniformBuffers()
 {
-	if(m_ShaderProgram == nullptr)
-	{
-		return;
-	}
-
-	for (size_t frameIndex = 0; frameIndex < MAX_FRAMES_IN_FLIGHT; frameIndex++)
-	{
-		std::vector<VkDescriptorSetLayoutBinding>* layoutBinding = m_ShaderProgram->GetLayoutBinding();
-
-		std::vector<VkWriteDescriptorSet> writeDescriptorSets{};
-
-		for (size_t layoutBindingIndex = 0; layoutBindingIndex < layoutBinding->size(); layoutBindingIndex++)
-		{
-			VkDescriptorSetLayoutBinding lBinding = layoutBinding->at(layoutBindingIndex);
-			
-			switch (lBinding.descriptorType)
-			{
-			case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-
-				m_ShaderProgram->GenertateUniformBufferDescriptorSetLayout(lBinding, m_DescriptorSets[frameIndex], frameIndex, writeDescriptorSets);
-				
-			break;
-
-			case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-
-				m_ShaderProgram->GenertateCombinedImageSamplerDescriptorSetLayout(lBinding, m_DescriptorSets[frameIndex], m_Texture, writeDescriptorSets);
-			break;
-
-			case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-
-				//m_ShaderProgram->GenertateStorageBufferDescriptorSetLayout(lBinding, m_DescriptorSets[frameIndex], writeDescriptorSets);
-				
-			break;
-
-			};
-		}
-
-		vkUpdateDescriptorSets(GlobalFunctionLibrary::GetVulkanDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
-	}
+	VulkanBufferManager* bufferManager = GlobalFunctionLibrary::GetVulkanPlatform()->GetBufferManager();
+	uint32_t maxFramesInFlight = GlobalFunctionLibrary::GetConfig()->MaxFramesInFlight;
+	
+	bufferManager->CreateUniformBuffer(maxFramesInFlight, m_UniformBuffers, m_UniformBuffersMemory, m_UniformBuffersMapped);
 }
-*/
 
 void Model::LoadModel(const std::string& _Filepath)
 {
@@ -203,10 +133,12 @@ void Model::LoadModel(const std::string& _Filepath)
 	m_Vertices.clear();
 	m_Indices.clear();
 
-	std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-	for (const auto& shape : shapes) {
-		for (const auto& index : shape.mesh.indices) {
-			Vertex vertex{};
+	std::unordered_map<StandardVertex, uint32_t> uniqueVertices{};
+	for (const auto& shape : shapes) 
+	{
+		for (const auto& index : shape.mesh.indices) 
+		{
+			StandardVertex vertex{};
 
 			if (index.vertex_index >= 0) 
 			{
@@ -217,22 +149,20 @@ void Model::LoadModel(const std::string& _Filepath)
 					attrib.vertices[3 * index.vertex_index + 2],
 				};
 
-				vertex.Color = 
-				{
-					attrib.colors[3 * index.vertex_index + 0],
-					attrib.colors[3 * index.vertex_index + 1],
-					attrib.colors[3 * index.vertex_index + 2],
-				};
-			}
+				// OBJ files do not necessarily contain per-vertex colors.
+				// Use white as the default and only read the color array when it exists.
+				vertex.Color = glm::vec3(1.0f);
 
-			if (index.normal_index >= 0) 
-			{
-				vertex.Normal = 
+				if (!attrib.colors.empty() &&
+					3 * index.vertex_index + 2 < static_cast<int>(attrib.colors.size()))
 				{
-					attrib.normals[3 * index.normal_index + 0],
-					attrib.normals[3 * index.normal_index + 1],
-					attrib.normals[3 * index.normal_index + 2],
-				};
+					vertex.Color =
+					{
+						attrib.colors[3 * index.vertex_index + 0],
+						attrib.colors[3 * index.vertex_index + 1],
+						attrib.colors[3 * index.vertex_index + 2],
+					};
+				}
 			}
 
 			if (index.texcoord_index >= 0) 
@@ -244,11 +174,15 @@ void Model::LoadModel(const std::string& _Filepath)
 				};
 			}
 
-			if (uniqueVertices.count(vertex) == 0) {
+			if (uniqueVertices.count(vertex) == 0) 
+			{
 				uniqueVertices[vertex] = static_cast<uint32_t>(m_Vertices.size());
 				m_Vertices.push_back(vertex);
 			}
 			m_Indices.push_back(uniqueVertices[vertex]);
 		}
 	}
+
+	m_IndexCount = static_cast<uint32_t>(m_Indices.size());
+	m_VertexCount = static_cast<uint32_t>(m_Vertices.size());
 }

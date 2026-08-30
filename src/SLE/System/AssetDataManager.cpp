@@ -22,7 +22,7 @@ void AssetDataManager::AddData(Shader* _Data)
 	m_ShaderManager->AddData((AssetData*)_Data);
 }
 
-void AssetDataManager::AddData(Texture* _Data)
+void AssetDataManager::AddData(TextureBase* _Data)
 {
 	m_TextureManager->AddData((AssetData*)_Data);
 }
@@ -43,7 +43,7 @@ void AssetDataManager::RemoveData(Shader* _Data)
 	m_ShaderManager->RemoveData((AssetData*)_Data);
 }
 
-void AssetDataManager::RemoveData(Texture* _Data)
+void AssetDataManager::RemoveData(TextureBase* _Data)
 {
 	m_TextureManager->RemoveData((AssetData*)_Data);
 }

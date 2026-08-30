@@ -39,11 +39,11 @@ void MeshComponent::Desinit()
 }
 
 
-void MeshComponent::Draw(VulkanFrameInfo _FrameInfo)
+void MeshComponent::Draw(VulkanFrameInfo& _FrameInfo)
 {
 	if (m_Mesh)
 	{
-		m_Mesh->Draw(GetLocalTransform(), _FrameInfo);
+		m_Mesh->Draw( GetWorldTransform(), _FrameInfo);
 	}
 }
 

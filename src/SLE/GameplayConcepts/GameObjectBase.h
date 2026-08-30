@@ -31,16 +31,16 @@ public:
 	void RemoveComponent(GameObjectComponentBase* _Component);
 	void ClearComponents();
 	void UpdateComponents();
-	void DrawGameObject(VulkanFrameInfo _FrameInfo);
-	void AddDrawCallback(const std::function<void(VulkanFrameInfo)>& _Callback);
-	void RemoveDrawCallback(const std::function<void(VulkanFrameInfo)>& _Callback);
+	void DrawGameObject(VulkanFrameInfo& _FrameInfo);
+	void AddDrawCallback(const std::function<void(VulkanFrameInfo&)>& _Callback);
+	void RemoveDrawCallback(const std::function<void(VulkanFrameInfo&)>& _Callback);
 
 protected:
 
 	Transform m_Transform{};
 	std::unordered_map<uint64_t, GameObjectComponentBase*> m_Components;
 
-	DelegateMulticast<VulkanFrameInfo> m_DrawCallback;
+	DelegateMulticast<VulkanFrameInfo&> m_DrawCallback;
 
 	uint32_t m_UID;
 

@@ -64,7 +64,7 @@ void GameObjectBase::UpdateComponents()
 	}
 }
 
-void GameObjectBase::DrawGameObject(VulkanFrameInfo _FrameInfo)
+void GameObjectBase::DrawGameObject(VulkanFrameInfo& _FrameInfo)
 {
 	if (m_DrawCallback.IsValid())
 	{
@@ -72,12 +72,12 @@ void GameObjectBase::DrawGameObject(VulkanFrameInfo _FrameInfo)
 	}
 }
 
-void GameObjectBase::AddDrawCallback(const std::function<void(VulkanFrameInfo)>& _Callback)
+void GameObjectBase::AddDrawCallback(const std::function<void(VulkanFrameInfo&)>& _Callback)
 {
 	m_DrawCallback += _Callback;
 }
 
-void GameObjectBase::RemoveDrawCallback(const std::function<void(VulkanFrameInfo)>& _Callback)
+void GameObjectBase::RemoveDrawCallback(const std::function<void(VulkanFrameInfo&)>& _Callback)
 {
 	m_DrawCallback -= _Callback;
 }

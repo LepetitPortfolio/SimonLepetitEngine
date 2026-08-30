@@ -2,10 +2,23 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "VulkanInstance.h"
+#include "VulkanDevice.h"
+#include "VulkanSwapchain.h"
+#include "VulkanRenderer.h"
+#include "VulkanCommandManager.h"
+#include "VulkanBufferManager.h"
+//#include "TextureManager.h"
+//#include "DescriptorManager.h"
+//#include "GuiManager.h"
+
 #include "VulkanStructs.h"
+
+#include "../Core/Delegate/DelegateInclude.h"
 
 #include <memory>
 #include <iostream>
+#include <vector>
 
 
 class WindowPlatform;
@@ -15,177 +28,49 @@ class VulkanPlatform
 
 public:
 
-#if defined(NDEBUG) 
-	const bool m_EnableValidationLayers = true;
-#elif defined(_DEBUG) 
-	const bool m_EnableValidationLayers = true;
-#else
-	const bool m_EnableValidationLayers = false;
-#endif * !NDEBUG
+    VulkanPlatform();
+    ~VulkanPlatform();
 
-	VulkanPlatform(WindowPlatform& _WindowPlatform);
-	~VulkanPlatform();
+	VulkanDevice* GetDevice() { return m_VulkanDevice.get(); }
+    VulkanRenderer* GetVulkanRenderer() { return m_VulkanRenderer.get(); }
+    VulkanCommandManager* GetCommandManager() { return m_CommandManager.get(); }
+	VulkanBufferManager* GetBufferManager() { return m_BufferManager.get(); }
+	VulkanSwapchain* GetVulkanSwapchain() { return m_VulkanSwapchain.get(); }
 
-	VulkanPlatform(const VulkanPlatform&) = delete;
-	VulkanPlatform& operator=(const VulkanPlatform&) = delete;
-	VulkanPlatform(VulkanPlatform&&) = delete;
-	VulkanPlatform& operator=(VulkanPlatform&&) = delete;
+    VkFramebuffer GetFrameBuffer(int _Index) { return m_SwapchainFramebuffers[_Index]; }
 
-	VulkanData* GetVulkanData() { return m_VulkanData.get(); }
+	VulkanData& GetVulkanData() { return m_VulkanData; }
 
-	VkCommandPool GetCommandPool() { return m_VulkanData->CommandPool; }
-	VkDevice GetDevice() { return m_VulkanData->Device; }
-	VkSurfaceKHR GetSurface() { return m_VulkanData->Surface; }
-	VkQueue GetGraphicsQueue() { return m_VulkanData->GraphicsQueue; }
-	VkQueue GetPresentQueue() { return m_VulkanData->PresentQueue; }
-	SwapChainSupportDetails GetSwapChainSupport() { return QuerySwapChainSupport(m_VulkanData->PhysicalDevice); }
-	static uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-	QueueFamilyIndices FindPhysicalQueueFamilies() { return FindQueueFamilies(m_VulkanData->PhysicalDevice); }
-	VkFormat FindSupportedFormat( const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features);
+    void InitVulkan(WindowPlatform* _WindowPlatform);
+    void DrawFrame(class CameraBase* _Camera, float _DeltaTime);
 
-	/**
-	* Crée un buffer Vulkan avec les paramètres spécifiés (taille, utilisation, propriétés de mémoire).
-	* Alloue la mémoire et lie le buffer à cette mémoire.
-	* _DeviceSize : Taille du buffer en octets.
-	* _UsageFlags : Utilisation du buffer (ex: uniforme, vertex, index).
-	* _MemoryPropertyFlags : Propriétés de la mémoire (ex: accessible par l'hôte, locale au device).
-	* _Buffer, _BufferMemory : Références pour stocker le buffer et sa mémoire allouée.
-	*/
-	static void CreateBuffer(VkDeviceSize _DeviceSize, VkBufferUsageFlags _UsageFlags, VkMemoryPropertyFlags _MemoryPropertyFlags, VkBuffer& _Buffer, VkDeviceMemory& _BufferMemory);
+    void WaitIdle();
 
-	/**
-	* Copie le contenu d'un buffer source vers un buffer destination.
-	* Utilise une commande ponctuelle (single-time command) pour effectuer la copie de manière efficace.
-	*/
-	static void CopyBuffer(VkBuffer _SrcBuffer, VkBuffer _DstBuffer, VkDeviceSize _Size);
+    void Cleanup();
+    void RecreateSwapchain();
+    void CreateSyncObjects();
+    void DestroySyncObjects();
+    void CreateDepthResources();
+    void CreateFramebuffers();
 
-	/**
-	* Commence l'enregistrement d'une commande ponctuelle (single-time command).
-	* Les commandes ponctuelles sont utilisées pour des opérations comme la copie de buffers ou le changement de layout d'image.
-	* Retourne le buffer de commandes alloué et prêt à l'enregistrement.
-	*/
-	static VkCommandBuffer BeginSingleTimeCommands();
-	
-	/**
-	* Termine et soumet une commande ponctuelle, puis attend sa complétion.
-	* Libère également le buffer de commandes.
-	* _CommandBuffer : Buffer de commandes à finaliser.
-	*/
-	static void EndSingleTimeCommands(VkCommandBuffer _CommandBuffer);
+protected:
 
-	static void CopyBufferToImage(	VkBuffer _Buffer, VkImage _Image, uint32_t _Width, uint32_t _Height, uint32_t _LayerCount = 1);
+    std::unique_ptr<VulkanInstance> m_VulkanInstance;
+    std::unique_ptr<VulkanDevice> m_VulkanDevice;
+    std::unique_ptr<VulkanSwapchain> m_VulkanSwapchain;
+    std::unique_ptr<VulkanRenderer> m_VulkanRenderer;
+    std::unique_ptr<VulkanCommandManager> m_CommandManager;
+    std::unique_ptr<VulkanBufferManager> m_BufferManager;
+    //std::unique_ptr<TextureManager> m_TextureManager;
+    //std::unique_ptr<DescriptorManager> m_DescriptorManager;
+    //std::unique_ptr<GuiManager> m_GuiManager;
 
-	static void CreateImageWithInfo( const VkImageCreateInfo& _ImageInfo, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
+    std::vector<VkFramebuffer> m_SwapchainFramebuffers{};
 
-private:
+    VulkanData m_VulkanData{};
 
-	const std::vector<const char*> m_DeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
-	const std::vector<const char*> m_ValidationLayers = { "VK_LAYER_KHRONOS_validation" };
+    bool m_FramebufferResized = false;
 
-	WindowPlatform& m_WindowPlatform;
-
-	static std::unique_ptr<VulkanData> m_VulkanData;
-
-	/**
-	* Crée une instance Vulkan, structure de base pour toute application Vulkan.
-	* En cas d'échec, affiche une erreur.
-	* Configure les informations de l'application, les extensions requises (notamment pour GLFW),
-	* et active les couches de validation si EnableValidationLayers est vrai.
-	*/
-	void CreateInstance();
-
-	/**
-	* Vérifie si les couches de validation Vulkan demandées sont supportées par l'instance.
-	* Retourne true si toutes les couches sont disponibles, false sinon.
-	*/
-	bool CheckValidationLayerSupport();
-
-	/**
-	* Récupère la liste des extensions Vulkan requises pour l'application.
-	* Inclut les extensions GLFW pour la création de surface, et l'extension de débogage si les couches de validation sont activées.
-	*/
-	std::vector<const char*> GetRequiredExtensions();
-
-	/**
-	* Configure le messager de débogage Vulkan pour recevoir des messages de validation.
-	* Utilise PopulateDebugMessagerCreateInfo pour remplir les paramètres du messager.
-	* Ne fait rien si EnableValidationLayers est faux.
-	*/
-	void SetupDebugMessenger();
-
-	/**
-	* Remplit une structure VkDebugUtilsMessengerCreateInfoEXT avec les paramètres de configuration du messager de débogage.
-	* Définit les niveaux de sévérité (verbose, warning, error), les types de messages (général, validation, performance),
-	* et associe la fonction de callback DebugCallback.
-	*/
-	void PopulateDebugMessagerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& _MessengerCreateInfo);
-
-	/**
-	* Crée une surface Vulkan associée à la fenêtre GLFW.
-	* La surface est nécessaire pour le rendu et l'affichage dans la fenêtre.
-	*/
-	void CreateSurface();
-
-	/**
-	* Sélectionne un device physique (GPU) compatible avec les exigences de l'application.
-	* Enumère tous les devices disponibles et vérifie leur compatibilité avec IsDeviceSuitable.
-	* Stocke le device sélectionné dans m_VulkanData->PhysicalDevice et définit le nombre d'échantillons MSAA maximal utilisable.
-	*/
-	void PickPhysicalDevice();
-
-	/**
-	* Vérifie si un device physique est adapté pour l'application.
-	* Vérifie la disponibilité des familles de files d'attente (graphics et present),
-	* le support des extensions requises, la compatibilité de la swap chain, et les fonctionnalités (comme l'anisotropie).
-	* Retourne true si le device est compatible, false sinon.
-	*/
-	bool IsDeviceSuitable(VkPhysicalDevice _Device);
-
-	/**
-	* Interroge les capacités de la swap chain pour un device physique donné.
-	* Récupère les formats de surface, les modes de présentation, et les capacités de la surface.
-	*/
-	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice _Device);
-
-	/**
-	* Vérifie si un device physique supporte toutes les extensions requises (DeviceExtensions).
-	* Enumère les extensions disponibles et compare avec la liste des extensions requises.
-	*/
-	bool CheckDeviceExtensionSupport(VkPhysicalDevice _Device);
-
-	/**
-	* Note la pertinence d'un device physique en fonction de ses propriétés et fonctionnalités.
-	* Attribue un score plus élevé aux GPUs discrets et aux devices supportant les shaders géométriques.
-	* Retourne le score calculé.
-	*/
-	int RateDeviceSuitability(VkPhysicalDevice _Device);
-
-	/**
-	* Trouve les indices des familles de files d'attente (graphics et present) pour un device physique.
-	* Les familles de files d'attente sont nécessaires pour soumettre des commandes de rendu et de présentation.
-	*/
-	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice _Device);
-
-	VkSampleCountFlagBits GetMaxUsableSampleCount();
-
-	/**
-	* Crée un device logique (interface pour interagir avec le device physique).
-	* Configure les files d'attente pour le rendu et la présentation, active les fonctionnalités requises (comme l'anisotropie),
-	* et charge les extensions nécessaires.
-	*/
-	void CreateLogicalDevice();
-
-	/**
-	* Crée un pool de commandes, utilisé pour allouer des buffers de commandes.
-	* Les buffers de commandes enregistrent les commandes de rendu (comme vkCmdDraw) qui sont ensuite soumises au GPU.
-	*/
-	void CreateCommandPool();
+    virtual void OnCleanup() {}
 
 };
-
-static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT _MessageSeverity, VkDebugUtilsMessageTypeFlagsEXT _MessageType, const VkDebugUtilsMessengerCallbackDataEXT* _pCallbackData, void* _pUserData)
-{
-	std::cerr << "validation layer: " << _pCallbackData->pMessage << std::endl;
-
-	return VK_FALSE;
-}

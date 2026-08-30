@@ -23,10 +23,9 @@ public:
 
 	VulkanPlatform* GetVulkanPlatform() { return m_VulkanPlatform.get(); }
 
-	VulkanRenderer* GetVulkanRenderer() { return m_Renderer.get(); }
+	Config* GetConfig() { return &m_Config; }
 
-	VkDescriptorBufferInfo GetBufferInfo(int _BufferIndex);
-	VulkanBuffer* GetVulkanBuffer(int _BufferIndex);
+	//VkDescriptorBufferInfo GetBufferInfo(int _BufferIndex);
 
 	InputManager* GetInputManager() { return m_InputManager.get(); }
 
@@ -50,10 +49,10 @@ private:
 
 	static std::unique_ptr<Engine> m_Engine;
 
+	Config m_Config;
+
 	std::unique_ptr <WindowPlatform> m_WindowPlatform;
 	std::unique_ptr <VulkanPlatform> m_VulkanPlatform;
-	std::unique_ptr <VulkanRenderer> m_Renderer;
-	std::vector<std::unique_ptr<VulkanBuffer>> m_UBOBuffers;
 
 
 	std::unique_ptr <class CameraBase> m_DefaultCamera;

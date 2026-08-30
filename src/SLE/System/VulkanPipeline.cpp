@@ -16,14 +16,16 @@ VulkanPipeline::VulkanPipeline(const std::vector<char>* _VertCode, const std::ve
 VulkanPipeline::~VulkanPipeline()
 {
 
+	VulkanDevice* vulkanDevice = GlobalFunctionLibrary::GetVulkanDevice();
+
 	for (auto shaderModule : m_ShaderModules)
 	{
-		vkDestroyShaderModule(GlobalFunctionLibrary::GetVulkanDevice(), shaderModule.second, nullptr);
+		vkDestroyShaderModule(vulkanDevice->GetLogicalDevice(), shaderModule.second, nullptr);
 	}
 
 	m_ShaderModules.clear();
 
-	vkDestroyPipeline(GlobalFunctionLibrary::GetVulkanDevice(), m_GraphicsPipeline, nullptr);
+	vkDestroyPipeline(vulkanDevice->GetLogicalDevice(), m_GraphicsPipeline, nullptr);
 }
 
 void VulkanPipeline::Bind(VkCommandBuffer _CommandBuffer)
@@ -47,6 +49,8 @@ void VulkanPipeline::CreateGraphicsPipeline(const std::vector<char>* _VertCode, 
 {
 	assert(_ConfigInfo.PipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in _ConfigInfo");
 	assert(_ConfigInfo.RenderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in _ConfigInfo");
+
+	VulkanDevice* vulkanDevice = GlobalFunctionLibrary::GetVulkanDevice();
 
 	CreateShaderModule(_VertCode, &m_ShaderModules[ShaderType::VERTEX_SHADER]);
 	CreateShaderModule(_FragCode, &m_ShaderModules[ShaderType::FRAGMENT_SHADER]);
@@ -86,7 +90,7 @@ void VulkanPipeline::CreateGraphicsPipeline(const std::vector<char>* _VertCode, 
 	pipelineInfo.basePipelineIndex = -1;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-	if (vkCreateGraphicsPipelines(GlobalFunctionLibrary::GetVulkanDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline) != VK_SUCCESS)
+	if (vkCreateGraphicsPipelines(vulkanDevice->GetLogicalDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create graphics pipeline");
 	}
@@ -94,12 +98,14 @@ void VulkanPipeline::CreateGraphicsPipeline(const std::vector<char>* _VertCode, 
 
 void VulkanPipeline::CreateShaderModule(const std::vector<char>* _Code, VkShaderModule* _ShaderModule)
 {
+	VulkanDevice* vulkanDevice = GlobalFunctionLibrary::GetVulkanDevice();
+
 	VkShaderModuleCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	createInfo.codeSize = _Code->size();
 	createInfo.pCode = reinterpret_cast<const uint32_t*>(_Code->data());
 
-	if (vkCreateShaderModule(GlobalFunctionLibrary::GetVulkanDevice(), &createInfo, nullptr, _ShaderModule) != VK_SUCCESS)
+	if (vkCreateShaderModule(vulkanDevice->GetLogicalDevice(), &createInfo, nullptr, _ShaderModule) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create shader module");
 	}

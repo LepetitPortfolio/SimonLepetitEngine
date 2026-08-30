@@ -1,22 +1,38 @@
 #pragma once
 #include "Models/Model.h"
 #include "Shader.h"
-#include "Texture.h"
+#include "Textures/Texture.h"
+#include "../Core/Transform.h"
+#include "../GameplayConcepts/CameraBase.h"
+#include "../System/VulkanStructs.h"
 
 class Mesh 
 {
 public:
 	Mesh(Model* _Model, Shader* _Shader, Texture* _Texture);
 
-	void Draw(Transform* _Transform, VulkanFrameInfo _FrameInfo);
+	void Draw(Transform* _Transform, VulkanFrameInfo& _FrameInfo);
 
 protected:
 
 	Model* m_Model = nullptr;
 	Shader* m_Shader = nullptr;
 	Texture* m_Texture = nullptr;
+	
+	// --------------------------------------------------------------------
+	// Liste des sets de descripteurs, un pour chaque frame en vol.
+	// Chaque set contient les descripteurs (ex: buffer uniforme, texture) pour une frame donnée.
 	std::vector<VkDescriptorSet> m_DescriptorSets;
 
+	// --------------------------------------------------------------------
+	// Pool de descripteurs : réservoir de mémoire pour allouer des sets de descripteurs.
+	// Les sets de descripteurs lient des ressources (buffers, textures) à des bindings dans les shaders.
+	VkDescriptorPool m_DescriptorPool;
+
 	void UpdateDescriptorSets();
+
+	void CreateDescriptorPool();
+
+	void UpdateUniforms(Transform* _Transform, CameraBase* _Camera, uint32_t _ImageIndex);
 
 };

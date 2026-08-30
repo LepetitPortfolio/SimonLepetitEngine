@@ -5,31 +5,32 @@ template<typename T>
 Shader* ShaderLoader::LoadVertexFragmentShader(std::string _ShaderName, const char* _VertexShaderFilename, const char* _FragmentShaderFilename)
 {
 	std::vector<VkDescriptorSetLayoutBinding> bindings;
+	ShaderCodeSettings vertexShaderSettings{};
+	ShaderCodeSettings fragmentShaderSettings{};
 
-	auto vertCode = FileReader::ReadBinaryFile(_VertexShaderFilename);
-	auto fragCode = FileReader::ReadBinaryFile(_FragmentShaderFilename);
+	vertexShaderSettings.ShaderCode = FileReader::ReadBinaryFile(_VertexShaderFilename);
+	fragmentShaderSettings.ShaderCode = FileReader::ReadBinaryFile(_FragmentShaderFilename);
 
-	ReflectShaderBindings(ShaderType::VERTEX_SHADER, vertCode, &bindings);
-	ReflectShaderBindings(ShaderType::FRAGMENT_SHADER, fragCode, &bindings);
+	ReflectShaderBindings(ShaderType::VERTEX_SHADER, vertexShaderSettings.ShaderCode, &bindings);
+	ReflectShaderBindings(ShaderType::FRAGMENT_SHADER, fragmentShaderSettings.ShaderCode, &bindings);
 
-	VulkanDescriptorPoolBuilder descriptorPoolBuilder;
-	VulkanDescriptorSetBuilder descriptorSetBuilder;
-
-	descriptorPoolBuilder.SetMaxSets(MAX_FRAMES_IN_FLIGHT).AddPoolsSize(&bindings, MAX_FRAMES_IN_FLIGHT);
-	descriptorSetBuilder.AddBindings(&bindings);
-
-
-	ShaderSettings<T> shaderSettings{};
+	
+	ShaderSettings shaderSettings{};
 	shaderSettings.ShaderName = _ShaderName;
-	shaderSettings.ShaderCode[VK_SHADER_STAGE_VERTEX_BIT] = &vertCode;
-	shaderSettings.ShaderCode[VK_SHADER_STAGE_FRAGMENT_BIT] = &fragCode;
+	shaderSettings.ShaderCodeInfos[VK_SHADER_STAGE_VERTEX_BIT] = vertexShaderSettings;
+	shaderSettings.ShaderCodeInfos[VK_SHADER_STAGE_FRAGMENT_BIT] = fragmentShaderSettings;
+	shaderSettings.Bindings = bindings;
+	shaderSettings.PipelineShaderInfo.push_back(CreateShaderProgram(ShaderType::VERTEX_SHADER, vertexShaderSettings.ShaderCode, vertexShaderSettings.ShaderModule));
+	shaderSettings.PipelineShaderInfo.push_back(CreateShaderProgram(ShaderType::FRAGMENT_SHADER, fragmentShaderSettings.ShaderCode, fragmentShaderSettings.ShaderModule));
 	shaderSettings.ShaderStageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderSettings.RenderPass = GlobalFunctionLibrary::GetVulkanRenderer()->GetSwapChainRenderPass();
-	shaderSettings.DescriptorSetBuilder = descriptorSetBuilder;
-	shaderSettings.DescriptorPoolBuilder = descriptorPoolBuilder;
+	shaderSettings.RenderPass = GlobalFunctionLibrary::GetVulkanPlatform()->GetVulkanRenderer()->GetRenderPass();
+	shaderSettings.VertexInputBindingDescriptions = T::GetBindingDescription();
+	shaderSettings.VertexInputAttributeDescriptions = T::GetAttributeDescriptions();
 
 	Shader* shader = new Shader(shaderSettings);
 	
+//	vkDestroyShaderModule(GlobalFunctionLibrary::GetVulkanDevice(), vertShaderModule, nullptr);
+//	vkDestroyShaderModule(GlobalFunctionLibrary::GetVulkanDevice(), fragShaderModule, nullptr);
 
 	return shader;
 }

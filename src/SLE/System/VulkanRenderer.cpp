@@ -1,20 +1,61 @@
 #include "VulkanRenderer.h"
+
+#include "WindowPlatform.h"
+#include "VulkanPlatform.h"
+#include "VulkanDevice.h"
+#include "VulkanSwapchain.h"
+
+#include "../Common/Vertex.h"
 #include "../Core/GlobalFunctionLibrary.h"
 
+#include "AssetDataManager.h"
+#include "AssetDataManagerBase.h"
+#include "../Graphics/Shader.h"
+
+#include <iostream>
+#include <stdexcept>
+#include <fstream>
 #include <array>
 #include <cassert>
-#include <stdexcept>
+#include <glm/glm.hpp>
 
 VulkanRenderer::VulkanRenderer()
 {
-	RecreateSwapChain();
-	CreateCommandBuffers();
 }
 
 VulkanRenderer::~VulkanRenderer() 
+{ 
+	Cleanup();
+}
+
+void VulkanRenderer::Initialize(VulkanDevice& _Device, VulkanSwapchain& _Swapchain)
 {
-	FreeCommandBuffers();
-	m_SwapChain.reset();
+	m_VulkanDevice = &_Device;
+	m_VulkanSwapchain = &_Swapchain;
+
+	CreateRenderPass(m_VulkanSwapchain->GetImageFormat());
+}
+
+void VulkanRenderer::RecreatePipelines()
+{
+	AssetDataManagerBase* shaderManager = GlobalFunctionLibrary::GetAssetDataManager()->GetShaderManager();
+	auto& shaderDataList = *shaderManager->GetData();
+	for (auto& data : shaderDataList)
+	{
+		Shader* shader = static_cast<Shader*>(data.second);
+		if (shader)
+		{
+			shader->RecreatePipeline();
+		}
+	}
+}
+
+void VulkanRenderer::Cleanup() 
+{
+	if (m_VulkanDevice) 
+	{
+		vkDestroyRenderPass(m_VulkanDevice->GetLogicalDevice(), m_RenderPass, nullptr);
+	}
 }
 
 VkCommandBuffer VulkanRenderer::GetCurrentCommandBuffer() const
@@ -23,151 +64,113 @@ VkCommandBuffer VulkanRenderer::GetCurrentCommandBuffer() const
 	return m_CommandBuffers[m_CurrentFrameIndex];
 }
 
-int VulkanRenderer::GetFrameIndex() const
+float VulkanRenderer::GetAspectRatio() const
 {
-	assert(m_IsFrameStarted && "Cannot get frame index when frame not in progress");
-	return m_CurrentFrameIndex;
+	if (m_VulkanSwapchain)
+	{
+		auto extent = m_VulkanSwapchain->GetExtent();
+		return static_cast<float>(extent.width) / static_cast<float>(extent.height);
+	}
+	return 0.0f;
 }
 
-VkCommandBuffer VulkanRenderer::BeginFrame()
+bool VulkanRenderer::HasStencilComponent(VkFormat _Format)
 {
-	assert(!m_IsFrameStarted && "Can't call beginFrame while already in progress");
-
-	auto result = m_SwapChain->AcquireNextImage(&m_CurrentImageIndex);
-	if (result == VK_ERROR_OUT_OF_DATE_KHR) 
-	{
-		RecreateSwapChain();
-		return nullptr;
-	}
-
-	if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) 
-	{
-		throw std::runtime_error("failed to acquire swap chain image!");
-	}
-
-	m_IsFrameStarted = true;
-
-	auto commandBuffer = GetCurrentCommandBuffer();
-	VkCommandBufferBeginInfo beginInfo{};
-	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) 
-	{
-		throw std::runtime_error("failed to begin recording command buffer!");
-	}
-
-	return commandBuffer;
+	return _Format == VK_FORMAT_D32_SFLOAT_S8_UINT || _Format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
-void VulkanRenderer::EndFrame()
+VkFormat VulkanRenderer::FindDepthFormat()
 {
-	assert(m_IsFrameStarted && "Can't call endFrame while frame is not in progress");
-	auto commandBuffer = GetCurrentCommandBuffer();
-
-	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) 
-	{
-		throw std::runtime_error("failed to record command buffer!");
-	}
-
-	auto result = m_SwapChain->SubmitCommandBuffers(&commandBuffer, &m_CurrentImageIndex);
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || GlobalFunctionLibrary::GetWindowPlatform()->WasWindowResized())
-	{
-		GlobalFunctionLibrary::GetWindowPlatform()->ResetWindowResizedFlag();
-		RecreateSwapChain();
-	}
-	else if (result != VK_SUCCESS) 
-	{
-		throw std::runtime_error("failed to present swap chain image!");
-	}
-
-	m_IsFrameStarted = false;
-	m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % VulkanSwapChain::MAX_FRAMES_IN_FLIGHT;
+	return FindSupportedFormat
+	(
+		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+		VK_IMAGE_TILING_OPTIMAL,
+		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
+	);
 }
 
-void VulkanRenderer::BeginSwapChainRenderPass(VkCommandBuffer _CommandBuffer)
+VkFormat VulkanRenderer::FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features)
 {
-	assert(m_IsFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
-	assert(_CommandBuffer == GetCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
-
-	VkRenderPassBeginInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass = m_SwapChain->GetRenderPass();
-	renderPassInfo.framebuffer = m_SwapChain->GetFrameBuffer(m_CurrentImageIndex);
-
-	renderPassInfo.renderArea.offset = { 0, 0 };
-	renderPassInfo.renderArea.extent = m_SwapChain->GetSwapChainExtent();
-
-	std::array<VkClearValue, 2> clearValues{};
-	clearValues[0].color = { 0.01f, 0.01f, 0.01f, 1.0f };
-	clearValues[1].depthStencil = { 1.0f, 0 };
-	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-	renderPassInfo.pClearValues = clearValues.data();
-
-	vkCmdBeginRenderPass(_CommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	VkViewport viewport{};
-	viewport.x = 0.0f;
-	viewport.y = 0.0f;
-	viewport.width = static_cast<float>(m_SwapChain->GetSwapChainExtent().width);
-	viewport.height = static_cast<float>(m_SwapChain->GetSwapChainExtent().height);
-	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 1.0f;
-	VkRect2D scissor{ {0, 0}, m_SwapChain->GetSwapChainExtent() };
-	vkCmdSetViewport(_CommandBuffer, 0, 1, &viewport);
-	vkCmdSetScissor(_CommandBuffer, 0, 1, &scissor);
-}
-
-void VulkanRenderer::EndSwapChainRenderPass(VkCommandBuffer _CommandBuffer)
-{
-	assert(m_IsFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
-	assert(_CommandBuffer == GetCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
-	vkCmdEndRenderPass(_CommandBuffer);
-}
-
-void VulkanRenderer::CreateCommandBuffers()
-{
-	m_CommandBuffers.resize(VulkanSwapChain::MAX_FRAMES_IN_FLIGHT);
-
-	VkCommandBufferAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	allocInfo.commandPool = GlobalFunctionLibrary::GetVulkanPlatform()->GetCommandPool();
-	allocInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
-
-	if (vkAllocateCommandBuffers(GlobalFunctionLibrary::GetVulkanDevice(), &allocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
+	for (VkFormat format : _Candidates) 
 	{
-		throw std::runtime_error("failed to allocate command buffers!");
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(m_VulkanDevice->GetPhysicalDevice(), format, &props);
+
+		if (_Tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & _Features) == _Features)
+		{
+			return format;
+		}
+		else if (_Tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & _Features) == _Features)
+		{
+			return format;
+		}
 	}
+
+	throw std::runtime_error("failed to find supported format!");
 }
 
-void VulkanRenderer::FreeCommandBuffers()
+void VulkanRenderer::CreateRenderPass(VkFormat _SwapChainImageFormat)
 {
-	vkFreeCommandBuffers(GlobalFunctionLibrary::GetVulkanDevice(), GlobalFunctionLibrary::GetVulkanPlatform()->GetCommandPool(), static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
-	m_CommandBuffers.clear();
-}
+	VkAttachmentDescription colorAttachment{};
+	colorAttachment.format = _SwapChainImageFormat;
+	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-void VulkanRenderer::RecreateSwapChain()
-{
-	auto extent = GlobalFunctionLibrary::GetWindowPlatform()->GetExtent();
-	while (extent.width == 0 || extent.height == 0) 
-	{
-		extent = GlobalFunctionLibrary::GetWindowPlatform()->GetExtent();
-		glfwWaitEvents();
-	}
-	vkDeviceWaitIdle(GlobalFunctionLibrary::GetVulkanDevice());
+	VkAttachmentReference colorAttachmentRef{};
+	colorAttachmentRef.attachment = 0;
+	colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-	if (m_SwapChain == nullptr) 
+	VkAttachmentDescription depthAttachment{};
+	depthAttachment.format = FindDepthFormat();
+	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkAttachmentReference depthAttachmentRef{};
+	depthAttachmentRef.attachment = 1;
+	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	VkSubpassDescription subpass{};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colorAttachmentRef;
+	subpass.pDepthStencilAttachment = &depthAttachmentRef;
+
+	VkSubpassDependency dependency{};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+	dependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+	std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+	VkRenderPassCreateInfo renderPassInfo{};
+	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+	renderPassInfo.pAttachments = attachments.data();
+	renderPassInfo.subpassCount = 1;
+	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
+
+	VkResult result = vkCreateRenderPass(m_VulkanDevice->GetLogicalDevice(), &renderPassInfo, nullptr, &m_RenderPass);
+	if (result != VK_SUCCESS) 
 	{
-		m_SwapChain = std::make_unique<VulkanSwapChain>(extent);
+		std::cout << "failed to create render pass - " << result << std::endl;
+		throw std::runtime_error("failed to create render pass!");
 	}
 	else 
 	{
-		std::shared_ptr<VulkanSwapChain> oldSwapChain = std::move(m_SwapChain);
-		m_SwapChain = std::make_unique<VulkanSwapChain>(extent, oldSwapChain);
-
-		if (!oldSwapChain->CompareSwapFormats(*m_SwapChain.get())) 
-		{
-			throw std::runtime_error("Swap chain image(or depth) format has changed!");
-		}
+		std::cout << "successfully created render pass - " << result << std::endl;
 	}
 }

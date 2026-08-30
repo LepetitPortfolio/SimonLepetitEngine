@@ -14,11 +14,12 @@ public:
 	virtual void Init(GameObjectBase* _GameObjectParent) override;
 	virtual void Desinit() override;
 
-	void Draw(VulkanFrameInfo _FrameInfo);
+	void Draw(VulkanFrameInfo& _FrameInfo);
 
 protected:
 	Mesh* m_Mesh;
 
 	virtual void EnabledAction() override;
 	virtual void DisableAction() override;
+
 };

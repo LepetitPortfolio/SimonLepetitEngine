@@ -1,12 +1,12 @@
 #pragma once
-#include "VulkanPlatform.h"
-#include "VulkanSwapChain.h"
-#include "WindowPlatform.h"
+#include <vulkan/vulkan.h>
 
 #include <cassert>
 #include <memory>
 #include <vector>
 
+class VulkanDevice;
+class VulkanSwapchain;
 
 class VulkanRenderer
 {
@@ -17,30 +17,33 @@ public:
 	VulkanRenderer(const VulkanRenderer&) = delete;
 	VulkanRenderer& operator=(const VulkanRenderer&) = delete;
 
+	void Initialize(VulkanDevice& _Device, VulkanSwapchain& _Swapchain);
+	void Cleanup();
+	void RecreatePipelines();
 
-	VulkanSwapChain* GetSwapChain() { return m_SwapChain.get(); }
-	VkRenderPass GetSwapChainRenderPass() const { return m_SwapChain->GetRenderPass(); }
-	float GetAspectRatio() const { return m_SwapChain->ExtentAspectRatio(); }
-	bool IsFrameInProgress() const { return m_IsFrameStarted; }
-
+	VkRenderPass GetRenderPass() const { return m_RenderPass; }
 	VkCommandBuffer GetCurrentCommandBuffer() const;
-	int GetFrameIndex() const;
 
-	VkCommandBuffer BeginFrame();
-	void EndFrame();
-	void BeginSwapChainRenderPass(VkCommandBuffer _CommandBuffer);
-	void EndSwapChainRenderPass(VkCommandBuffer _CommandBuffer);
+	float GetAspectRatio() const;
+
+	int GetCurrentFrameIndex() const { return m_CurrentFrameIndex; }
+
+	bool HasStencilComponent(VkFormat _Format);
+	VkFormat FindDepthFormat();
+
+	VkFormat FindSupportedFormat(const std::vector<VkFormat>& _Candidates, VkImageTiling _Tiling, VkFormatFeatureFlags _Features);
 
 private:
 
-	std::unique_ptr<VulkanSwapChain> m_SwapChain;
+	VulkanDevice* m_VulkanDevice = nullptr;
+	VulkanSwapchain* m_VulkanSwapchain = nullptr;
+
+	VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 	std::vector<VkCommandBuffer> m_CommandBuffers;
 
 	uint32_t m_CurrentImageIndex;
 	int m_CurrentFrameIndex{ 0 };
 	bool m_IsFrameStarted{ false };
 
-	void CreateCommandBuffers();
-	void FreeCommandBuffers();
-	void RecreateSwapChain();
+	void CreateRenderPass(VkFormat _SwapChainImageFormat);
 };

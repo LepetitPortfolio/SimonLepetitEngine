@@ -26,12 +26,12 @@ void Scene::UnloadScene()
 {
 }
 
-void Scene::Update()
+void Scene::Update(float _DeltaTime)
 {
 
 }
 
-void Scene::UpdateDraw(VulkanFrameInfo _FrameInfo)
+void Scene::UpdateDraw(VulkanFrameInfo& _FrameInfo)
 {
 	for (GameObjectBase* gameObject : m_GameObjectList)
 	{

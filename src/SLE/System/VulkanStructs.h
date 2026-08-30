@@ -7,12 +7,24 @@
 #include <glm/glm.hpp>
 //#include <glm/gtc/matrix_transform.hpp>
 
-#include "../Graphics/Vertex.h"
+#include "../Common/Vertex.h"
+#include "../Graphics/Textures/TextureVoid.h"
 
 #include <optional>
+#include <string>
 #include <vector>
 
-const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+struct Config 
+{
+	uint32_t WindowWidth = 1600;
+	uint32_t WindowHeight = 900;
+	std::string WindowTitle = "SLE";
+	uint32_t MaxFramesInFlight = 2;
+	bool EnableValidation = true;
+	bool EnableGui = true;
+	std::string FontPath = "";
+	float FontSize = 16.0f;
+};
 
 /**
  * Stocke les indices des familles de files d'attente (queue families) pour le rendu et la présentation.
@@ -105,6 +117,9 @@ public:
 struct UniformBufferObject
 {
 public:
+
+	alignas(16) glm::mat4 Model;
+
 	/**
 	 * Matrice de projection (transformation de la vue 3D en 2D pour l'écran).
 	 * @details
@@ -127,11 +142,8 @@ public:
 
 struct VulkanData
 {
-	// --------------------------------------------------------------------
-	// Instance Vulkan : objet racine qui représente la connexion à une implémentation Vulkan.
-	// Doit être créée en premier et détruite en dernier. Gère les propriétés globales de l'application.
-	VkInstance Instance;
 
+public:
 	// --------------------------------------------------------------------
 	// Messager de débogage Vulkan (extension EXT) : permet de recevoir des notifications de validation,
 	// d'erreurs ou d'avertissements de l'API Vulkan pendant le développement.
@@ -142,51 +154,36 @@ struct VulkanData
 	// Représente la zone où les images seront affichées.
 	VkSurfaceKHR Surface;
 
-	// --------------------------------------------------------------------
-	// Device physique (GPU) : représente le matériel graphique sélectionné pour le rendu.
-	// Initialisé à VK_NULL_HANDLE (aucune valeur valide).
-	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
 
 	// --------------------------------------------------------------------
 	// Nombre d'échantillons pour le multisampling (MSAA) : améliore la qualité visuelle en réduisant les aliasing.
 	// Initialisé à VK_SAMPLE_COUNT_1_BIT (pas de MSAA par défaut).
 	VkSampleCountFlagBits MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
-	// --------------------------------------------------------------------
-	// Device logique : interface pour interagir avec le device physique.
-	// Représente la connexion logique au GPU, utilisée pour créer la plupart des objets Vulkan (buffers, images, etc.).
-	VkDevice Device;
+	TextureVoid* DepthTexture = nullptr;
 
-	// --------------------------------------------------------------------
-	// File d'attente graphique : utilisée pour soumettre des commandes de rendu (ex: dessin, calculs).
-	// Les commandes soumises ici sont exécutées par le GPU.
-	VkQueue GraphicsQueue;
+	std::vector<VkSemaphore> ImageAvailableSemaphores{};
 
-	//VkQueue ComputeQueue;
+	std::vector<VkSemaphore> RenderFinishedSemaphores{};
 
-	// --------------------------------------------------------------------
-	// File d'attente de présentation : utilisée pour présenter les images rendues à l'écran (via la swap chain).
-	// Peut être la même que GraphicsQueue si le GPU le permet.
-	VkQueue PresentQueue;
+	std::vector<VkFence> InFlightFences{};
 
-	// --------------------------------------------------------------------
-	// Pool de commandes : réservoir de mémoire pour allouer des buffers de commandes.
-	// Les buffers de commandes stockent les commandes de rendu (ex: vkCmdDraw) à soumettre au GPU.
-	VkCommandPool CommandPool;
+	uint32_t CurrentFrameIndexInFlight = 0;
 
 	VulkanData() = default;
 
-	VulkanData(const VulkanData&) = delete;
-	VulkanData& operator=(const VulkanData&) = delete;
+	//VulkanData(const VulkanData&) = delete;
+	//VulkanData& operator=(const VulkanData&) = delete;
 };
 
 struct VulkanFrameInfo
 {
 public:
-	int FrameIndex;
+	uint32_t FrameIndex;
+	uint32_t CurrentFrameIndexInFlight;
 	float FrameTime;
 	VkCommandBuffer CommandBuffer;
-	class CameraBase* Cemera;
+	class CameraBase* Camera;
 };
 
 struct PipelineConfigInfo 
@@ -208,6 +205,6 @@ public:
 	uint32_t Subpass = 0;
 
 	PipelineConfigInfo() = default;
-	PipelineConfigInfo(const PipelineConfigInfo&) = delete;
-	PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
+	//PipelineConfigInfo(const PipelineConfigInfo&) = delete;
+	//PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
 };

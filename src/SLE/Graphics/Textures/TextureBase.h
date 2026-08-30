@@ -1,77 +1,43 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
 #include <vulkan/vulkan.h>
-#include "../Core/Init/TextureInfos.h"
 
-#include "../Core/AssetData.h"
+#include "../../Core/AssetData.h"
+
+#include <string>
 
 
-class Texture : public AssetData
+class TextureBase : public AssetData
 {
 public:
-	Texture();
-	Texture(TextureInfos& _TextureInfos);
-	Texture(const char* _TexturePath);
+	TextureBase();
 
-	Texture(const Texture&) = delete;
-	Texture& operator=(const Texture&) = delete;
+	TextureBase(const TextureBase&) = delete;
+	TextureBase& operator=(const TextureBase&) = delete;
 
-	virtual ~Texture() override;
+	virtual ~TextureBase() override;
 
-	inline TextureInfos& GetTextureInfos() { return m_TextureInfos; }
-	inline VkImage& GetTextureImage() { return m_TextureImage; }
-	inline VkDeviceMemory& GetTextureMemory() { return m_TextureMemory; }
-	inline VkImageView& GetTextureImageView() { return m_TextureImageView; }
-	inline VkSampler& GetTextureSampler() { return m_TextureSampler; }
+	inline VkImage GetTextureImage() { return m_TextureImage; }
+	inline VkDeviceMemory GetTextureMemory() { return m_TextureMemory; }
+	inline VkImageView GetTextureImageView() { return m_TextureImageView; }
 
-	void CleanupTexture();
+	void CleanupTextureBase();
 
-private:
-	TextureInfos m_TextureInfos;
-	VkImage m_TextureImage;
-	VkDeviceMemory m_TextureMemory;
-	VkImageView m_TextureImageView;
-	VkSampler m_TextureSampler;
-
-	void LoadTexture(const char* _FilePath);
-
-	/**
-	* Crée une image de texture Vulkan à partir d'un fichier image.
-	* Étapes :
-	* 1. Charge les pixels de l'image avec stbi_load (force le format RGBA).
-	* 2. Calcule le nombre de niveaux de mipmap en fonction des dimensions de l'image.
-	* 3. Crée un buffer de staging (mémoire accessible par le CPU) pour transférer les pixels vers le GPU.
-	* 4. Copie les pixels dans le buffer de staging via vkMapMemory.
-	* 5. Crée l'image Vulkan finale avec les paramètres adaptés (taille, format, usage pour échantillonnage et transfert).
-	* 6. Transitionne le layout de l'image de UNDEFINED à TRANSFER_DST_OPTIMAL pour permettre la copie.
-	* 7. Copie les données du buffer de staging vers l'image Vulkan.
-	* 8. Génère les mipmaps pour l'image.
-	* 9. Libère le buffer de staging et sa mémoire.
-	* _FilePath : Chemin vers le fichier d'image à charger.
-	* _Texture : Référence vers l'objet Texture à remplir (stocke l'image, la mémoire, et les infos de texture).
-	*/
-	void CreateTextureImage(const char* _FilePath);
+protected :
+	std::string m_Name;
+	uint32_t m_MipLevels = 1;
+	VkExtent2D m_Size{};
+	VkImage m_TextureImage = VK_NULL_HANDLE;
+	VkDeviceMemory m_TextureMemory = VK_NULL_HANDLE;
+	VkImageView m_TextureImageView = VK_NULL_HANDLE;
 
 	/**
 	* Crée une vue d'image (VkImageView) pour une texture.
 	* La vue permet d'accéder à l'image dans les shaders (ex: dans un fragment shader pour l'échantillonnage).
 	* Utilise le format RGBA8 SRGB et inclut tous les niveaux de mipmap de la texture.
-	* _Texture : Référence vers l'objet Texture dont on veut créer la vue.
+	* _Texture : Référence vers l'objet TextureBase dont on veut créer la vue.
 	*/
 	void CreateTextureImageView();
-
-	/**
-	* Crée un échantillonneur (VkSampler) pour une texture.
-	* Configure les paramètres suivants :
-	* - Filtrage : Linéaire pour la magnification et la minification.
-	* - Adressage : Répétition (REPEAT) sur les axes U, V, et W.
-	* - Anisotropie : Activée avec la valeur maximale supportée par le GPU.
-	* - Mode de mipmap : Linéaire.
-	* - Couleur de bordure : Noir opaque.
-	* - Plage de LOD : De 0.0 à VK_LOD_CLAMP_NONE (tous les niveaux de mipmap).
-	* _Texture : Référence vers l'objet Texture dont on veut créer l'échantillonneur.
-	*/
-	void CreateTextureSampler();
 
 	/**
 	* Génère les niveaux de mipmap pour une image texture.
@@ -102,6 +68,8 @@ private:
 	*/
 	void TransitionImageLayout(VkImage _Image, VkFormat _Format, VkImageLayout _OldLayout, VkImageLayout _NewLayout, uint32_t _MipLevels);
 
+	bool HasStencilComponent(VkFormat _Format);
+
 	/**
 	* Copie les données d'un buffer vers une image Vulkan.
 	* Utilise une commande ponctuelle (single-time command) pour effectuer la copie.
@@ -114,4 +82,5 @@ private:
 
 	void CreateImage(uint32_t _Width, uint32_t _Height, uint32_t _MipLevels, VkSampleCountFlagBits _NumSamples, VkFormat _Format, VkImageTiling _Tiling, VkImageUsageFlags _Usage, VkMemoryPropertyFlags _Properties, VkImage& _Image, VkDeviceMemory& _ImageMemory);
 
+	VkImageView CreateImageView(VkImage _Image, VkFormat _Format, VkImageAspectFlags _AspectFlags, uint32_t _MipLevels);
 };

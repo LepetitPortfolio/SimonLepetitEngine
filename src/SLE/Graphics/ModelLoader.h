@@ -1,5 +1,5 @@
 #pragma once
-#include "Models/Model.h"
+#include "Models/ModelInclude.h"
 
 class ModelLoader
 {
@@ -13,6 +13,8 @@ public:
 	* _FilePath : Chemin vers le fichier OBJ à charger (ex: "models/model.obj").
 	*/
 	static Model* LoadModel(const char* _FilePath);
+
+	static SphereModel* LoadSphereModel(float _Radius = 1.0f, uint32_t _SectorCount = 16, uint32_t _StackCount = 16);
 
 private :
 

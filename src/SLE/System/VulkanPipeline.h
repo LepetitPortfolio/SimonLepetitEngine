@@ -1,5 +1,4 @@
 #pragma once
-
 #include "VulkanPlatform.h"
 #include "VulkanStructs.h"
 
@@ -41,7 +40,7 @@ public:
 
 
 	template<typename T>
-	static void DefaultPipelineConfigInfo(PipelineConfigInfo& _ConfigInfo);
+	static void CreatePipelineConfigInfo(PipelineConfigInfo& _ConfigInfo);
 
 	static void EnableAlphaBlending(PipelineConfigInfo& _ConfigInfo);
 

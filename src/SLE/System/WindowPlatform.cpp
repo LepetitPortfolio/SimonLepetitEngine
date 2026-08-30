@@ -20,7 +20,6 @@ void WindowPlatform::InitWindow(int _Width, int _Height, std::string _Name)
 
 	glfwSetWindowUserPointer(m_Window, this);
 	glfwSetFramebufferSizeCallback(m_Window, FrameBufferResizeCallback);
-
 }
 
 void WindowPlatform::Cleanup()

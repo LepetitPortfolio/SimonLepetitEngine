@@ -2,7 +2,7 @@
 #include "../Core/GlobalFunctionLibrary.h"
 
 template<typename T>
-void VulkanPipeline::DefaultPipelineConfigInfo(PipelineConfigInfo& _ConfigInfo)
+void VulkanPipeline::CreatePipelineConfigInfo(PipelineConfigInfo& _ConfigInfo)
 {
 	_ConfigInfo.InputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 	_ConfigInfo.InputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;

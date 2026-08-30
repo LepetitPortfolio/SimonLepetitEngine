@@ -15,8 +15,8 @@ public:
 	void LoadScene();
 	void UnloadScene();
 
-	void Update();
-	void UpdateDraw(VulkanFrameInfo _FrameInfo);
+	void Update(float _DeltaTime);
+	void UpdateDraw(VulkanFrameInfo& _FrameInfo);
 
 	void AddGameObject(GameObjectBase* _GameObject);
 	void AddGameObject(class Mesh* _Mesh);

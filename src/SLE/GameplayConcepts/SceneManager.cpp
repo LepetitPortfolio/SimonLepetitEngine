@@ -61,10 +61,10 @@ bool SceneManager::AddScene(const std::string& _Name, Scene* _Scene)
 	return false;
 }
 
-void SceneManager::UpdateCurrentScene()
+void SceneManager::UpdateCurrentScene(float _DeltaTime)
 {
 	if (m_CurrentScene != nullptr)
 	{
-		m_CurrentScene->Update();
+		m_CurrentScene->Update(_DeltaTime);
 	}
 }

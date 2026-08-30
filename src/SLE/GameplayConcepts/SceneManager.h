@@ -20,7 +20,7 @@ public:
 
 	bool AddScene(const std::string& _Name, Scene* _Scene);
 
-	void UpdateCurrentScene();
+	void UpdateCurrentScene(float _DeltaTime);
 
 private:
 

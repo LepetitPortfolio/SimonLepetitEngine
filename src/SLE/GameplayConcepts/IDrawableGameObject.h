@@ -3,7 +3,6 @@
 #include <GLFW/glfw3.h>
 
 #include "..\System\VulkanStructs.h"
-#include "..\Core\Init\TextureInfos.h"
 
 
 #include <vector>

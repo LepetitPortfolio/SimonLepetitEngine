@@ -45,3 +45,31 @@ void ShaderLoader::ReflectShaderBindings(ShaderType _ShaderType, const std::vect
 
 	spvReflectDestroyShaderModule(&module);
 }
+
+VkPipelineShaderStageCreateInfo ShaderLoader::CreateShaderProgram(ShaderType _ShaderType, std::vector<char>& _ShaderCode, VkShaderModule _OutShaderModule)
+{
+	_OutShaderModule = CreateShaderModule(_ShaderCode);
+
+	VkPipelineShaderStageCreateInfo shaderStageCreateInfo{};
+	shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	shaderStageCreateInfo.stage = static_cast<VkShaderStageFlagBits>(_ShaderType);
+	shaderStageCreateInfo.module = _OutShaderModule;
+	shaderStageCreateInfo.pName = "main";
+	return shaderStageCreateInfo;
+}
+
+VkShaderModule ShaderLoader::CreateShaderModule(const std::vector<char>& _ShaderCode)
+{
+	VkShaderModule shaderModule;
+	VkShaderModuleCreateInfo shaderModuleCreateInfo{};
+	shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	shaderModuleCreateInfo.codeSize = _ShaderCode.size();
+	shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(_ShaderCode.data());
+
+	if (vkCreateShaderModule(GlobalFunctionLibrary::GetVulkanDevice()->GetLogicalDevice(), &shaderModuleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS)
+	{
+		Err() << "failed to create shader module!" << std::endl;
+	}
+
+	return shaderModule;
+}

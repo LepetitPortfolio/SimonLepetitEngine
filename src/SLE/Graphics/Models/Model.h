@@ -2,11 +2,11 @@
 #include "..\..\GameplayConcepts\IDrawableGameObject.h"
 #include "../../Core/AssetData.h"
 
-#include "../../System/VulkanIncludes.h"
+#include "../../System/VulkanBufferManager.h"
 #include "../../Common/Time.h"
-#include "../Vertex.h"
+#include "../../Common/Vertex.h"
 
-#include "../Texture.h"
+#include "../Textures/Texture.h"
 
 #include "../Shader.h"
 
@@ -26,8 +26,18 @@ public:
 	Model(const Model&) = delete;
 	Model& operator=(const Model&) = delete;
 
-	std::vector<Vertex>& GetVertices();
+	std::vector<StandardVertex>& GetVertices();
 	std::vector<uint32_t>& GetIndices();
+
+	VkBuffer GetVertexBuffer() const { return m_VertexBuffer; }
+
+	VkBuffer GetIndexBuffer() const { return m_IndexBuffer; }
+	uint32_t GetIndexCount() const { return m_IndexCount; }	
+
+	VkBuffer GetUniformBuffer(size_t _FrameIndex) const { return m_UniformBuffers[_FrameIndex]; }
+	std::vector<VkBuffer> GetUniformBuffers() const { return m_UniformBuffers; }
+	std::vector<void*>& GetUniformBuffersMapped() { return m_UniformBuffersMapped; }
+
 
 	virtual void CreateModel() override;
 	void CreateModel(const std::string& _Filepath);
@@ -43,32 +53,33 @@ public:
 	//virtual void SetTexture(Texture* _Texture)override final;
 	//virtual const Texture* GetTexture() const override final;
 
-	void AddVertex(Vertex _Vertex);
+	void AddVertex(StandardVertex _Vertex);
 	void AddIndex(uint32_t _Index);
 
 protected:
 
 	Time m_StartTime;
 
-	std::vector<Vertex> m_Vertices;
-	std::unique_ptr<VulkanBuffer> m_VertexBuffer;
+	std::vector<StandardVertex> m_Vertices;
+	VkBuffer m_VertexBuffer;
+	VkDeviceMemory m_VertexBufferMemory;
 	uint32_t m_VertexCount;
 
 	std::vector<uint32_t> m_Indices;
-	std::unique_ptr<VulkanBuffer> m_IndexBuffer;
+	VkBuffer m_IndexBuffer;
+	VkDeviceMemory m_IndexBufferMemory;
 	uint32_t m_IndexCount;
+
+	std::vector<VkBuffer> m_UniformBuffers;
+	std::vector<VkDeviceMemory> m_UniformBuffersMemory;
+	std::vector<void*> m_UniformBuffersMapped;
 
 	bool m_HasIndexBuffer = false;
 
 
-	// --------------------------------------------------------------------
-	// Liste des sets de descripteurs, un pour chaque frame en vol.
-	// Chaque set contient les descripteurs (ex: buffer uniforme, texture) pour une frame donnée.
-	std::vector<VkDescriptorSet> m_DescriptorSets;
-
 	void CreateVertexBuffers();
 	void CreateIndexBuffers();
-
+	void CreateUniformBuffers();
 
 private:
 

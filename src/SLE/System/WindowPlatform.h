@@ -73,8 +73,8 @@ private:
 
 	GLFWwindow* m_Window;
 
-	int m_Width;
-	int m_Height;
+	int m_Width = WIDTH;
+	int m_Height = HEIGHT;
 	bool m_FramebufferResized = false;
 
 	/**

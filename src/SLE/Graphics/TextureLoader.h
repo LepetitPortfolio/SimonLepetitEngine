@@ -1,6 +1,6 @@
 #pragma once
 #define GLFW_INCLUDE_VULKAN
-#include "Texture.h"
+#include "Textures/Texture.h"
 
 class TextureLoader
 {

@@ -16,8 +16,6 @@ file(GLOB_RECURSE GAME_HEADERS
 
 add_executable(Game ${GAME_SOURCES} ${GAME_HEADERS})
 
-target_link_libraries(Game PRIVATE SLE)
-
 target_include_directories(Game PRIVATE ${CMAKE_SOURCE_DIR}/src/SLE)
 
 target_link_libraries(Game PRIVATE SLE Vulkan::Vulkan)

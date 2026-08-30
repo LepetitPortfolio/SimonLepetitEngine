@@ -20,7 +20,6 @@ void AssetDataManagerBase::AddData(AssetData* _Data)
 		return;
 	}
 
-
 	AssetData* assetData = static_cast<AssetData*>(_Data);
 	if (assetData)
 	{  // Vérification redondante ici, car _Data != nullptr
