@@ -200,8 +200,8 @@ public:
 	VkPipelineDepthStencilStateCreateInfo DepthStencilInfo;
 	std::vector<VkDynamicState> DynamicStateEnables;
 	VkPipelineDynamicStateCreateInfo DynamicStateInfo;
-	VkPipelineLayout PipelineLayout = nullptr;
-	VkRenderPass RenderPass = nullptr;
+	VkPipelineLayout PipelineLayout;
+	VkRenderPass RenderPass;
 	uint32_t Subpass = 0;
 
 	PipelineConfigInfo() = default;
