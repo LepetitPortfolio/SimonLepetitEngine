@@ -26,7 +26,7 @@ public:
     void EndRenderPass(VkCommandBuffer _CommandBuffer);
     void EndCommandBuffer(VkCommandBuffer _CommandBuffer);
     void RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex, VkRenderPass _RenderPass, VkFramebuffer _Framebuffer, VkExtent2D _Extent, 
-                             VkPipeline _GraphicsPipeline, VkPipelineLayout _PipelineLayout, VkBuffer _VertexBuffer, VkBuffer _IndexBuffer, 
+                             VkPipeline _Pipeline, VkPipelineLayout _PipelineLayout, VkBuffer _VertexBuffer, VkBuffer _IndexBuffer, 
                              const std::vector<VkDescriptorSet>& _DescriptorSets, uint32_t _CurrentFrame, uint32_t _IndexCount);
 
 private:

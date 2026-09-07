@@ -1,23 +1,17 @@
 #version 450
 
-layout(binding = 0) uniform UniformBufferObject 
+// Diagnostic vertex shader:
+// Deliberately ignores vertex buffers, indices, camera matrices and textures.
+// If this triangle is visible, the Vulkan render/present path is working and
+// the remaining problem is in the normal mesh/UBO/vertex path.
+
+vec2 positions[3] = vec2[](
+    vec2(-0.60, -0.60),
+    vec2( 0.60, -0.60),
+    vec2( 0.00,  0.60)
+);
+
+void main()
 {
-    mat4 model;
-    mat4 proj;
-    mat4 view;
-    mat4 InverseView;
-} ubo;
-
-layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec3 inColor;
-layout(location = 2) in vec3 inNormal;
-layout(location = 3) in vec2 inUV;
-
-layout(location = 0) out vec3 fragColor;
-layout(location = 1) out vec2 fragTexCoord;
-
-void main() {
-    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
-    fragColor = inColor;
-    fragTexCoord = inUV;
+    gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
 }

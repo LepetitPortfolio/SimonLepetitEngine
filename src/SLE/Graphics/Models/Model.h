@@ -34,9 +34,9 @@ public:
 	VkBuffer GetIndexBuffer() const { return m_IndexBuffer; }
 	uint32_t GetIndexCount() const { return m_IndexCount; }	
 
-	VkBuffer GetUniformBuffer(size_t _FrameIndex) const { return m_UniformBuffers[_FrameIndex]; }
-	std::vector<VkBuffer> GetUniformBuffers() const { return m_UniformBuffers; }
-	std::vector<void*>& GetUniformBuffersMapped() { return m_UniformBuffersMapped; }
+	//VkBuffer GetUniformBuffer(size_t _FrameIndex) const { return m_UniformBuffers[_FrameIndex]; }
+	//std::vector<VkBuffer> GetUniformBuffers() const { return m_UniformBuffers; }
+	//std::vector<void*>& GetUniformBuffersMapped() { return m_UniformBuffersMapped; }
 
 
 	virtual void CreateModel() override;
@@ -70,16 +70,16 @@ protected:
 	VkDeviceMemory m_IndexBufferMemory;
 	uint32_t m_IndexCount;
 
-	std::vector<VkBuffer> m_UniformBuffers;
-	std::vector<VkDeviceMemory> m_UniformBuffersMemory;
-	std::vector<void*> m_UniformBuffersMapped;
+	//std::vector<VkBuffer> m_UniformBuffers;
+	//std::vector<VkDeviceMemory> m_UniformBuffersMemory;
+	//std::vector<void*> m_UniformBuffersMapped;
 
 	bool m_HasIndexBuffer = false;
 
 
 	void CreateVertexBuffers();
 	void CreateIndexBuffers();
-	void CreateUniformBuffers();
+	//void CreateUniformBuffers();
 
 private:
 

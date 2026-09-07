@@ -160,7 +160,8 @@ public:
 	// Initialisé à VK_SAMPLE_COUNT_1_BIT (pas de MSAA par défaut).
 	VkSampleCountFlagBits MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 
-	TextureVoid* DepthTexture = nullptr;
+	//TextureVoid* DepthTexture = nullptr;
+	std::vector<TextureVoid*> DepthTextures;
 
 	std::vector<VkSemaphore> ImageAvailableSemaphores{};
 
@@ -200,8 +201,8 @@ public:
 	VkPipelineDepthStencilStateCreateInfo DepthStencilInfo;
 	std::vector<VkDynamicState> DynamicStateEnables;
 	VkPipelineDynamicStateCreateInfo DynamicStateInfo;
-	VkPipelineLayout PipelineLayout;
-	VkRenderPass RenderPass;
+	VkPipelineLayout PipelineLayout = nullptr;
+	VkRenderPass RenderPass = nullptr;
 	uint32_t Subpass = 0;
 
 	PipelineConfigInfo() = default;

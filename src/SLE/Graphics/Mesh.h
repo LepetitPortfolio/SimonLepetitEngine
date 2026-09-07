@@ -11,13 +11,26 @@ class Mesh
 public:
 	Mesh(Model* _Model, Shader* _Shader, Texture* _Texture);
 
+	~Mesh();
+
+	VkBuffer GetUniformBuffer(size_t _FrameIndex) const { return m_UniformBuffers[_FrameIndex]; }
+	std::vector<VkBuffer> GetUniformBuffers() const { return m_UniformBuffers; }
+	std::vector<void*>& GetUniformBuffersMapped() { return m_UniformBuffersMapped; }
+
 	void Draw(Transform* _Transform, VulkanFrameInfo& _FrameInfo);
+	void Cleanup();
+
+	
 
 protected:
 
 	Model* m_Model = nullptr;
 	Shader* m_Shader = nullptr;
 	Texture* m_Texture = nullptr;
+
+	std::vector<VkBuffer> m_UniformBuffers;
+	std::vector<VkDeviceMemory> m_UniformBuffersMemory;
+	std::vector<void*> m_UniformBuffersMapped;
 	
 	// --------------------------------------------------------------------
 	// Liste des sets de descripteurs, un pour chaque frame en vol.
@@ -30,6 +43,8 @@ protected:
 	VkDescriptorPool m_DescriptorPool;
 
 	void UpdateDescriptorSets();
+
+	void CreateUniformBuffers();
 
 	void CreateDescriptorPool();
 

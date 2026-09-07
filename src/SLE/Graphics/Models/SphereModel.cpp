@@ -24,7 +24,7 @@ void SphereModel::CreateModel()
 
 	CreateVertexBuffers();
 	CreateIndexBuffers();
-	CreateUniformBuffers();
+	//CreateUniformBuffers();
 
 	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
 }

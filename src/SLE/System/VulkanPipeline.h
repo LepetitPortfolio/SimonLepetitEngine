@@ -26,35 +26,76 @@ typedef enum ShaderType
 	CALLABLE_KHR_SHADER = 0x00002000, // = VK_SHADER_STAGE_CALLABLE_BIT_KHR
 };
 
+struct ShaderCodeSettings
+{
+	std::vector<char> ShaderCode;
+	VkShaderModule ShaderModule = VK_NULL_HANDLE;
+};
+
+struct ShaderSettings
+{
+	VkShaderStageFlags ShaderStageFlags;
+	std::string ShaderName;
+	std::map<VkShaderStageFlagBits, ShaderCodeSettings> ShaderCodeInfos;
+	std::vector<VkDescriptorSetLayoutBinding> Bindings;
+
+	VkRenderPass RenderPass;
+
+	std::vector<VkPipelineShaderStageCreateInfo> PipelineShaderInfo;
+	std::vector<VkVertexInputBindingDescription> VertexInputBindingDescriptions;
+	std::vector<VkVertexInputAttributeDescription> VertexInputAttributeDescriptions;
+
+};
+
 class VulkanPipeline
 {
 public:
-	VulkanPipeline(const std::vector<char>* _VertCode, const std::vector<char>* _FragCode, const PipelineConfigInfo& _ConfigInfo);
+	VulkanPipeline();
 
 	~VulkanPipeline();
 
 	VulkanPipeline(const VulkanPipeline&) = delete;
 	VulkanPipeline& operator=(const VulkanPipeline&) = delete;
 
+	VkPipeline GetPipeline() const { return m_Pipeline; }
+	VkPipelineLayout GetPipelineLayout() { return m_PipelineLayout; }
+	std::vector<VkDescriptorSetLayoutBinding>& GetLayoutBinding() { return m_LayoutBinding; }
+	VkDescriptorSetLayout GetDescriptorSetLayout() { return m_DescriptorSetLayout; }
+
+	void Initialize(ShaderSettings _ShaderSettings);
+	void Cleanup();
+	void Recreate();
+
 	void Bind(VkCommandBuffer _CommandBuffer);
-
-
-	template<typename T>
-	static void CreatePipelineConfigInfo(PipelineConfigInfo& _ConfigInfo);
 
 	static void EnableAlphaBlending(PipelineConfigInfo& _ConfigInfo);
 
 private:
 
-	VkPipeline m_GraphicsPipeline;
-	std::map<ShaderType, VkShaderModule> m_ShaderModules;
+	// --------------------------------------------------------------------
+	// Layout des sets de descripteurs : définit la structure des ressources accessibles dans les shaders.
+	// Spécifie les bindings (ex: buffer uniforme en binding 0, texture en binding 1) et leurs types.
+	VkDescriptorSetLayout m_DescriptorSetLayout = VK_NULL_HANDLE;
 
-	void CreateGraphicsPipeline(const std::vector<char>* _VertCode, const std::vector<char>* _FragCode, const PipelineConfigInfo& _ConfigInfo);
+	// --------------------------------------------------------------------
+	// Layout du pipeline graphique : définit les ressources (descripteurs, push constants) utilisées par le pipeline.
+	// Contient les layouts des sets de descripteurs et les plages de push constants.
+	VkPipelineLayout m_PipelineLayout = VK_NULL_HANDLE;
+	
+	// --------------------------------------------------------------------
+	// Pipeline graphique : définit toutes les étapes fixes du rendu (shaders, assemblage des primitives, rasterization, etc.).
+	// Représente le "chemin" que suivent les données pour être transformées en pixels à l'écran.
+	VkPipeline m_Pipeline = VK_NULL_HANDLE;
 
-	void CreateShaderModule(const std::vector<char>* _Code, VkShaderModule* _ShaderModule);
+	std::vector<VkPipelineShaderStageCreateInfo> m_PipelineShaderInfo;
+	std::vector<VkVertexInputBindingDescription> m_VertexInputBindingDescriptions;
+	std::vector<VkVertexInputAttributeDescription> m_VertexInputAttributeDescriptions;
 
-	VkPipelineShaderStageCreateInfo CreateShaderStage(VkShaderStageFlagBits _ShaderStage, VkShaderModule _ShaderModule);
+	std::vector<VkDescriptorSetLayoutBinding> m_LayoutBinding;
+
+	void CreateDescriptorSetLayout(std::vector<VkDescriptorSetLayoutBinding>& _Bindings);
+	void CreatePipeline(const std::vector<VkPipelineShaderStageCreateInfo>& _ShaderStagesCreateInfo, const PipelineConfigInfo& _ConfigInfo);
+	PipelineConfigInfo CreatePipelineConfigInfo();
 
 };
 
-#include "VulkanPipeline.inl"

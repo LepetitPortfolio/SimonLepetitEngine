@@ -63,6 +63,32 @@ public:
 	}
 };
 
+struct EmptyVertex : public IVulkanDescription
+{
+
+    static std::vector<VkVertexInputBindingDescription> GetBindingDescription()
+    {
+        std::vector<VkVertexInputBindingDescription> bindingDescriptions{ 1 };
+        bindingDescriptions[0].binding = 0;
+        bindingDescriptions[0].stride = sizeof(EmptyVertex);
+        bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return bindingDescriptions;
+    }
+
+    static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
+    {
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions(0);
+
+        return attributeDescriptions;
+    }
+
+    bool operator==(const EmptyVertex& _Other) const
+    {
+        return true;
+    }
+};
+
 // Basic _Vertex with position only
 struct BasicVertex : public IVulkanDescription 
 {
@@ -70,11 +96,12 @@ struct BasicVertex : public IVulkanDescription
 
     static std::vector<VkVertexInputBindingDescription> GetBindingDescription()
     {
-        VkVertexInputBindingDescription bindingDescription{};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(BasicVertex);
-        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        return { bindingDescription };
+        std::vector<VkVertexInputBindingDescription> bindingDescriptions{ 1 };
+        bindingDescriptions[0].binding = 0;
+        bindingDescriptions[0].stride = sizeof(BasicVertex);
+        bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return bindingDescriptions;
     }
 
     static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() 
@@ -103,11 +130,12 @@ struct ColoredVertex : public IVulkanDescription
 
     static std::vector<VkVertexInputBindingDescription> GetBindingDescription()
     {
-        VkVertexInputBindingDescription bindingDescription{};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(ColoredVertex);
-        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        return { bindingDescription };
+        std::vector<VkVertexInputBindingDescription> bindingDescriptions{ 1 };
+        bindingDescriptions[0].binding = 0;
+        bindingDescriptions[0].stride = sizeof(ColoredVertex);
+        bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return bindingDescriptions;
     }
 
     static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() 
@@ -142,11 +170,12 @@ struct StandardVertex
 
     static std::vector<VkVertexInputBindingDescription> GetBindingDescription()
     {
-        VkVertexInputBindingDescription bindingDescription{};
-        bindingDescription.binding = 0;
-        bindingDescription.stride = sizeof(StandardVertex);
-        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        return { bindingDescription };
+        std::vector<VkVertexInputBindingDescription> bindingDescriptions{ 1 };
+        bindingDescriptions[0].binding = 0;
+        bindingDescriptions[0].stride = sizeof(StandardVertex);
+        bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return bindingDescriptions;
     }
 
     static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() 

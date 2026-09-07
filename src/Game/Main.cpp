@@ -26,7 +26,7 @@ int main()
         std::string modelFile = FileReader::GetRootFolder().ToANSIString() + "Assets/Models/viking_room.obj";
 
         
-		Shader* shader = ShaderLoader::LoadVertexFragmentShader<Vertex>("BasicShader", vertexShader.c_str(), fragmentShader.c_str());
+		Shader* shader = ShaderLoader::LoadVertexFragmentShader<EmptyVertex>("BasicShader", vertexShader.c_str(), fragmentShader.c_str());
 
         Texture* texture = TextureLoader::LoadTexture(textureFile.c_str());
         //Texture* texture = TextureLoader::LoadTexture(simpleTextureFile.c_str());

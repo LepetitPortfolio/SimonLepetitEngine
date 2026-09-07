@@ -17,9 +17,15 @@ Mesh::Mesh(Model* _Model, Shader* _Shader, Texture* _Texture)
 	m_Shader = _Shader;
 	m_Texture = _Texture;
 
+	CreateUniformBuffers();
+
 	CreateDescriptorPool();
 
 	UpdateDescriptorSets();
+}
+
+Mesh::~Mesh()
+{
 }
 
 void Mesh::Draw(Transform* _Transform, VulkanFrameInfo& _FrameInfo)
@@ -36,6 +42,21 @@ void Mesh::Draw(Transform* _Transform, VulkanFrameInfo& _FrameInfo)
 										framebuffer, vulkanSwapchain->GetExtent(), m_Shader->GetPipeline(), m_Shader->GetPipelineLayout(),
 										m_Model->GetVertexBuffer(), m_Model->GetIndexBuffer(), m_DescriptorSets, vulkanData.CurrentFrameIndexInFlight, 
 										static_cast<uint32_t>(m_Model->GetIndices().size()));
+}
+
+void Mesh::Cleanup()
+{
+	VulkanBufferManager* bufferManager = GlobalFunctionLibrary::GetVulkanPlatform()->GetBufferManager();
+	VkDevice device = GlobalFunctionLibrary::GetVulkanPlatform()->GetDevice()->GetLogicalDevice();
+
+	for (size_t i = 0; i < m_UniformBuffers.size(); i++)
+	{
+		if (m_UniformBuffersMemory[i] != VK_NULL_HANDLE)
+		{
+			vkUnmapMemory(device, m_UniformBuffersMemory[i]);
+		}
+		bufferManager->DestroyBuffer(m_UniformBuffers[i], m_UniformBuffersMemory[i]);
+	}
 }
 
 void Mesh::UpdateDescriptorSets()
@@ -78,7 +99,7 @@ void Mesh::UpdateDescriptorSets()
 			{
 			case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
 
-				m_Shader->GenertateUniformBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], m_Model->GetUniformBuffer(frameIndex), writeDescriptorSets);
+				m_Shader->GenertateUniformBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], GetUniformBuffer(frameIndex), writeDescriptorSets);
 				break;
 
 			case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -98,6 +119,15 @@ void Mesh::UpdateDescriptorSets()
 		vkUpdateDescriptorSets(vulkanDevice->GetLogicalDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
 	}
 	
+}
+
+void Mesh::CreateUniformBuffers()
+{
+	int maxFramesInFlight = GlobalFunctionLibrary::GetConfig()->MaxFramesInFlight;
+	VulkanBufferManager* bufferManager = GlobalFunctionLibrary::GetVulkanPlatform()->GetBufferManager();
+
+	bufferManager->CreateUniformBuffer(maxFramesInFlight, m_UniformBuffers, m_UniformBuffersMemory, m_UniformBuffersMapped);
+
 }
 
 void Mesh::CreateDescriptorPool()
@@ -142,5 +172,5 @@ void Mesh::UpdateUniforms(Transform* _Transform, CameraBase* _Camera, uint32_t _
 	ubo.Projection = _Camera->GetProjection();
 	ubo.Projection[1][1] *= -1;
 
-	memcpy(m_Model->GetUniformBuffersMapped()[_ImageIndex], &ubo, sizeof(ubo));
+	memcpy(m_UniformBuffersMapped[_ImageIndex], &ubo, sizeof(ubo));
 }

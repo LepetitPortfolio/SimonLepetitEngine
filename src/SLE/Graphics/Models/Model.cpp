@@ -47,7 +47,7 @@ void Model::CreateModel(const std::string& _Filepath)
 	LoadModel(_Filepath);
 	CreateVertexBuffers();
 	CreateIndexBuffers();
-	CreateUniformBuffers();
+	//CreateUniformBuffers();
 
 }
 
@@ -110,13 +110,13 @@ void Model::CreateIndexBuffers()
 	bufferManager->CreateIndexBuffer(m_Indices, m_IndexBuffer, m_IndexBufferMemory);
 }
 
-void Model::CreateUniformBuffers()
+/*/void Model::CreateUniformBuffers()
 {
 	VulkanBufferManager* bufferManager = GlobalFunctionLibrary::GetVulkanPlatform()->GetBufferManager();
 	uint32_t maxFramesInFlight = GlobalFunctionLibrary::GetConfig()->MaxFramesInFlight;
 	
 	bufferManager->CreateUniformBuffer(maxFramesInFlight, m_UniformBuffers, m_UniformBuffersMemory, m_UniformBuffersMapped);
-}
+}*/
 
 void Model::LoadModel(const std::string& _Filepath)
 {

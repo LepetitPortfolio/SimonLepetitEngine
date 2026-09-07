@@ -125,11 +125,7 @@ void VulkanCommandManager::BeginCommandBuffer(VkCommandBuffer _CommandBuffer)
     }
 }
 
-void VulkanCommandManager::BeginRenderPass(
-    VkCommandBuffer _CommandBuffer,
-    VkRenderPass _RenderPass,
-    VkFramebuffer _Framebuffer,
-    VkExtent2D _Extent)
+void VulkanCommandManager::BeginRenderPass( VkCommandBuffer _CommandBuffer, VkRenderPass _RenderPass, VkFramebuffer _Framebuffer, VkExtent2D _Extent)
 {
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -161,29 +157,21 @@ void VulkanCommandManager::EndCommandBuffer(VkCommandBuffer _CommandBuffer)
     }
 }
 
-void VulkanCommandManager::RecordCommandBuffer(
-    VkCommandBuffer _CommandBuffer,
-    uint32_t /*_ImageIndex*/,
-    VkRenderPass /*_RenderPass*/,
-    VkFramebuffer /*_Framebuffer*/,
-    VkExtent2D _Extent,
-    VkPipeline _GraphicsPipeline,
-    VkPipelineLayout _PipelineLayout,
-    VkBuffer _VertexBuffer,
-    VkBuffer _IndexBuffer,
-    const std::vector<VkDescriptorSet>& _DescriptorSets,
-    uint32_t _CurrentFrame,
-    uint32_t _IndexCount)
+void VulkanCommandManager::RecordCommandBuffer(VkCommandBuffer _CommandBuffer, uint32_t _ImageIndex, VkRenderPass _RenderPass,VkFramebuffer _Framebuffer, 
+                                               VkExtent2D _Extent, VkPipeline _Pipeline, VkPipelineLayout _PipelineLayout, VkBuffer _VertexBuffer, 
+                                               VkBuffer _IndexBuffer, const std::vector<VkDescriptorSet>& _DescriptorSets, uint32_t _CurrentFrame, uint32_t _IndexCount)
 {
     if (_DescriptorSets.empty() || _DescriptorSets.size() <= _CurrentFrame)
     {
         throw std::runtime_error("invalid descriptor set for current frame!");
     }
 
-    vkCmdBindPipeline(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _GraphicsPipeline);
+    vkCmdBindPipeline(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _Pipeline);
 
     VkBuffer vertexBuffers[] = { _VertexBuffer };
     VkDeviceSize offsets[] = { 0 };
+    // Diagnostic mode: the vertex shader generates a triangle from gl_VertexIndex,
+    // so the mesh vertex/index buffers are intentionally not used for the draw.
     vkCmdBindVertexBuffers(_CommandBuffer, 0, 1, vertexBuffers, offsets);
     vkCmdBindIndexBuffer(_CommandBuffer, _IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
@@ -195,22 +183,13 @@ void VulkanCommandManager::RecordCommandBuffer(
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(_CommandBuffer, 0, 1, &viewport);
-
     VkRect2D scissor{};
     scissor.offset = { 0, 0 };
     scissor.extent = _Extent;
     vkCmdSetScissor(_CommandBuffer, 0, 1, &scissor);
 
-    vkCmdBindDescriptorSets(
-        _CommandBuffer,
-        VK_PIPELINE_BIND_POINT_GRAPHICS,
-        _PipelineLayout,
-        0,
-        1,
-        &_DescriptorSets[_CurrentFrame],
-        0,
-        nullptr);
+    vkCmdBindDescriptorSets(_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _PipelineLayout, 0, 1, &_DescriptorSets[_CurrentFrame], 0, nullptr);
 
-    vkCmdDrawIndexed(_CommandBuffer, _IndexCount, 1, 0, 0, 0);
+    vkCmdDrawIndexed(_CommandBuffer, static_cast<uint32_t>(_IndexCount), 1, 0, 0, 0);
 }
 

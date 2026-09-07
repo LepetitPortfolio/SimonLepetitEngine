@@ -34,8 +34,6 @@ void VulkanPlatform::InitVulkan(WindowPlatform* _WindowPlatform)
 
 	m_VulkanRenderer = std::make_unique<VulkanRenderer>();
 	m_VulkanRenderer->Initialize(*m_VulkanDevice, *m_VulkanSwapchain);
-    //m_VulkanPipeline = std::make_unique<VulkanGraphicsPipeline>();
-    //m_VulkanPipeline->Initialize(*m_VulkanDevice, *m_VulkanSwapchain);
 
     m_CommandManager = std::make_unique<VulkanCommandManager>();
     m_CommandManager->Initialize(*m_VulkanDevice, GlobalFunctionLibrary::GetConfig()->MaxFramesInFlight);
@@ -71,13 +69,7 @@ void VulkanPlatform::DrawFrame(CameraBase* _Camera, float _DeltaTime)
     frameInfo.FrameTime = _DeltaTime;
     frameInfo.CommandBuffer = m_CommandManager->GetCommandBuffer(frameInFlight);
 
-    VkResult acquireNextImageResult = vkAcquireNextImageKHR(
-        device,
-        m_VulkanSwapchain->GetSwapchain(),
-        UINT64_MAX,
-        imageAvailableSemaphore,
-        VK_NULL_HANDLE,
-        &frameInfo.FrameIndex);
+    VkResult acquireNextImageResult = vkAcquireNextImageKHR( device, m_VulkanSwapchain->GetSwapchain(), UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &frameInfo.FrameIndex);
 
     if (acquireNextImageResult == VK_ERROR_OUT_OF_DATE_KHR)
     {
@@ -98,24 +90,14 @@ void VulkanPlatform::DrawFrame(CameraBase* _Camera, float _DeltaTime)
 
     // Begin the command buffer/render pass exactly once per frame.
     m_CommandManager->BeginCommandBuffer(frameInfo.CommandBuffer);
-    m_CommandManager->BeginRenderPass(
-        frameInfo.CommandBuffer,
-        m_VulkanRenderer->GetRenderPass(),
-        m_SwapchainFramebuffers[frameInfo.FrameIndex],
-        m_VulkanSwapchain->GetExtent());
+    m_CommandManager->BeginRenderPass( frameInfo.CommandBuffer, m_VulkanRenderer->GetRenderPass(), m_SwapchainFramebuffers[frameInfo.FrameIndex], m_VulkanSwapchain->GetExtent());
 
     GlobalFunctionLibrary::GetCurrentScene()->UpdateDraw(frameInfo);
 
     m_CommandManager->EndRenderPass(frameInfo.CommandBuffer);
     m_CommandManager->EndCommandBuffer(frameInfo.CommandBuffer);
 
-    // IMPORTANT:
-    // ImageAvailable is indexed by frame-in-flight.
-    // RenderFinished is indexed by the swapchain image because it is passed
-    // to vkQueuePresentKHR and therefore must not be reused until that image
-    // is acquired again.
-    VkSemaphore renderFinishedSemaphore =
-        m_VulkanData.RenderFinishedSemaphores[frameInfo.FrameIndex];
+    VkSemaphore renderFinishedSemaphore = m_VulkanData.RenderFinishedSemaphores[frameInfo.FrameIndex];
 
     VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
@@ -129,11 +111,7 @@ void VulkanPlatform::DrawFrame(CameraBase* _Camera, float _DeltaTime)
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &renderFinishedSemaphore;
 
-    VkResult queueSubmitResult = vkQueueSubmit(
-        m_VulkanDevice->GetGraphicsQueue(),
-        1,
-        &submitInfo,
-        inFlightFence);
+    VkResult queueSubmitResult = vkQueueSubmit( m_VulkanDevice->GetGraphicsQueue(), 1, &submitInfo, inFlightFence);
 
     if (queueSubmitResult != VK_SUCCESS)
     {
@@ -154,9 +132,7 @@ void VulkanPlatform::DrawFrame(CameraBase* _Camera, float _DeltaTime)
     VkResult queuePresentResult =
         vkQueuePresentKHR(m_VulkanDevice->GetPresentQueue(), &presentInfo);
 
-    if (queuePresentResult == VK_ERROR_OUT_OF_DATE_KHR ||
-        queuePresentResult == VK_SUBOPTIMAL_KHR ||
-        m_FramebufferResized)
+    if (queuePresentResult == VK_ERROR_OUT_OF_DATE_KHR || queuePresentResult == VK_SUBOPTIMAL_KHR || m_FramebufferResized)
     {
         m_FramebufferResized = false;
         RecreateSwapchain();
@@ -166,8 +142,7 @@ void VulkanPlatform::DrawFrame(CameraBase* _Camera, float _DeltaTime)
         throw std::runtime_error("failed to present swap chain image!");
     }
 
-    m_VulkanData.CurrentFrameIndexInFlight =
-        (frameInFlight + 1) % GlobalFunctionLibrary::GetConfig()->MaxFramesInFlight;
+    m_VulkanData.CurrentFrameIndexInFlight = (frameInFlight + 1) % GlobalFunctionLibrary::GetConfig()->MaxFramesInFlight;
 }
 
 void VulkanPlatform::WaitIdle()
@@ -235,9 +210,17 @@ void VulkanPlatform::RecreateSwapchain()
     // Keep the TextureVoid object alive (it is owned by AssetDataManager),
     // but destroy and recreate its Vulkan resources so the depth image matches
     // the new swapchain extent.
-    if (m_VulkanData.DepthTexture)
+    if (!m_VulkanData.DepthTextures.empty())
     {
-        m_VulkanData.DepthTexture->CleanupTextureVoid();
+        for (TextureVoid* depthTexture : m_VulkanData.DepthTextures)
+        {
+            if (depthTexture)
+            {
+                depthTexture->CleanupTextureVoid();
+            }
+        }
+
+		m_VulkanData.DepthTextures.clear();
     }
 
     m_VulkanSwapchain->RecreateSwapchain(window);
@@ -345,12 +328,21 @@ void VulkanPlatform::DestroySyncObjects()
 
 void VulkanPlatform::CreateDepthResources()
 {
-    if (m_VulkanData.DepthTexture == nullptr)
+    if (m_VulkanData.DepthTextures.empty())
     {
-        m_VulkanData.DepthTexture = new TextureVoid();
+        const size_t swapchainImageCount = m_VulkanSwapchain->GetImages().size();
+        m_VulkanData.DepthTextures.resize(swapchainImageCount);
+
+        for (size_t i = 0; i < swapchainImageCount; i++)
+        {
+            if (m_VulkanData.DepthTextures[i] == nullptr)
+            {
+                m_VulkanData.DepthTextures[i] = new TextureVoid();
+            }
+            m_VulkanData.DepthTextures[i]->GenerateDepthResources();
+        }
     }
 
-    m_VulkanData.DepthTexture->GenerateDepthResources();
 }
 
 void VulkanPlatform::CreateFramebuffers()
@@ -363,7 +355,7 @@ void VulkanPlatform::CreateFramebuffers()
         std::array<VkImageView, 2> attachments = 
         {
             swapChainImageViews[i],
-            m_VulkanData.DepthTexture->GetTextureImageView()
+            m_VulkanData.DepthTextures[i]->GetTextureImageView()
         };
 
         VkFramebufferCreateInfo framebufferInfo{};
@@ -387,6 +379,3 @@ void VulkanPlatform::CreateFramebuffers()
         }
     }
 }
-
-
-
