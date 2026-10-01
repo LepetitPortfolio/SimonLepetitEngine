@@ -33,9 +33,9 @@ public:
 
 	void RecreatePipeline();
 
-	void GenertateUniformBufferDescriptorSetLayout(const VkDescriptorSetLayoutBinding _LayoutBinding, VkDescriptorSet _DescriptorSet, VkBuffer _UniformBuffers, std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets);
-	void GenertateCombinedImageSamplerDescriptorSetLayout(const VkDescriptorSetLayoutBinding _LayoutBinding, VkDescriptorSet _DescriptorSet, class Texture* _Texture, std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets);
-	void GenertateStorageBufferDescriptorSetLayout(const VkDescriptorSetLayoutBinding _LayoutBinding, VkDescriptorSet _DescriptorSet, std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets);
+	void GenertateUniformBufferDescriptorSetLayout(const VkDescriptorSetLayoutBinding _LayoutBinding, VkDescriptorSet _DescriptorSet, VkDescriptorBufferInfo& _DescriptorBufferInfo, std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets);
+	void GenertateCombinedImageSamplerDescriptorSetLayout(const VkDescriptorSetLayoutBinding _LayoutBinding, VkDescriptorSet _DescriptorSet, VkDescriptorImageInfo& _DescriptorImageInfo, std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets);
+	void GenertateStorageBufferDescriptorSetLayout(const VkDescriptorSetLayoutBinding _LayoutBinding, VkDescriptorSet _DescriptorSet, VkDescriptorBufferInfo& _DescriptorBufferInfo, std::vector<VkWriteDescriptorSet>& _WriteDescriptorSets);
 
 
 private :

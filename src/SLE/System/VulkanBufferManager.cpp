@@ -31,7 +31,8 @@ void VulkanBufferManager::CreateBuffer(VkDeviceSize _Size, VkBufferUsageFlags _U
     bufferInfo.usage = _Usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateBuffer(m_VulkanDevice->GetLogicalDevice(), &bufferInfo, nullptr, &_Buffer) != VK_SUCCESS) {
+    if (vkCreateBuffer(m_VulkanDevice->GetLogicalDevice(), &bufferInfo, nullptr, &_Buffer) != VK_SUCCESS) 
+    {
         throw std::runtime_error("failed to create _Buffer!");
     }
 
