@@ -40,7 +40,9 @@ public:
 
 private :
 
+
 	std::string m_ShaderName;
+	ShaderSettings m_ShaderSettings;
 	std::unique_ptr<VulkanPipeline> m_VulkanPipeline;
 
 };

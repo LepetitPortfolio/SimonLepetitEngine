@@ -77,6 +77,13 @@ void Model::Bind(VkCommandBuffer _CommandBuffer)
 
 void Model::Destroy()
 {
+	if(m_IsDestroyed)
+	{
+		return;
+	}
+
+	m_IsDestroyed = true;
+
 	m_Vertices.clear();
 	m_Indices.clear();
 

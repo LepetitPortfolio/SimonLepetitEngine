@@ -8,10 +8,11 @@
 
 Shader::Shader(ShaderSettings _ShaderSettings)
 {
-	m_ShaderName = _ShaderSettings.ShaderName;
+	m_ShaderSettings = _ShaderSettings;
+	m_ShaderName = m_ShaderSettings.ShaderName;
 
 	m_VulkanPipeline = std::make_unique<VulkanPipeline>();
-	m_VulkanPipeline->Initialize(_ShaderSettings);
+	m_VulkanPipeline->Initialize(m_ShaderSettings);
 
 	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
 }
@@ -30,6 +31,16 @@ std::string Shader::GetShaderName() const
 
 void Shader::Cleanup()
 {
+	VkDevice device = GlobalFunctionLibrary::GetVulkanDevice()->GetLogicalDevice();
+
+	for(auto& [shaderStage, shaderCodeSettings] : m_ShaderSettings.ShaderCodeInfos)
+	{
+		if (shaderCodeSettings.ShaderModule != VK_NULL_HANDLE) 
+		{
+			vkDestroyShaderModule(device, shaderCodeSettings.ShaderModule, nullptr);
+		}
+	}
+
 	m_VulkanPipeline->Cleanup();
 }
 

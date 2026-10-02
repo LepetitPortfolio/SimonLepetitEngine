@@ -75,6 +75,8 @@ protected:
 	//std::vector<void*> m_UniformBuffersMapped;
 
 	bool m_HasIndexBuffer = false;
+	bool m_IsDestroyed = false;
+
 
 
 	void CreateVertexBuffers();
