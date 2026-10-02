@@ -8,17 +8,9 @@
 
 #include <stb_image.h>
 
-
-Texture::Texture()
-{
-	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
-}
-
 Texture::Texture(const char* _TexturePath)
 {
 	LoadTexture(_TexturePath);
-	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
-
 }
 
 Texture::~Texture()

@@ -10,7 +10,7 @@
 class TextureBase : public AssetData
 {
 public:
-	TextureBase();
+	TextureBase() = default;
 
 	TextureBase(const TextureBase&) = delete;
 	TextureBase& operator=(const TextureBase&) = delete;

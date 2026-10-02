@@ -53,7 +53,13 @@ void MeshComponent::EnabledAction()
 
 	if (m_GameObjectParent)
 	{
-		m_GameObjectParent->AddDrawCallback([this](VulkanFrameInfo _FrameInfo) { this->Draw(_FrameInfo); });
+		if(!m_DrawCallback.IsValid())
+		{
+			m_DrawCallback.Bind([this](VulkanFrameInfo& _FrameInfo) { this->Draw(_FrameInfo); });
+		}
+
+		//m_GameObjectParent->AddDrawCallback([this](VulkanFrameInfo _FrameInfo) { this->Draw(_FrameInfo); });
+		m_GameObjectParent->AddDrawCallback(m_DrawCallback);
 	}
 }
 
@@ -63,7 +69,8 @@ void MeshComponent::DisableAction()
 
 	if (m_GameObjectParent)
 	{
-		m_GameObjectParent->RemoveDrawCallback([this](VulkanFrameInfo _FrameInfo) { this->Draw(_FrameInfo); });
+		//m_GameObjectParent->RemoveDrawCallback([this](VulkanFrameInfo _FrameInfo) { this->Draw(_FrameInfo); });
+		m_GameObjectParent->RemoveDrawCallback(m_DrawCallback);
 	}
 }
 

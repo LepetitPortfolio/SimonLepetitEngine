@@ -19,6 +19,8 @@ public:
 protected:
 	Mesh* m_Mesh;
 
+	Delegate<VulkanFrameInfo&> m_DrawCallback;
+
 	virtual void EnabledAction() override;
 	virtual void DisableAction() override;
 

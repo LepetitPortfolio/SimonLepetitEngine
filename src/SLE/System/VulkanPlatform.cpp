@@ -63,13 +63,14 @@ void VulkanPlatform::DrawFrame(CameraBase* _Camera, float _DeltaTime)
     VkSemaphore imageAvailableSemaphore = m_VulkanData.ImageAvailableSemaphores[frameInFlight];
 
     VulkanFrameInfo frameInfo{};
-    frameInfo.FrameIndex = 0;
     frameInfo.CurrentFrameIndexInFlight = frameInFlight;
     frameInfo.Camera = _Camera;
     frameInfo.FrameTime = _DeltaTime;
     frameInfo.CommandBuffer = m_CommandManager->GetCommandBuffer(frameInFlight);
 
-    VkResult acquireNextImageResult = vkAcquireNextImageKHR( device, m_VulkanSwapchain->GetSwapchain(), UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &frameInfo.FrameIndex);
+	uint32_t imageIndex;
+    VkResult acquireNextImageResult = vkAcquireNextImageKHR( device, m_VulkanSwapchain->GetSwapchain(), UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+    frameInfo.FrameIndex = imageIndex;
 
     if (acquireNextImageResult == VK_ERROR_OUT_OF_DATE_KHR)
     {

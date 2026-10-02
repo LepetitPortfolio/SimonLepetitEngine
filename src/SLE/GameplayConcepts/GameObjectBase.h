@@ -40,7 +40,7 @@ protected:
 	Transform m_Transform{};
 	std::unordered_map<uint64_t, GameObjectComponentBase*> m_Components;
 
-	DelegateMulticast<VulkanFrameInfo&> m_DrawCallback;
+	DelegateMulticast<VulkanFrameInfo&> m_DrawCallbacks;
 
 	uint32_t m_UID;
 

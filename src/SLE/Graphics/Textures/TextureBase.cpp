@@ -6,12 +6,6 @@
 #include "../../Common/Error.h"
 
 
-
-TextureBase::TextureBase()
-{
-	GlobalFunctionLibrary::GetAssetDataManager()->AddData(this);
-}
-
 TextureBase::~TextureBase()
 {
 	CleanupTextureBase();

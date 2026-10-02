@@ -32,16 +32,19 @@ void Mesh::Draw(Transform* _Transform, VulkanFrameInfo& _FrameInfo)
 {
 	UpdateUniforms(_Transform, _FrameInfo.Camera, _FrameInfo.CurrentFrameIndexInFlight);
 
-	VulkanCommandManager* commandManager = GlobalFunctionLibrary::GetVulkanPlatform()->GetCommandManager();
-	VulkanRenderer* vulkanRenderer = GlobalFunctionLibrary::GetVulkanPlatform()->GetVulkanRenderer();
-	VulkanSwapchain* vulkanSwapchain = GlobalFunctionLibrary::GetVulkanPlatform()->GetVulkanSwapchain();
-	VulkanData& vulkanData = GlobalFunctionLibrary::GetVulkanPlatform()->GetVulkanData();
-	VkFramebuffer framebuffer = GlobalFunctionLibrary::GetVulkanPlatform()->GetFrameBuffer(_FrameInfo.FrameIndex);
+	VkCommandBuffer cmd = _FrameInfo.CommandBuffer;
 
-	commandManager->RecordCommandBuffer(_FrameInfo.CommandBuffer, _FrameInfo.FrameIndex, vulkanRenderer->GetRenderPass(),
-										framebuffer, vulkanSwapchain->GetExtent(), m_Shader->GetPipeline(), m_Shader->GetPipelineLayout(),
-										m_Model->GetVertexBuffer(), m_Model->GetIndexBuffer(), m_DescriptorSets, vulkanData.CurrentFrameIndexInFlight, 
-										static_cast<uint32_t>(m_Model->GetIndices().size()));
+	vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_Shader->GetPipeline());
+
+	vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,m_Shader->GetPipelineLayout(), 0, 1, &m_DescriptorSets[_FrameInfo.CurrentFrameIndexInFlight], 0, nullptr);
+
+	VkBuffer vertexBuffers[] = { m_Model->GetVertexBuffer() };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(cmd, 0, 1, vertexBuffers, offsets);
+
+	vkCmdBindIndexBuffer(cmd, m_Model->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+
+	vkCmdDrawIndexed(cmd, static_cast<uint32_t>(m_Model->GetIndices().size()), 1, 0, 0, 0);
 }
 
 void Mesh::Cleanup()
@@ -67,7 +70,7 @@ void Mesh::UpdateDescriptorSets()
 	{
 		return;
 	}
-	
+
 	VulkanDevice* vulkanDevice = GlobalFunctionLibrary::GetVulkanPlatform()->GetDevice();
 
 	int maxFramesInFlight = GlobalFunctionLibrary::GetConfig()->MaxFramesInFlight;
@@ -100,46 +103,46 @@ void Mesh::UpdateDescriptorSets()
 		{
 			switch (layoutBinding.descriptorType)
 			{
-				case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+			case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+			{
+				VkDescriptorBufferInfo descriptorUniformBufferInfo{};
+				descriptorUniformBufferInfo.buffer = GetUniformBuffer(frameIndex);
+				descriptorUniformBufferInfo.offset = 0;
+				descriptorUniformBufferInfo.range = sizeof(UniformBufferObject);
+
+				descriptorUniformBufferInfos.push_back(descriptorUniformBufferInfo);
+
+				m_Shader->GenertateUniformBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorUniformBufferInfos[descriptorUniformBufferInfos.size() - 1], writeDescriptorSets);
+				break;
+			}
+			case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+			{
+				if (m_Texture)
 				{
-					VkDescriptorBufferInfo descriptorUniformBufferInfo{};
-					descriptorUniformBufferInfo.buffer = GetUniformBuffer(frameIndex);
-					descriptorUniformBufferInfo.offset = 0;
-					descriptorUniformBufferInfo.range = sizeof(UniformBufferObject);
+					VkDescriptorImageInfo descriptorImageInfo{};
+					descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+					descriptorImageInfo.imageView = m_Texture->GetTextureImageView();
+					descriptorImageInfo.sampler = m_Texture->GetTextureSampler();
 
-					descriptorUniformBufferInfos.push_back(descriptorUniformBufferInfo);
+					descriptorImageInfos.push_back(descriptorImageInfo);
 
-					m_Shader->GenertateUniformBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorUniformBufferInfos[descriptorUniformBufferInfos.size() - 1], writeDescriptorSets);
-					break;
+					m_Shader->GenertateCombinedImageSamplerDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorImageInfos[descriptorImageInfos.size() - 1], writeDescriptorSets);
 				}
-				case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-				{
-					if (m_Texture)
-					{
-						VkDescriptorImageInfo descriptorImageInfo{};
-						descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-						descriptorImageInfo.imageView = m_Texture->GetTextureImageView();
-						descriptorImageInfo.sampler = m_Texture->GetTextureSampler();
-
-						descriptorImageInfos.push_back(descriptorImageInfo);
-
-						m_Shader->GenertateCombinedImageSamplerDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorImageInfos[descriptorImageInfos.size() - 1], writeDescriptorSets);
-					}
-					break;
-				}
-				case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-				{
-					VkDescriptorBufferInfo descriptorStorageBufferInfo{};
-					descriptorStorageBufferInfos.push_back(descriptorStorageBufferInfo);
-					m_Shader->GenertateStorageBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorStorageBufferInfos[descriptorStorageBufferInfos.size() - 1], writeDescriptorSets);
-					break;
-				}
+				break;
+			}
+			case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+			{
+				VkDescriptorBufferInfo descriptorStorageBufferInfo{};
+				descriptorStorageBufferInfos.push_back(descriptorStorageBufferInfo);
+				m_Shader->GenertateStorageBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorStorageBufferInfos[descriptorStorageBufferInfos.size() - 1], writeDescriptorSets);
+				break;
+			}
 			}
 		}
 
 		vkUpdateDescriptorSets(vulkanDevice->GetLogicalDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
 	}
-	
+
 }
 
 void Mesh::CreateUniformBuffers()

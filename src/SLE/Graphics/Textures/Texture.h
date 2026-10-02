@@ -4,7 +4,7 @@
 class Texture : public TextureBase
 {
 public:
-	Texture();
+	Texture() = default;
 	Texture(const char* _TexturePath);
 
 	Texture(const Texture&) = delete;

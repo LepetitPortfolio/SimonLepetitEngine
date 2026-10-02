@@ -45,10 +45,11 @@ void AssetDataManagerBase::RemoveData(AssetData* _Data)
 	if (assetData)
 	{
 		uint64_t id = assetData->m_UID;
-		if (m_DataList.count(id) != 0)
+		auto it = m_DataList.find(id);
+		if (it != m_DataList.end())
 		{
-			AssetData* data = m_DataList[id];
-			m_DataList.erase(id);
+			AssetData* data = it->second;
+			m_DataList.erase(it);
 			delete data;
 		}
 	}
