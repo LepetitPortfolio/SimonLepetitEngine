@@ -141,7 +141,7 @@ PipelineConfigInfo VulkanPipeline::CreatePipelineConfigInfo()
 	scissor.offset = { 0, 0 };
 	scissor.extent = swapChainExtent;
 
-	std::vector<VkDynamicState>* dynamicStates = new std::vector<VkDynamicState>
+	std::vector<VkDynamicState> dynamicStates =
 	{
 		VK_DYNAMIC_STATE_VIEWPORT,
 		VK_DYNAMIC_STATE_SCISSOR
@@ -149,15 +149,16 @@ PipelineConfigInfo VulkanPipeline::CreatePipelineConfigInfo()
 
 	VkPipelineDynamicStateCreateInfo dynamicState{};
 	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates->size());
-	dynamicState.pDynamicStates = dynamicStates->data();
+	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+	dynamicState.pDynamicStates = dynamicStates.data();
+	dynamicState.pDynamicStates = dynamicStates.data();
 
 	VkPipelineViewportStateCreateInfo viewportState{};
 	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-	viewportState.viewportCount = 1;
-	viewportState.pViewports = &viewport;
-	viewportState.scissorCount = 1;
-	viewportState.pScissors = &scissor;
+	viewportState.viewportCount = 0;
+	viewportState.pViewports = nullptr;
+	viewportState.scissorCount = 0;
+	viewportState.pScissors = nullptr;
 
 	VkPipelineRasterizationStateCreateInfo rasterizer{};
 	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -244,7 +245,7 @@ PipelineConfigInfo VulkanPipeline::CreatePipelineConfigInfo()
 	configInfo.ColorBlendAttachment = colorBlendAttachment;
 	configInfo.ColorBlendInfo = colorBlending;
 	configInfo.DepthStencilInfo = depthStencil;
-	configInfo.DynamicStateEnables = *dynamicStates;
+	configInfo.DynamicStateEnables = dynamicStates;
 	configInfo.DynamicStateInfo = dynamicState;
 	configInfo.PipelineLayout = m_PipelineLayout;
 	configInfo.RenderPass = vulkanPlatform->GetVulkanRenderer()->GetRenderPass();

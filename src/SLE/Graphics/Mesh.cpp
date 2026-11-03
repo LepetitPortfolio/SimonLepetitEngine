@@ -1,4 +1,4 @@
-#include "Mesh.h"
+﻿#include "Mesh.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -43,6 +43,23 @@ void Mesh::Draw(Transform* _Transform, VulkanFrameInfo& _FrameInfo)
 	vkCmdBindVertexBuffers(cmd, 0, 1, vertexBuffers, offsets);
 
 	vkCmdBindIndexBuffer(cmd, m_Model->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+
+	VulkanPlatform* vulkanPlatform = GlobalFunctionLibrary::GetVulkanPlatform();
+	VkExtent2D extent = vulkanPlatform->GetVulkanSwapchain()->GetExtent();
+
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0f;
+	viewport.width = static_cast<float>(extent.width);
+	viewport.height = static_cast<float>(extent.height);
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	vkCmdSetViewport(cmd, 0, 1, &viewport);
+
+	VkRect2D scissor{};
+	scissor.offset = { 0, 0 };
+	scissor.extent = extent;
+	vkCmdSetScissor(cmd, 0, 1, &scissor);
 
 	vkCmdDrawIndexed(cmd, static_cast<uint32_t>(m_Model->GetIndices().size()), 1, 0, 0, 0);
 }
