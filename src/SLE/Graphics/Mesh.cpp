@@ -122,48 +122,46 @@ void Mesh::UpdateDescriptorSets()
 		{
 			switch (layoutBinding.descriptorType)
 			{
-			case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-			{
-				VkDescriptorBufferInfo descriptorUniformBufferInfo{};
-				descriptorUniformBufferInfo.buffer = GetUniformBuffer(frameIndex);
-				descriptorUniformBufferInfo.offset = 0;
-				descriptorUniformBufferInfo.range = sizeof(UniformBufferObject);
-
-				descriptorUniformBufferInfos.push_back(descriptorUniformBufferInfo);
-
-				m_Shader->GenertateUniformBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorUniformBufferInfos[descriptorUniformBufferInfos.size() - 1], writeDescriptorSets);
-				break;
-			}
-			case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-			{
-				// Ne saute le binding que si le shader ne le déclare pas ;
-				// sinon il faut écrire une texture valide (même dummy 1x1).
-				if (m_Texture)
+				case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
 				{
-					VkDescriptorImageInfo descriptorImageInfo{};
-					descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					descriptorImageInfo.imageView = m_Texture->GetTextureImageView();
-					descriptorImageInfo.sampler = m_Texture->GetTextureSampler();
+					VkDescriptorBufferInfo descriptorUniformBufferInfo{};
+					descriptorUniformBufferInfo.buffer = GetUniformBuffer(frameIndex);
+					descriptorUniformBufferInfo.offset = 0;
+					descriptorUniformBufferInfo.range = sizeof(UniformBufferObject);
 
-					descriptorImageInfos.push_back(descriptorImageInfo);
+					descriptorUniformBufferInfos.push_back(descriptorUniformBufferInfo);
 
-					m_Shader->GenertateCombinedImageSamplerDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorImageInfos[descriptorImageInfos.size() - 1], writeDescriptorSets);
+					m_Shader->GenertateUniformBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorUniformBufferInfos[descriptorUniformBufferInfos.size() - 1], writeDescriptorSets);
+					break;
 				}
-				else
+				case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
 				{
-					Err() << "Mesh: binding COMBINED_IMAGE_SAMPLER déclaré mais aucune texture fournie !" << std::endl;
-				}
-				break;
-			}
-			case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-			{
-				VkDescriptorBufferInfo descriptorStorageBufferInfo{};
+					if (m_Texture)
+					{
+						VkDescriptorImageInfo descriptorImageInfo{};
+						descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+						descriptorImageInfo.imageView = m_Texture->GetTextureImageView();
+						descriptorImageInfo.sampler = m_Texture->GetTextureSampler();
 
-				descriptorStorageBufferInfos.push_back(descriptorStorageBufferInfo);
-				m_Shader->GenertateStorageBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorStorageBufferInfos[descriptorStorageBufferInfos.size() - 1], writeDescriptorSets);
-				
-				break;
-			}
+						descriptorImageInfos.push_back(descriptorImageInfo);
+
+						m_Shader->GenertateCombinedImageSamplerDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorImageInfos[descriptorImageInfos.size() - 1], writeDescriptorSets);
+					}
+					else
+					{
+						Err() << "Mesh: binding COMBINED_IMAGE_SAMPLER déclaré mais aucune texture fournie !" << std::endl;
+					}
+					break;
+				}
+				case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+				{
+					VkDescriptorBufferInfo descriptorStorageBufferInfo{};
+
+					descriptorStorageBufferInfos.push_back(descriptorStorageBufferInfo);
+					m_Shader->GenertateStorageBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorStorageBufferInfos[descriptorStorageBufferInfos.size() - 1], writeDescriptorSets);
+					
+					break;
+				}
 			}
 		}
 
