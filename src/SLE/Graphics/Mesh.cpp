@@ -68,8 +68,14 @@ void Mesh::Draw(Transform* _Transform, VulkanFrameInfo& _FrameInfo)
 
 void Mesh::Cleanup()
 {
-	VulkanBufferManager* bufferManager = GlobalFunctionLibrary::GetVulkanPlatform()->GetBufferManager();
-	VkDevice device = GlobalFunctionLibrary::GetVulkanPlatform()->GetDevice()->GetLogicalDevice();
+	VulkanPlatform* platform = GlobalFunctionLibrary::GetVulkanPlatform();
+	
+	if (!platform)
+	{
+		return;
+	}
+
+	VkDevice device = platform->GetDevice()->GetLogicalDevice();
 
 	for (size_t i = 0; i < m_UniformBuffers.size(); i++)
 	{
@@ -77,7 +83,8 @@ void Mesh::Cleanup()
 		{
 			vkUnmapMemory(device, m_UniformBuffersMemory[i]);
 		}
-		bufferManager->DestroyBuffer(m_UniformBuffers[i], m_UniformBuffersMemory[i]);
+
+		GlobalFunctionLibrary::GetVulkanPlatform()->GetBufferManager()->DestroyBuffer(m_UniformBuffers[i], m_UniformBuffersMemory[i]);
 	}
 
 	if (m_DescriptorPool != VK_NULL_HANDLE)

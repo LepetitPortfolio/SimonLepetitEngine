@@ -32,15 +32,14 @@ std::string Shader::GetShaderName() const
 void Shader::Cleanup()
 {
 	VkDevice device = GlobalFunctionLibrary::GetVulkanDevice()->GetLogicalDevice();
-
-	for(auto& [shaderStage, shaderCodeSettings] : m_ShaderSettings.ShaderCodeInfos)
+	for (auto& [stage, settings] : m_ShaderSettings.ShaderCodeInfos)
 	{
-		if (shaderCodeSettings.ShaderModule != VK_NULL_HANDLE) 
+		if (settings.ShaderModule != VK_NULL_HANDLE)
 		{
-			vkDestroyShaderModule(device, shaderCodeSettings.ShaderModule, nullptr);
+			vkDestroyShaderModule(device, settings.ShaderModule, nullptr);
+			settings.ShaderModule = VK_NULL_HANDLE;
 		}
 	}
-
 	m_VulkanPipeline->Cleanup();
 }
 

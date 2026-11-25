@@ -156,36 +156,31 @@ void VulkanPlatform::WaitIdle()
 
 void VulkanPlatform::Cleanup()
 {
-    if (!m_VulkanDevice || !m_VulkanDevice->GetLogicalDevice())
+    if (!m_VulkanDevice || !m_VulkanDevice->GetLogicalDevice()) 
     {
         return;
     }
 
     WaitIdle();
 
-    for (VkFramebuffer framebuffer : m_SwapchainFramebuffers)
+    for (VkFramebuffer fb : m_SwapchainFramebuffers)
     {
-        if (framebuffer != VK_NULL_HANDLE)
+        if (fb != VK_NULL_HANDLE)
         {
-            vkDestroyFramebuffer(m_VulkanDevice->GetLogicalDevice(), framebuffer, nullptr);
+            vkDestroyFramebuffer(m_VulkanDevice->GetLogicalDevice(), fb, nullptr);
         }
     }
     m_SwapchainFramebuffers.clear();
 
     OnCleanup();
-
     DestroySyncObjects();
+
+    m_VulkanSwapchain.reset();
 
     if (m_VulkanData.Surface != VK_NULL_HANDLE)
     {
         vkDestroySurfaceKHR(m_VulkanInstance->GetInstance(), m_VulkanData.Surface, nullptr);
         m_VulkanData.Surface = VK_NULL_HANDLE;
-    }
-
-
-    if (m_VulkanSwapchain)
-    {
-        m_VulkanSwapchain.reset();
     }
 }
 
