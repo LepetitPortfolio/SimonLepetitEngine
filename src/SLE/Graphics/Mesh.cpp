@@ -62,7 +62,8 @@ void Mesh::Draw(Transform* _Transform, VulkanFrameInfo& _FrameInfo)
 	scissor.extent = extent;
 	vkCmdSetScissor(cmd, 0, 1, &scissor);
 
-	vkCmdDrawIndexed(cmd, static_cast<uint32_t>(m_Model->GetIndices().size()), 1, 0, 0, 0);
+	//vkCmdDrawIndexed(cmd, static_cast<uint32_t>(m_Model->GetIndices().size()), 1, 0, 0, 0);
+	vkCmdDraw(cmd, 3, 1, 0, 0);
 }
 
 void Mesh::Cleanup()
@@ -135,6 +136,8 @@ void Mesh::UpdateDescriptorSets()
 			}
 			case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
 			{
+				// Ne saute le binding que si le shader ne le déclare pas ;
+				// sinon il faut écrire une texture valide (même dummy 1x1).
 				if (m_Texture)
 				{
 					VkDescriptorImageInfo descriptorImageInfo{};
@@ -146,13 +149,19 @@ void Mesh::UpdateDescriptorSets()
 
 					m_Shader->GenertateCombinedImageSamplerDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorImageInfos[descriptorImageInfos.size() - 1], writeDescriptorSets);
 				}
+				else
+				{
+					Err() << "Mesh: binding COMBINED_IMAGE_SAMPLER déclaré mais aucune texture fournie !" << std::endl;
+				}
 				break;
 			}
 			case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
 			{
 				VkDescriptorBufferInfo descriptorStorageBufferInfo{};
+
 				descriptorStorageBufferInfos.push_back(descriptorStorageBufferInfo);
 				m_Shader->GenertateStorageBufferDescriptorSetLayout(layoutBinding, m_DescriptorSets[frameIndex], descriptorStorageBufferInfos[descriptorStorageBufferInfos.size() - 1], writeDescriptorSets);
+				
 				break;
 			}
 			}
@@ -177,11 +186,13 @@ void Mesh::CreateDescriptorPool()
 	int maxFramesInFlight = GlobalFunctionLibrary::GetConfig()->MaxFramesInFlight;
 	VulkanDevice* vulkanDevice = GlobalFunctionLibrary::GetVulkanPlatform()->GetDevice();
 
-	std::array<VkDescriptorPoolSize, 2> poolSizes{};
+	std::array<VkDescriptorPoolSize, 3> poolSizes{};
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = static_cast<uint32_t>(maxFramesInFlight);
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	poolSizes[1].descriptorCount = static_cast<uint32_t>(maxFramesInFlight);
+	poolSizes[2].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;   // ← AJOUTÉ
+	poolSizes[2].descriptorCount = static_cast<uint32_t>(maxFramesInFlight);
 
 	VkDescriptorPoolCreateInfo poolCreateInfo{};
 	poolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;

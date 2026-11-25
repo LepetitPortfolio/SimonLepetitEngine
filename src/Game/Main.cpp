@@ -1,8 +1,8 @@
 #include "Engine.h"
 
-#include "common/FileReader.h"
-#include "common/Vertex.h"
-#include "common/String.h"
+#include "Common/FileReader.h"
+#include "Common/Vertex.h"
+#include "Common/String.h"
 #include "Graphics/ShaderLoader.h"
 #include "Graphics/TextureLoader.h"
 #include "Graphics/ModelLoader.h"
