@@ -27,7 +27,7 @@ private:
 	* le multisampling, la profondeur/stencil, le blending des couleurs, et le layout du pipeline.
 	* Les shaders sont chargés depuis des fichiers SPIR-V.
 	*/
-	static VkPipelineShaderStageCreateInfo CreateShaderProgram(ShaderType _ShaderType, std::vector<char>& _ShaderCode, VkShaderModule _OutShaderModule);
+	static VkPipelineShaderStageCreateInfo CreateShaderProgram(ShaderType _ShaderType, std::vector<char>& _ShaderCode, VkShaderModule& _OutShaderModule);
 
 	/**
 	* Crée un module de shader à partir du code SPIR-V.

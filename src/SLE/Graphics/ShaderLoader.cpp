@@ -46,7 +46,7 @@ void ShaderLoader::ReflectShaderBindings(ShaderType _ShaderType, const std::vect
 	spvReflectDestroyShaderModule(&module);
 }
 
-VkPipelineShaderStageCreateInfo ShaderLoader::CreateShaderProgram(ShaderType _ShaderType, std::vector<char>& _ShaderCode, VkShaderModule _OutShaderModule)
+VkPipelineShaderStageCreateInfo ShaderLoader::CreateShaderProgram(ShaderType _ShaderType, std::vector<char>& _ShaderCode, VkShaderModule& _OutShaderModule)
 {
 	_OutShaderModule = CreateShaderModule(_ShaderCode);
 
