@@ -14,7 +14,7 @@ SceneManager::SceneManager()
 
 SceneManager::~SceneManager()
 {
-	
+	Cleanup();
 }
 
 void SceneManager::Cleanup()

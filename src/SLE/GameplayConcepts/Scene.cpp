@@ -35,7 +35,10 @@ void Scene::UpdateDraw(VulkanFrameInfo& _FrameInfo)
 {
 	for (GameObjectBase* gameObject : m_GameObjectList)
 	{
-		gameObject->DrawGameObject(_FrameInfo);
+		if (gameObject->IsEnabled())
+		{
+			gameObject->DrawGameObject(_FrameInfo);
+		}
 	}
 }
 
@@ -55,6 +58,12 @@ void Scene::AddGameObject(Mesh* _Mesh)
 
 void Scene::RemoveGameObject(GameObjectBase* _GameObject)
 {
+	auto it = std::find(m_GameObjectList.begin(), m_GameObjectList.end(), _GameObject);
+	if (it != m_GameObjectList.end())
+	{
+		delete* it;
+		m_GameObjectList.erase(it);
+	}
 }
 
 void Scene::ClearAllGameObjects()

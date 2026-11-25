@@ -244,7 +244,7 @@ PipelineConfigInfo VulkanPipeline::CreatePipelineConfigInfo()
 	configInfo.ColorBlendAttachment = colorBlendAttachment;
 	configInfo.ColorBlendInfo = colorBlending;
 	configInfo.DepthStencilInfo = depthStencil;
-	configInfo.DynamicStateEnables = dynamicStates;
+	configInfo.DynamicStateEnables = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 	configInfo.DynamicStateInfo = dynamicState;
 	configInfo.PipelineLayout = m_PipelineLayout;
 	configInfo.RenderPass = vulkanPlatform->GetVulkanRenderer()->GetRenderPass();

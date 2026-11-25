@@ -27,6 +27,8 @@ public:
 	virtual void Update() = 0;
 	virtual void LastUpdate() = 0;
 
+	inline bool IsEnabled() { return m_Enabled; }
+
 	void AddComponent(GameObjectComponentBase* _Component);
 	void RemoveComponent(GameObjectComponentBase* _Component);
 	void ClearComponents();

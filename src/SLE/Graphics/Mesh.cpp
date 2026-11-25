@@ -26,6 +26,7 @@ Mesh::Mesh(Model* _Model, Shader* _Shader, Texture* _Texture)
 
 Mesh::~Mesh()
 {
+	Cleanup();
 }
 
 void Mesh::Draw(Transform* _Transform, VulkanFrameInfo& _FrameInfo)
