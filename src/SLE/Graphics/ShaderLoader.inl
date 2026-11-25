@@ -17,13 +17,16 @@ Shader* ShaderLoader::LoadVertexFragmentShader(std::string _ShaderName, const ch
 	
 	ShaderSettings shaderSettings{};
 	shaderSettings.ShaderName = _ShaderName;
-	shaderSettings.ShaderCodeInfos[VK_SHADER_STAGE_VERTEX_BIT] = vertexShaderSettings;
-	shaderSettings.ShaderCodeInfos[VK_SHADER_STAGE_FRAGMENT_BIT] = fragmentShaderSettings;
 	shaderSettings.Bindings = bindings;
+
 	shaderSettings.PipelineShaderInfo.push_back(CreateShaderProgram(ShaderType::VERTEX_SHADER, vertexShaderSettings.ShaderCode, vertexShaderSettings.ShaderModule));
 	shaderSettings.PipelineShaderInfo.push_back(CreateShaderProgram(ShaderType::FRAGMENT_SHADER, fragmentShaderSettings.ShaderCode, fragmentShaderSettings.ShaderModule));
+
+	// Enregistrer APRÈS CreateShaderProgram pour que ShaderModule soit renseigné
+	shaderSettings.ShaderCodeInfos[VK_SHADER_STAGE_VERTEX_BIT] = vertexShaderSettings;
+	shaderSettings.ShaderCodeInfos[VK_SHADER_STAGE_FRAGMENT_BIT] = fragmentShaderSettings;
+
 	shaderSettings.ShaderStageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderSettings.RenderPass = GlobalFunctionLibrary::GetVulkanPlatform()->GetVulkanRenderer()->GetRenderPass();
 	shaderSettings.VertexInputBindingDescriptions = T::GetBindingDescription();
 	shaderSettings.VertexInputAttributeDescriptions = T::GetAttributeDescriptions();
 
