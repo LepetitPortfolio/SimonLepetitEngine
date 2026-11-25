@@ -12,6 +12,11 @@ MeshComponent::MeshComponent(Mesh* _Mesh, Transform _LocalTransform) : LocationC
 
 MeshComponent::~MeshComponent()
 {
+	if (m_Mesh)
+	{
+		delete m_Mesh;
+		m_Mesh = nullptr;
+	}
 }
 
 void MeshComponent::SetMesh(Mesh* _Mesh)
