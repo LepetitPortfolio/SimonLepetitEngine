@@ -87,6 +87,11 @@ private:
 	// Représente le "chemin" que suivent les données pour être transformées en pixels à l'écran.
 	VkPipeline m_Pipeline = VK_NULL_HANDLE;
 
+	std::vector<VkDynamicState> m_DynamicStates;
+	VkViewport m_Viewport{};
+	VkRect2D m_Scissor{};
+
+
 	std::vector<VkPipelineShaderStageCreateInfo> m_PipelineShaderInfo;
 	std::vector<VkVertexInputBindingDescription> m_VertexInputBindingDescriptions;
 	std::vector<VkVertexInputAttributeDescription> m_VertexInputAttributeDescriptions;
