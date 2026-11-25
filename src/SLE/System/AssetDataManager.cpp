@@ -80,6 +80,7 @@ void AssetDataManager::ClearAllGameObjectData()
 
 void AssetDataManager::ClearAllData()
 {
+	ClearAllGameObjectData();
 	ClearAllShaderData();
 	ClearAllTextureData();
 	ClearAllModelData();

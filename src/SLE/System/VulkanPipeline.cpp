@@ -32,11 +32,31 @@ void VulkanPipeline::Initialize(ShaderSettings _ShaderSettings)
 void VulkanPipeline::Cleanup()
 {
 	VulkanDevice* vulkanDevice = GlobalFunctionLibrary::GetVulkanDevice();
+	
+	if (!vulkanDevice)
+	{
+		return;
+	}
+	
+	VkDevice device = vulkanDevice->GetLogicalDevice();
 
-	vkDestroyPipeline(vulkanDevice->GetLogicalDevice(), m_Pipeline, nullptr);
-	vkDestroyPipelineLayout(vulkanDevice->GetLogicalDevice(), m_PipelineLayout, nullptr);
-
-	vkDestroyDescriptorSetLayout(vulkanDevice->GetLogicalDevice(), m_DescriptorSetLayout, nullptr);
+	if (m_Pipeline != VK_NULL_HANDLE) 
+	{ 
+		vkDestroyPipeline(device, m_Pipeline, nullptr); 
+		m_Pipeline = VK_NULL_HANDLE; 
+	}
+	
+	if (m_PipelineLayout != VK_NULL_HANDLE) 
+	{ 
+		vkDestroyPipelineLayout(device, m_PipelineLayout, nullptr); 
+		m_PipelineLayout = VK_NULL_HANDLE; 
+	}
+	
+	if (m_DescriptorSetLayout != VK_NULL_HANDLE) 
+	{ 
+		vkDestroyDescriptorSetLayout(device, m_DescriptorSetLayout, nullptr); 
+		m_DescriptorSetLayout = VK_NULL_HANDLE; 
+	}
 
 }
 

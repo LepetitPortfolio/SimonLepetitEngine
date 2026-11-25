@@ -176,6 +176,13 @@ void VulkanPlatform::Cleanup()
 
     DestroySyncObjects();
 
+    if (m_VulkanData.Surface != VK_NULL_HANDLE)
+    {
+        vkDestroySurfaceKHR(m_VulkanInstance->GetInstance(), m_VulkanData.Surface, nullptr);
+        m_VulkanData.Surface = VK_NULL_HANDLE;
+    }
+
+
     if (m_VulkanSwapchain)
     {
         m_VulkanSwapchain.reset();

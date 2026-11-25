@@ -79,6 +79,12 @@ void Mesh::Cleanup()
 		}
 		bufferManager->DestroyBuffer(m_UniformBuffers[i], m_UniformBuffersMemory[i]);
 	}
+
+	if (m_DescriptorPool != VK_NULL_HANDLE)
+	{
+		vkDestroyDescriptorPool(device, m_DescriptorPool, nullptr);
+		m_DescriptorPool = VK_NULL_HANDLE;
+	}
 }
 
 void Mesh::UpdateDescriptorSets()

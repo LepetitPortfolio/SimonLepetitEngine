@@ -128,14 +128,11 @@ void Engine::Cleanup()
 	if (!m_IsInitialized)
 	{
 		return;
-	}	
-	
+	}
+
 	m_InputManager.reset();
-
 	m_SceneManager.reset();
-
 	m_AssetDataManager.reset();
-
 	m_VulkanPlatform.reset();
 	m_WindowPlatform.reset();
 	m_IsInitialized = false;
